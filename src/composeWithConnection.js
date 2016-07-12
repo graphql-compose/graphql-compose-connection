@@ -1,21 +1,31 @@
 /* @flow */
-/* eslint-disable no-use-before-define */
 
 import { TypeComposer } from 'graphql-compose';
-
+import type {
+  composeWithConnectionOpts,
+} from './definition.js';
+import { prepareConnectionResolver } from './resolvers/connectionResolver';
 
 export function composeWithConnection(
-  typeComposer: TypeComposer
+  typeComposer: TypeComposer,
+  opts: composeWithConnectionOpts
 ): TypeComposer {
   if (!(typeComposer instanceof TypeComposer)) {
     throw new Error('You should provide TypeComposer instance to composeWithRelay method');
   }
 
-  const findById = typeComposer.getResolver('findById');
-  if (!findById) {
-    throw new Error(`TypeComposer(${typeComposer.getTypeName()}) provided to composeWithRelay `
-                  + 'should have findById resolver.');
+  if (!opts) {
+    throw new Error('You provide empty options to composeWithConnection');
   }
 
+  if (typeComposer.hasResolver('connection')) {
+    return typeComposer;
+  }
+
+  const resolver = prepareConnectionResolver(
+    typeComposer,
+    opts,
+  );
+
+  typeComposer.addResolver(resolver);
   return typeComposer;
-}

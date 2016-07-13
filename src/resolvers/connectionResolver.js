@@ -89,6 +89,7 @@ export function prepareConnectionResolver(
       );
       const sortOptions: connectionSortOpts = args.sort;
 
+
       let filter = resolveParams.args.filter || {};
       const beginCursorData = cursorToData(args.after);
       if (beginCursorData) {
@@ -134,7 +135,7 @@ findManyParams.projection['count'] = true;
 findManyParams.projection['age'] = true;
 findManyParams.projection['name'] = true;
 
-      const hasPreviousPage = skip > 0;
+      const hasPreviousPage = !!args.last && skip > 0;
       let hasNextPage = false; // will be requested +1 document, to check next page presence
 
       const filterDataForCursor = (record) => {
@@ -152,7 +153,7 @@ console.log(findManyParams.args);
           const edges = [];
           // if returned more than `limit` records, strip array and mark that exists next page
           if (recordList.length > limit) {
-            hasNextPage = true;
+            hasNextPage = !!args.first;
             recordList = recordList.slice(0, limit);
           }
           // transform record to object { cursor, node }

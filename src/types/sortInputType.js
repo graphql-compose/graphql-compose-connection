@@ -7,7 +7,7 @@ import type {
   composeWithConnectionOpts,
   connectionSortOpts,
 } from '../definition.js';
-import { isFunction } from '../misc/is';
+import { isFunction } from '../utils/is';
 
 export function prepareSortType(
   typeComposer: TypeComposer,
@@ -27,7 +27,7 @@ export function prepareSortType(
 
   const sortEnumValues = {};
   sortKeys.forEach(sortKey => {
-    checkSortOpts(sortKey, opts.sort[sortKey], typeComposer);
+    checkSortOpts(sortKey, opts.sort[sortKey]);
 
     sortEnumValues[sortKey] = {
       name: sortKey,
@@ -44,17 +44,10 @@ export function prepareSortType(
 }
 
 
-export function checkSortOpts(key: string, opts: connectionSortOpts, typeComposer: TypeComposer) {
+export function checkSortOpts(key: string, opts: connectionSortOpts) {
   if (!opts.resolver) {
     throw new Error('You should provide `resolver` option '
                   + `for composeWithConnection in opts.sort.${key}`);
-  }
-
-  const resolver = typeComposer.getResolver(opts.resolver);
-  if (!resolver) {
-    throw new Error(`TypeComposer(${typeComposer.getTypeName()}) provided to composeWithConnection `
-                  + `does not have resolver with name '${opts.resolver}' `
-                  + `for opts.sort.${key}`);
   }
 
   if (!opts.uniqueFields || !Array.isArray(opts.uniqueFields)) {

@@ -2,9 +2,12 @@
 /* eslint-disable no-param-reassign, no-use-before-define */
 
 import type {
-  ExtendedResolveParams,
+  ResolveParams,
+  ConnectionResolveParams,
   composeWithConnectionOpts,
   connectionSortOpts,
+  CursorDataType,
+  GraphQLConnectionType,
 } from '../definition';
 import { Resolver, TypeComposer } from 'graphql-compose';
 import { GraphQLInt } from 'graphql';
@@ -25,15 +28,21 @@ export function prepareConnectionResolver(
                   + 'This function returns ID from provided object.');
   }
 
-  const countResolver = typeComposer.getResolver('count');
+  const countResolver = typeComposer.getResolver(opts.countResolverName);
   if (!countResolver) {
-    throw new Error(`TypeComposer(${typeComposer.getTypeName()}) should have 'count' resolver`);
+    throw new Error(`TypeComposer(${typeComposer.getTypeName()}) provided to composeWithConnection `
+                  + `should have resolver with name '${opts.countResolverName}' `
+                  + 'due opts.countResolverName.');
   }
+  const countResolve = countResolver.composeResolve();
 
-  const findManyResolver = typeComposer.getResolver('findMany');
+  const findManyResolver = typeComposer.getResolver(opts.findResolverName);
   if (!findManyResolver) {
-    throw new Error(`TypeComposer(${typeComposer.getTypeName()}) should have 'findMany' resolver`);
+    throw new Error(`TypeComposer(${typeComposer.getTypeName()}) provided to composeWithConnection `
+                  + `should have resolver with name '${opts.findResolverName}' `
+                  + 'due opts.countResolverName.');
   }
+  const findManyResolve = findManyResolver.composeResolve();
 
   const additionalArgs = {};
   if (findManyResolver.hasArg('filter')) {
@@ -70,16 +79,17 @@ export function prepareConnectionResolver(
         description: 'Sort argument for data ordering',
       },
     },
-    resolve: (resolveParams: ExtendedResolveParams) => {
+    resolve: (resolveParams: ConnectionResolveParams) => {
       const { projection = {}, args = {} } = resolveParams;
-      const findManyParams = Object.assign({}, resolveParams, {
-        args: {},
-        projection: {},
-      });
-      const connSortOpts: connectionSortOpts = resolveParams.args.sort;
+      const findManyParams: ResolveParams = Object.assign(
+        {},
+        resolveParams,
+        { args: {} } // clear this params in copy
+      );
+      const sortOptions: connectionSortOpts = args.sort;
 
-      const first = args.first;
-      const last = args.last;
+      const first = parseInt(args.first, 10);
+      const last = parseInt(args.last, 10);
 
       const limit = last || first;
       const skip = (first - last) || 0;
@@ -89,30 +99,40 @@ export function prepareConnectionResolver(
         findManyParams.args.skip = skip;
       }
 
-      let filter = findManyParams.args.filter;
+      let filter = findManyParams.args.filter || {};
       const beginCursorData = cursorToData(args.after);
       if (beginCursorData) {
-        filter = connSortOpts.cursorToFilter(beginCursorData, filter);
+        filter = sortOptions.cursorToFilter(beginCursorData, filter);
       }
       const endCursorData = cursorToData(args.before);
       if (endCursorData) {
-        filter = connSortOpts.cursorToFilter(endCursorData, filter);
+        filter = sortOptions.cursorToFilter(endCursorData, filter);
       }
       findManyParams.args.filter = filter;
-
       findManyParams.args.skip = skip;
-      // findManyParams.args.sort  // TODO
-      // findManyParams.projection  // TODO
+
+      findManyParams.args.sort = sortOptions.sortValue;
+      findManyParams.projection = projection;
+      sortOptions.uniqueFields.forEach(fieldName => {
+        findManyParams.projection[fieldName] = true;
+      });
 
       let countPromise;
       if (projection.count) {
-        countPromise = countResolver(resolveParams);
+        countPromise = countResolve(resolveParams);
       }
-      const findManyPromise = findManyResolver(findManyParams);
       const hasPreviousPage = skip > 0;
       let hasNextPage = false; // will be requested +1 document, to check next page presence
 
-      return findManyPromise
+      const filterDataForCursor = (record) => {
+        const result = {};
+        sortOptions.uniqueFields.forEach(fieldName => {
+          result[fieldName] = record[fieldName];
+        });
+        return result;
+      };
+
+      return findManyResolve(findManyParams)
         .then(recordList => {
           const edges = [];
           // if returned more than `limit` records, strip array and mark that exists next page
@@ -122,9 +142,8 @@ export function prepareConnectionResolver(
           }
           // transform record to object { cursor, node }
           recordList.forEach(record => {
-            const id = typeComposer.getRecordId(record);
             edges.push({
-              cursor: idToCursor(id),
+              cursor: dataToCursor(filterDataForCursor(record)),
               node: record,
             });
           });
@@ -155,41 +174,30 @@ export function prepareConnectionResolver(
   });
 }
 
-export function emptyConnection() {
+export function emptyConnection(): GraphQLConnectionType {
   return {
     count: 0,
     edges: [],
     pageInfo: {
-      startCursor: null,
-      endCursor: null,
+      startCursor: '',
+      endCursor: '',
       hasPreviousPage: false,
       hasNextPage: false,
     },
   };
 }
 
-export function idToCursor(id: string) {
-  return id;
+export function cursorToData(id?: ?string): ?CursorDataType {
+  if (id) {
+    try {
+      return JSON.parse(id) || null;
+    } catch (err) {
+      return null;
+    }
+  }
+  return null;
 }
 
-export function cursorToId(cursor: string) {
-  return cursor;
-}
-
-
-
-var PREFIX = 'arrayconnection:';
-
-/**
- * Creates the cursor string from an offset.
- */
-export function offsetToCursor(offset: number): ConnectionCursor {
-  return base64(PREFIX + offset);
-}
-
-/**
- * Rederives the offset from the cursor string.
- */
-export function cursorToOffset(cursor: ConnectionCursor): number {
-  return parseInt(unbase64(cursor).substring(PREFIX.length), 10);
+export function dataToCursor(cursorData: CursorDataType): string {
+  return JSON.stringify(cursorData);
 }

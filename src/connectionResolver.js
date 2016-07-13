@@ -1,3 +1,4 @@
+/* eslint-disable */
 import { cursorToId, idToCursor, dotObject } from '../utils';
 import { projectionCollection, projectionFixRenamed } from './projection';
 import {

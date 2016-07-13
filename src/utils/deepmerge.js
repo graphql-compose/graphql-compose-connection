@@ -1,7 +1,7 @@
 /* @flow */
 /* eslint-disable no-param-reassign */
 
-export default function deepmerge(target: Object | void, src: Object): Object | mixed[] {
+export default function deepmerge(target: Object, src: Object): Object | mixed[] {
   if (Array.isArray(src)) {
     let dst = [];
     target = target || [];

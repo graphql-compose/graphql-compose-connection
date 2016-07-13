@@ -29,3 +29,4 @@ export function composeWithConnection(
 
   typeComposer.addResolver(resolver);
   return typeComposer;
+}

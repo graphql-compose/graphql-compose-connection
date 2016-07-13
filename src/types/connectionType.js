@@ -7,7 +7,7 @@ import {
   GraphQLNonNull,
   GraphQLList,
 } from 'graphql';
-import GraphQLConnectionCursor from './сursorType';
+import GraphQLConnectionCursor from './cursorType';
 import type {
   TypeComposer,
 } from 'graphql-compose';

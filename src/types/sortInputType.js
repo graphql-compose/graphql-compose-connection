@@ -45,11 +45,6 @@ export function prepareSortType(
 
 
 export function checkSortOpts(key: string, opts: connectionSortOpts) {
-  if (!opts.resolver) {
-    throw new Error('You should provide `resolver` option '
-                  + `for composeWithConnection in opts.sort.${key}`);
-  }
-
   if (!opts.uniqueFields || !Array.isArray(opts.uniqueFields)) {
     throw new Error('You should array of field(s) in `uniqueFields` '
                   + `for composeWithConnection in opts.sort.${key}`
@@ -63,10 +58,10 @@ export function checkSortOpts(key: string, opts: connectionSortOpts) {
                   + 'Connections does not work without sorting.');
   }
 
-  if (!opts.cursorToFilter || !isFunction(opts.cursorToFilter)) {
-    throw new Error('You should provide `cursorToFilter` function '
+  if (!opts.directionFilter || !isFunction(opts.directionFilter)) {
+    throw new Error('You should provide `directionFilter` function '
                   + `for composeWithConnection in opts.sort.${key}. `
-                  + 'Connections should have ability to filter record '
-                  + 'by data dirived from cursor.');
+                  + 'Connections should have ability to filter '
+                  + 'forward/backward records started from cursor.');
   }
 }

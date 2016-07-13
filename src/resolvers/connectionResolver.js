@@ -75,11 +75,12 @@ export function prepareConnectionResolver(
       ...additionalArgs,
       sort: {
         type: sortEnumType,
-        defaultValue: sortEnumType.getValues()[0].name, // first enum used by default
+        defaultValue: sortEnumType.getValues()[0].value, // first enum used by default
         description: 'Sort argument for data ordering',
       },
     },
-    resolve: (resolveParams: ConnectionResolveParams) => {
+    resolve: async (resolveParams: ConnectionResolveParams) => {
+      let countPromise;
       const { projection = {}, args = {} } = resolveParams;
       const findManyParams: ResolveParams = Object.assign(
         {},
@@ -88,10 +89,34 @@ export function prepareConnectionResolver(
       );
       const sortOptions: connectionSortOpts = args.sort;
 
-      const first = parseInt(args.first, 10);
+      let filter = resolveParams.args.filter || {};
+      const beginCursorData = cursorToData(args.after);
+      if (beginCursorData) {
+        filter = sortOptions.directionFilter(beginCursorData, filter, false);
+      }
+      const endCursorData = cursorToData(args.before);
+      if (endCursorData) {
+        filter = sortOptions.directionFilter(endCursorData, filter, true);
+      }
+      findManyParams.args.filter = filter;
+
+
+      let first = parseInt(args.first, 10);
       const last = parseInt(args.last, 10);
 
-      const limit = last || first;
+      if (projection.count) {
+        countPromise = countResolve(findManyParams);
+      } else if (!first && last) {
+        countPromise = countResolve(findManyParams);
+      } else {
+        countPromise = Promise.resolve(0);
+      }
+
+      if (!first && last) {
+        first = (await countPromise) || 0;
+      }
+
+      const limit = first;
       const skip = (first - last) || 0;
 
       findManyParams.args.limit = limit + 1; // +1 document, to check next page presence
@@ -99,28 +124,16 @@ export function prepareConnectionResolver(
         findManyParams.args.skip = skip;
       }
 
-      let filter = findManyParams.args.filter || {};
-      const beginCursorData = cursorToData(args.after);
-      if (beginCursorData) {
-        filter = sortOptions.cursorToFilter(beginCursorData, filter);
-      }
-      const endCursorData = cursorToData(args.before);
-      if (endCursorData) {
-        filter = sortOptions.cursorToFilter(endCursorData, filter);
-      }
-      findManyParams.args.filter = filter;
-      findManyParams.args.skip = skip;
-
       findManyParams.args.sort = sortOptions.sortValue;
       findManyParams.projection = projection;
       sortOptions.uniqueFields.forEach(fieldName => {
         findManyParams.projection[fieldName] = true;
       });
 
-      let countPromise;
-      if (projection.count) {
-        countPromise = countResolve(resolveParams);
-      }
+findManyParams.projection['count'] = true;
+findManyParams.projection['age'] = true;
+findManyParams.projection['name'] = true;
+
       const hasPreviousPage = skip > 0;
       let hasNextPage = false; // will be requested +1 document, to check next page presence
 
@@ -132,13 +145,15 @@ export function prepareConnectionResolver(
         return result;
       };
 
-      return findManyResolve(findManyParams)
-        .then(recordList => {
+console.log(findManyParams.args);
+
+      return Promise.all([findManyResolve(findManyParams), countPromise])
+        .then(([recordList, count]) => {
           const edges = [];
           // if returned more than `limit` records, strip array and mark that exists next page
           if (recordList.length > limit) {
             hasNextPage = true;
-            recordList = recordList.slice(0, limit - 1);
+            recordList = recordList.slice(0, limit);
           }
           // transform record to object { cursor, node }
           recordList.forEach(record => {
@@ -147,18 +162,12 @@ export function prepareConnectionResolver(
               node: record,
             });
           });
-          return edges;
+          return [edges, count];
         })
-        .then(async (edges) => {
+        .then(([edges, count]) => {
           const result = emptyConnection();
-
-          // pass `edge` data
           result.edges = edges;
-
-          // if exists countPromise, await it's data
-          if (countPromise) {
-            result.count = await countPromise;
-          }
+          result.count = count;
 
           // pageInfo may be extended, so set data gradually
           if (edges.length > 0) {
@@ -187,10 +196,10 @@ export function emptyConnection(): GraphQLConnectionType {
   };
 }
 
-export function cursorToData(id?: ?string): ?CursorDataType {
-  if (id) {
+export function cursorToData(cursor?: ?string): ?CursorDataType {
+  if (cursor) {
     try {
-      return JSON.parse(id) || null;
+      return JSON.parse(cursor) || null;
     } catch (err) {
       return null;
     }
@@ -198,6 +207,6 @@ export function cursorToData(id?: ?string): ?CursorDataType {
   return null;
 }
 
-export function dataToCursor(cursorData: CursorDataType): string {
-  return JSON.stringify(cursorData);
+export function dataToCursor(data: CursorDataType): string {
+  return JSON.stringify(data);
 }

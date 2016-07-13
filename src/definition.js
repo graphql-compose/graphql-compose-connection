@@ -5,6 +5,22 @@ import type {
   ResolveParams as _ResolveParams,
 } from 'graphql-compose/lib/definition.js';
 
+export type composeWithConnectionOpts = {
+  findResolverName: string,
+  countResolverName: string,
+  sort: connectionSortMapOpts,
+};
+
+export type connectionSortMapOpts = {
+  [sortName: string]: connectionSortOpts,
+};
+
+export type connectionSortOpts = {
+  uniqueFields: string[],
+  sortValue: mixed,
+  directionFilter: (<T>(cursorData: CursorDataType, filterArg: T, isBefore: boolean) => T),
+};
+
 export type ResolveParams = _ResolveParams;
 
 export type ConnectionResolveParams = {
@@ -25,22 +41,6 @@ export type ConnectionResolveParams = {
 
 export type CursorDataType = {
   [fieldName: string]: mixed,
-};
-
-export type connectionSortOpts = {
-  uniqueFields: string[],
-  sortValue: mixed,
-  cursorToFilter: (<T>(cursorData: CursorDataType, filterArg: T) => T),
-};
-
-export type connectionSortMapOpts = {
-  [sortName: string]: connectionSortOpts,
-};
-
-export type composeWithConnectionOpts = {
-  findResolverName: string,
-  countResolverName: string,
-  sort: connectionSortMapOpts,
 };
 
 export type GraphQLConnectionType = {

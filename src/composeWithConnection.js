@@ -24,7 +24,7 @@ export function composeWithConnection(
 
   const resolver = prepareConnectionResolver(
     typeComposer,
-    opts,
+    opts
   );
 
   typeComposer.addResolver(resolver);

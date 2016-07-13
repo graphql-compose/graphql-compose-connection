@@ -13,7 +13,9 @@
     "es": {
       "plugins": [
         "syntax-async-functions",
-        "transform-regenerator",
+        ["transform-regenerator", {
+            "async": false,
+        }],
         "transform-class-properties",
         "transform-object-rest-spread",
         "transform-flow-strip-types",

@@ -102,8 +102,8 @@ export function prepareConnectionResolver(
       findManyParams.args.filter = filter;
 
 
-      let first = parseInt(args.first, 10);
-      const last = parseInt(args.last, 10);
+      let first = parseInt(args.first, 10) || 0;
+      const last = parseInt(args.last, 10) || 0;
 
       if (projection.count) {
         countPromise = countResolve(findManyParams);
@@ -114,11 +114,12 @@ export function prepareConnectionResolver(
       }
 
       if (!first && last) {
-        first = (await countPromise) || 0;
+        first = await countPromise;
+        first = parseInt(first, 10) || 0;
       }
 
       const limit = first;
-      const skip = (first - last) || 0;
+      const skip = first - last;
 
       findManyParams.args.limit = limit + 1; // +1 document, to check next page presence
       if (skip > 0) {

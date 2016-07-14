@@ -61,7 +61,7 @@ Requirements
 ============
 Types should have following resolvers:
 * `count` - for counting records
-* `findMany` - for filtering records. Also required that this resolver supports search with operators (lt, gt), which used in `directionFilter` option. Resolver `findMany` should have `filter` argument, which will be copied to connection.
+* `findMany` - for filtering records. Also required that this resolver supports search with operators (lt, gt), which used in `directionFilter` option. Resolver `findMany` should have `filter` argument, which will be copied to connection. Also should have `limit` and `skip` args.
 
 Used in plugins
 ===============

@@ -18,7 +18,7 @@ export type connectionSortMapOpts = {
 export type connectionSortOpts = {
   uniqueFields: string[],
   sortValue: mixed,
-  directionFilter: (<T>(cursorData: CursorDataType, filterArg: T, isBefore: boolean) => T),
+  directionFilter: (<T>(filterArg: T, cursorData: CursorDataType, isBefore: boolean) => T),
 };
 
 export type ResolveParams = _ResolveParams;
@@ -27,9 +27,9 @@ export type ConnectionResolveParams = {
   source: mixed,
   args: {
     first?: ?number,
-    after?: ?string,
+    after?: string,
     last?: ?number,
-    before?: ?string,
+    before?: string,
     sort: connectionSortOpts,
     [argName: string]: mixed,
   },

@@ -13,11 +13,11 @@ export function prepareSortType(
   typeComposer: TypeComposer,
   opts: composeWithConnectionOpts
 ): GraphQLEnumType {
-  if (!opts.sort) {
+  if (!opts || !opts.sort) {
     throw new Error('Option `sort` should not be empty in composeWithConnection');
   }
 
-  const typeName = `SortConnection${typeComposer.getTypeName()}Input`;
+  const typeName = `SortConnection${typeComposer.getTypeName()}Enum`;
 
   const sortKeys = Object.keys(opts.sort);
   if (sortKeys.length === 0) {
@@ -46,7 +46,7 @@ export function prepareSortType(
 
 export function checkSortOpts(key: string, opts: connectionSortOpts) {
   if (!opts.uniqueFields || !Array.isArray(opts.uniqueFields)) {
-    throw new Error('You should array of field(s) in `uniqueFields` '
+    throw new Error('You should provide array of field(s) in `uniqueFields` '
                   + `for composeWithConnection in opts.sort.${key}`
                   + 'Ideally this field(s) should be in unique index. '
                   + 'Connection will work incorrectly, if some records have same values.');

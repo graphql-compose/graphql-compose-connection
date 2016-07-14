@@ -15,7 +15,7 @@ export function composeWithConnection(
   }
 
   if (!opts) {
-    throw new Error('You provide empty options to composeWithConnection');
+    throw new Error('You should provide non-empty options to composeWithConnection');
   }
 
   if (typeComposer.hasResolver('connection')) {

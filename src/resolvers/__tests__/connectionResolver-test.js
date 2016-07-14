@@ -1,0 +1,409 @@
+/* eslint-disable no-param-reassign */
+
+import { expect } from 'chai';
+import { userTypeComposer, userList } from '../../__mocks__/userTypeComposer';
+import { Resolver } from 'graphql-compose';
+import { dataToCursor } from '../../cursor';
+import {
+  prepareConnectionResolver,
+  prepareFilter,
+  preparePageInfo,
+} from '../connectionResolver';
+import Cursor from '../../types/cursorType';
+import { GraphQLInt } from 'graphql';
+
+
+describe('connectionResolver', () => {
+  const sortOptions = {
+    ID_ASC: {
+      uniqueFields: ['id'],
+      sortValue: { id: 1 },
+      directionFilter: (filter, cursorData, isBefore) => {
+        filter._operators = filter._operators || {};
+        filter._operators.id = filter._operators.id || {};
+        if (isBefore) {
+          filter._operators.id.lt = cursorData.id;
+        } else {
+          filter._operators.id.gt = cursorData.id;
+        }
+        return filter;
+      },
+    },
+  };
+  const connectionResolver = prepareConnectionResolver(userTypeComposer, {
+    countResolverName: 'count',
+    findResolverName: 'findMany',
+    sort: sortOptions,
+  });
+
+  describe('basic checks', () => {
+    it('should return Resolver', () => {
+      expect(connectionResolver).instanceof(Resolver);
+    });
+
+    it('should throw error if first arg is not TypeComposer', () => {
+      expect(() => prepareConnectionResolver(123))
+        .to.throw('should be instance of TypeComposer');
+    });
+
+    it('should throw error if opts.countResolverName are empty', () => {
+      expect(() => prepareConnectionResolver(userTypeComposer, {}))
+        .to.throw('should have option `opts.countResolverName`');
+    });
+
+    it('should throw error if resolver opts.countResolverName does not exists', () => {
+      expect(() => prepareConnectionResolver(userTypeComposer, {
+        countResolverName: 'countDoesNotExists',
+        findResolverName: 'findMany',
+        sort: sortOptions,
+      }))
+        .to.throw('should have resolver with name \'countDoesNotExists\'');
+    });
+
+    it('should throw error if opts.findResolverName are empty', () => {
+      expect(() => prepareConnectionResolver(userTypeComposer, {
+        countResolverName: 'count',
+      }))
+        .to.throw('should have option `opts.findResolverName`');
+    });
+
+    it('should throw error if resolver opts.countResolverName does not exists', () => {
+      expect(() => prepareConnectionResolver(userTypeComposer, {
+        countResolverName: 'count',
+        findResolverName: 'findManyDoesNotExists',
+        sort: sortOptions,
+      }))
+        .to.throw('should have resolver with name \'findManyDoesNotExists\'');
+    });
+  });
+
+  describe('resolver basic properties', () => {
+    it('should have name `connection`', () => {
+      expect(connectionResolver).property('name').equals('connection');
+    });
+
+    it('should have kind `query`', () => {
+      expect(connectionResolver).property('kind').equals('query');
+    });
+
+    it('should have outputType to be ConnectionType', () => {
+      expect(connectionResolver).deep.property('outputType.name').equals('UserConnection');
+    });
+  });
+
+  describe('resolver args', () => {
+    it('should have `first` arg', () => {
+      expect(connectionResolver.getArg('first')).property('type').equals(GraphQLInt);
+    });
+
+    it('should have `last` arg', () => {
+      expect(connectionResolver.getArg('last')).property('type').equals(GraphQLInt);
+    });
+
+    it('should have `after` arg', () => {
+      expect(connectionResolver.getArg('after')).property('type').equals(Cursor);
+    });
+
+    it('should have `before` arg', () => {
+      expect(connectionResolver.getArg('before')).property('type').equals(Cursor);
+    });
+
+    it('should have `sort` arg', () => {
+      expect(connectionResolver.getArg('sort'))
+        .deep.property('type.name').equals('SortConnectionUserEnum');
+    });
+  });
+
+  describe('prepareFilter()', () => {
+    const sortValue = {
+      uniqueFields: ['id'],
+      sortValue: { id: 1 },
+      directionFilter: (filter, cursorData, isBefore) => {
+        if (isBefore) {
+          filter.before = cursorData;
+        } else {
+          filter.after = cursorData;
+        }
+        return filter;
+      },
+    };
+
+    it('should return filter', () => {
+      expect(prepareFilter({ filter: 123 })).to.equals(123);
+    });
+
+    it('should add cursorData from args.after to filter', () => {
+      expect(prepareFilter({
+        after: dataToCursor({ id: 1 }),
+        sort: sortValue,
+      })).to.deep.equal({ after: { id: 1 } });
+    });
+
+    it('should add cursorData from args.before to filter', () => {
+      expect(prepareFilter({
+        before: dataToCursor({ id: 2 }),
+        sort: sortValue,
+      })).to.deep.equal({ before: { id: 2 } });
+    });
+
+    it('should add both before and after cursorData to filter', () => {
+      expect(prepareFilter({
+        filter: { someKey: 0 },
+        after: dataToCursor({ id: 1 }),
+        before: dataToCursor({ id: 2 }),
+        sort: sortValue,
+      })).to.deep.equal({ after: { id: 1 }, before: { id: 2 }, someKey: 0 });
+    });
+  });
+
+  describe('preparePageInfo()', () => {
+    const edges = [
+      { cursor: 1, node: 1 },
+      { cursor: 2, node: 2 },
+      { cursor: 3, node: 3 },
+      { cursor: 4, node: 4 },
+      { cursor: 5, node: 5 },
+    ];
+
+    describe('"Relay Cursor Connections Specification (PageInfo)":', () => {
+      describe('HasPreviousPage', () => {
+        it('1. If last was not set, return false.', () => {
+          expect(preparePageInfo(edges, {}, 5, 2))
+            .property('hasPreviousPage').to.be.false;
+        });
+        it('3. If edges contains more than last elements, return true.', () => {
+          expect(preparePageInfo(edges, { last: 3 }, 3, 2))
+            .property('hasPreviousPage').to.be.true;
+        });
+        it('4. Return false', () => {
+          expect(preparePageInfo(edges, { last: 5 }, 5, 0))
+            .property('hasPreviousPage').to.be.false;
+        });
+      });
+
+      describe('HasNextPage', () => {
+        it('1. If first was not set, return false.', () => {
+          expect(preparePageInfo(edges, {}, 4, 0))
+            .property('hasNextPage').to.be.false;
+        });
+        it('3. If edges contains more than first elements, return true.', () => {
+          expect(preparePageInfo(edges, { first: 4 }, 4, 0))
+            .property('hasNextPage').to.be.true;
+        });
+        it('4. Return false', () => {
+          expect(preparePageInfo(edges, { first: 5 }, 5, 0))
+            .property('hasNextPage').to.be.false;
+        });
+      });
+
+      it('should return startCursor', () => {
+        expect(preparePageInfo(edges, {}, 4, 0))
+          .property('startCursor').to.be.equal(1);
+        expect(preparePageInfo(edges, {}, 4, 2))
+          .property('startCursor').to.be.equal(1);
+      });
+
+      it('should return endCursor', () => {
+        expect(preparePageInfo(edges, {}, 4, 0))
+          .property('endCursor').to.be.equal(4);
+        expect(preparePageInfo(edges, {}, 20, 0))
+          .property('endCursor').to.be.equal(5);
+      });
+
+      it('should return correct values for pageInfo if last is less first', async () => {
+        const result = await connectionResolver.resolve({
+          args: {
+            sort: sortOptions.ID_ASC,
+            first: 5,
+            last: 3,
+          },
+        });
+        expect(result).deep.property('pageInfo.hasNextPage').to.be.true;
+        expect(result).deep.property('pageInfo.hasPreviousPage').to.be.true;
+      });
+
+      it('should return correct values for pageInfo if `last` equals `first`', async () => {
+        const result = await connectionResolver.resolve({
+          args: {
+            sort: sortOptions.ID_ASC,
+            first: 5,
+            last: 5,
+          },
+        });
+        expect(result).deep.property('pageInfo.hasNextPage').to.be.true;
+        expect(result).deep.property('pageInfo.hasPreviousPage').to.be.false;
+      });
+
+      it('should return correct values for pageInfo if set only `first`', async () => {
+        const result = await connectionResolver.resolve({
+          args: {
+            sort: sortOptions.ID_ASC,
+            first: 5,
+          },
+        });
+        expect(result).deep.property('pageInfo.hasNextPage').to.be.true;
+        expect(result).deep.property('pageInfo.hasPreviousPage').to.be.false;
+
+        const result2 = await connectionResolver.resolve({
+          args: {
+            sort: sortOptions.ID_ASC,
+            first: userList.length,
+          },
+        });
+        expect(result2).deep.property('pageInfo.hasNextPage').to.be.false;
+        expect(result2).deep.property('pageInfo.hasPreviousPage').to.be.false;
+      });
+
+      it('should return correct values for pageInfo if set only `last`', async () => {
+        const result = await connectionResolver.resolve({
+          args: {
+            sort: sortOptions.ID_ASC,
+            last: 5,
+          },
+        });
+        expect(result).deep.property('pageInfo.hasPreviousPage').to.be.true;
+        expect(result).deep.property('pageInfo.hasNextPage').to.be.false;
+
+        const result2 = await connectionResolver.resolve({
+          args: {
+            sort: sortOptions.ID_ASC,
+            last: userList.length,
+          },
+        });
+        expect(result2).deep.property('pageInfo.hasPreviousPage').to.be.false;
+        expect(result2).deep.property('pageInfo.hasNextPage').to.be.false;
+      });
+    });
+  });
+
+  describe('"Relay Cursor Connections Specification (Pagination algorithm)":', () => {
+    describe('ApplyCursorsToEdges(allEdges, before, after):', () => {
+      it('if `after` cursor is set, should return next record', async () => {
+        const result = await connectionResolver.resolve({
+          args: {
+            after: dataToCursor({ id: 2 }),
+            sort: sortOptions.ID_ASC,
+            first: 1,
+          },
+        });
+        expect(result).deep.property('edges.0.node.id').equals(3);
+      });
+
+      it('if `before` cursor is set, should return previous record', async () => {
+        const result = await connectionResolver.resolve({
+          args: {
+            before: dataToCursor({ id: 2 }),
+            sort: sortOptions.ID_ASC,
+            first: 1,
+          },
+        });
+        expect(result).deep.property('edges.0.node.id').equals(1);
+      });
+
+      it('if `before` and `after` cursors are set, should return between records', async () => {
+        const result = await connectionResolver.resolve({
+          args: {
+            after: dataToCursor({ id: 2 }),
+            before: dataToCursor({ id: 6 }),
+            sort: sortOptions.ID_ASC,
+            first: 10,
+          },
+        });
+        expect(result).deep.property('edges').to.have.length(3);
+        expect(result).deep.property('edges.0.node.id').equals(3);
+        expect(result).deep.property('edges.1.node.id').equals(4);
+        expect(result).deep.property('edges.2.node.id').equals(5);
+      });
+
+      it('should throw error if `first` is less than 0', async () => {
+        const promise = connectionResolver.resolve({
+          args: {
+            first: -5,
+            sort: sortOptions.ID_ASC,
+          },
+        });
+        await expect(promise).be.rejectedWith(Error, 'should be non-negative number');
+      });
+
+      it('should slice edges to be length of `first`, if length is greater', async () => {
+        const result = await connectionResolver.resolve({
+          args: {
+            sort: sortOptions.ID_ASC,
+            first: 5,
+          },
+        });
+        expect(result).deep.property('edges').to.have.length(5);
+      });
+
+      it('should throw error if `last` is less than 0', async () => {
+        const promise = connectionResolver.resolve({
+          args: {
+            last: -5,
+            sort: sortOptions.ID_ASC,
+          },
+        });
+        await expect(promise).be.rejectedWith(Error, 'should be non-negative number');
+      });
+
+      it('should slice edges to be length of `last`', async () => {
+        const result = await connectionResolver.resolve({
+          args: {
+            sort: sortOptions.ID_ASC,
+            last: 3,
+          },
+        });
+        expect(result).deep.property('edges').to.have.length(3);
+      });
+
+      it('should slice edges to be length of `last`, if `first` and `last` present', async () => {
+        const result = await connectionResolver.resolve({
+          args: {
+            sort: sortOptions.ID_ASC,
+            first: 5,
+            last: 2,
+          },
+        });
+        expect(result).deep.property('edges').to.have.length(2);
+      });
+
+      it('serve complex fetching with all connection args', async () => {
+        const result = await connectionResolver.resolve({
+          args: {
+            sort: sortOptions.ID_ASC,
+            after: dataToCursor({ id: 5 }),
+            before: dataToCursor({ id: 13 }),
+            first: 5,
+            last: 3,
+          },
+          projection: { count: 1 },
+        });
+        expect(result).deep.property('edges').to.have.length(3);
+        expect(result).deep.property('edges.0.node.id').equals(8);
+        expect(result).deep.property('edges.1.node.id').equals(9);
+        expect(result).deep.property('edges.2.node.id').equals(10);
+        expect(result).deep.property('count').equals(7);
+      });
+    });
+  });
+
+  describe('how works filter argument with resolve', () => {
+    it('should add additional filtering', async () => {
+      const result = await connectionResolver.resolve({
+        args: {
+          filter: {
+            gender: 'm',
+          },
+          sort: sortOptions.ID_ASC,
+          first: 100,
+        },
+        projection: { count: 1 },
+      });
+      expect(result).deep.property('edges').to.have.length(8);
+      expect(result).deep.property('edges.0.node')
+        .deep.equals({ id: 1, name: 'user1', age: 11, gender: 'm' });
+      expect(result).deep.property('edges.7.node')
+        .deep.equals({ id: 15, name: 'user15', age: 45, gender: 'm' });
+      expect(result).deep.property('count').equals(8);
+    });
+  });
+});

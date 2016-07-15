@@ -1,6 +1,6 @@
 {
   "name": "graphql-compose-connection",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "description": "Plugin for `graphql-compose` which provide a connection resolver for types.",
   "files": [
     "es",
@@ -23,7 +23,7 @@
   },
   "homepage": "https://github.com/nodkz/graphql-compose-connection",
   "dependencies": {
-    "graphql-compose": ">=0.0.5"
+    "graphql-compose": ">=0.0.6"
   },
   "peerDependencies": {
     "graphql": "^0.5.0"

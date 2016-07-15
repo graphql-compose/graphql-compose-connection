@@ -95,7 +95,7 @@ export function prepareConnectionResolver(
       findManyParams.args.filter = prepareFilter(args);
       findManyParams.args.sort = sortOptions.sortValue;
 
-      findManyParams.projection = projection;
+      findManyParams.projection = projection && projection.edges && projection.edges.node;
       sortOptions.uniqueFields.forEach(fieldName => {
         findManyParams.projection[fieldName] = true;
       });

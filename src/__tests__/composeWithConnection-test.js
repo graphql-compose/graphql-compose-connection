@@ -9,6 +9,8 @@ import {
   graphql,
   GraphQLSchema,
 } from 'graphql';
+import projection from 'graphql-compose/lib/projection';
+
 
 describe('composeWithRelay', () => {
   const userComposer = composeWithConnection(userTypeComposer, {
@@ -146,7 +148,7 @@ describe('composeWithRelay', () => {
     expect(result)
       .deep.property('data.userConnection')
       .deep.equals({
-        count: 0, // TODO fix projection in graphql-compose, should be 15
+        count: 15,
         pageInfo:
          { startCursor: 'eyJhZ2UiOjQ5LCJpZCI6MTF9',
            endCursor: 'eyJhZ2UiOjQ3LCJpZCI6MTJ9',
@@ -167,5 +169,54 @@ describe('composeWithRelay', () => {
           },
         ],
       });
+  });
+
+  describe('projection()', () => {
+    it.only('should return object', async () => {
+      // const resolver = userTypeComposer.getResolver('connection');
+      // const resolve = resolver.resolve;
+      // resolver.resolve = (resolveParams) => {
+      //   const pr = projection(resolveParams.info);
+      //   console.log(pr);
+      //   resolve(resolveParams);
+      // };
+
+      rootQueryTypeComposer.addField('userConnection',
+        userTypeComposer.getResolver('connection').getFieldConfig()
+      );
+      const schema = new GraphQLSchema({
+        query: rootQueryTypeComposer.getType(),
+      });
+      const query = `{
+        userConnection(first: 3) {
+          count,
+          pageInfo {
+            startCursor
+            endCursor
+            ...on PageInfo {
+              hasPreviousPage
+              hasNextPage
+            }
+          }
+          edges {
+            cursor
+            node {
+              id
+              name
+              ...idNameAge
+              ...on User {
+                age
+              }
+            }
+          }
+        }
+      }
+      fragment idNameAge on User {
+        gender
+      }
+      `;
+      const result = await graphql(schema, query);
+      // console.log(result.data.userConnection.edges);
+    })
   });
 });

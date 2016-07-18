@@ -78,7 +78,7 @@ export function prepareConnectionResolver(
       ...additionalArgs,
       sort: {
         type: sortEnumType,
-        defaultValue: sortEnumType.getValues()[0].value, // first enum used by default
+        defaultValue: sortEnumType.getValues()[0].name, // first enum used by default
         description: 'Sort argument for data ordering',
       },
     },
@@ -90,12 +90,29 @@ export function prepareConnectionResolver(
         resolveParams,
         { args: {} } // clear this params in copy
       );
-      const sortOptions: connectionSortOpts = args.sort;
+      let sortOptions: connectionSortOpts;
+      if (typeof args.sort === 'string') {
+        const sortValue = sortEnumType.parseValue(args.sort);
+        if (sortValue) {
+          sortOptions = sortValue;
+        } else {
+          sortOptions = {
+            sortValue: {},
+            uniqueFields: [],
+            // $FlowFixMe
+            directionFilter: filter => filter,
+          };
+        }
+      } else {
+        sortOptions = args.sort;
+      }
 
       findManyParams.args.filter = prepareFilter(args);
       findManyParams.args.sort = sortOptions.sortValue;
 
-      findManyParams.projection = projection && projection.edges && projection.edges.node;
+      if (projection && projection.edges) {
+        findManyParams.projection = projection.edges.node || {};
+      }
       sortOptions.uniqueFields.forEach(fieldName => {
         findManyParams.projection[fieldName] = true;
       });

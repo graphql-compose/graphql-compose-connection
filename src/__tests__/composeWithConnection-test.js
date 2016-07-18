@@ -9,7 +9,6 @@ import {
   graphql,
   GraphQLSchema,
 } from 'graphql';
-import projection from 'graphql-compose/lib/projection';
 
 
 describe('composeWithRelay', () => {
@@ -172,11 +171,11 @@ describe('composeWithRelay', () => {
   });
 
   describe('projection()', () => {
-    it.only('should return object', async () => {
+    it('should return object', async () => {
       // const resolver = userTypeComposer.getResolver('connection');
       // const resolve = resolver.resolve;
       // resolver.resolve = (resolveParams) => {
-      //   const pr = projection(resolveParams.info);
+      //   const pr = getProjectionFromAST(resolveParams.info);
       //   console.log(pr);
       //   resolve(resolveParams);
       // };
@@ -216,7 +215,7 @@ describe('composeWithRelay', () => {
       }
       `;
       const result = await graphql(schema, query);
-      // console.log(result.data.userConnection.edges);
-    })
+      console.log(result.data.userConnection.edges);
+    });
   });
 });

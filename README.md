@@ -24,7 +24,7 @@ composeWithConnection(userTypeComposer, {
     _ID_DESC: {
       uniqueFields: ['_id'],
       sortValue: { _id: -1 },
-      directionFilter: (cursorData, filter, isBefore) => {
+      directionFilter: (filter, cursorData, isBefore) => {
         filter[OPERATORS_FIELDNAME] = filter[OPERATORS_FIELDNAME] || {};
         filter[OPERATORS_FIELDNAME]._id = filter[OPERATORS_FIELDNAME]._id || {};
         if (isBefore) {
@@ -38,7 +38,7 @@ composeWithConnection(userTypeComposer, {
     AGE_ID_ASC: {
       uniqueFields: ['age', '_id'],
       sortValue: { age: 1, _id: -1 },
-      directionFilter: (cursorData, filter, isBefore) => {
+      directionFilter: (filter, cursorData, isBefore) => {
         filter[OPERATORS_FIELDNAME] = filter[OPERATORS_FIELDNAME] || {};
         filter[OPERATORS_FIELDNAME]._id = filter[OPERATORS_FIELDNAME]._id || {};
         filter[OPERATORS_FIELDNAME].age = filter[OPERATORS_FIELDNAME].age || {};

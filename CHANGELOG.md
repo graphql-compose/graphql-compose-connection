@@ -2,6 +2,7 @@
 
 ## 1.0.1 (July 18, 2016)
 * Add fallback to `sort` arg, due [unexpected behavior](https://github.com/graphql/graphql-js/issues/435#issuecomment-233297537) of defaultValue for enum field
+* Move `graphql-compose` module to peerDependencies.
 
 ## 1.0.0 (July 15, 2016)
 * Production ready version

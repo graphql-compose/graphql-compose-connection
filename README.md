@@ -10,6 +10,15 @@ Besides standard connection arguments `first`, `last`, `before` and `after`, als
 
 [CHANGELOG](https://github.com/nodkz/graphql-compose-connection/blob/master/CHANGELOG.md)
 
+Installation
+============
+```
+npm install graphql graphql-compose graphql-compose-connection --save
+```
+
+Modules `graphql` and `graphql-compose` are in `peerDependencies`, so should be installed explicitly in your app. They have global objects and should not have ability to be installed as submodule.
+
+
 Example
 =======
 ```js

@@ -179,7 +179,12 @@ export function preparePageInfo(
   limit: number,
   skip: number
 ) {
-  const pageInfo = {};
+  const pageInfo = {
+    startCursor: '',
+    endCursor: '',
+    hasPreviousPage: false,
+    hasNextPage: false,
+  };
 
   const hasExtraRecords = edges.length > limit;
 

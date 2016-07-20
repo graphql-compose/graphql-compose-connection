@@ -3,7 +3,7 @@
 import { expect } from 'chai';
 import { TypeComposer } from 'graphql-compose';
 import { composeWithConnection } from '../composeWithConnection';
-import { userTypeComposer } from '../__mocks__/userTypeComposer';
+import { userTypeComposer, sortOptions } from '../__mocks__/userTypeComposer';
 import { rootQueryTypeComposer } from '../__mocks__/rootQueryTypeComposer';
 import {
   graphql,
@@ -15,39 +15,7 @@ describe('composeWithRelay', () => {
   const userComposer = composeWithConnection(userTypeComposer, {
     countResolverName: 'count',
     findResolverName: 'findMany',
-    sort: {
-      ID_ASC: {
-        uniqueFields: ['id'],
-        sortValue: { id: 1 },
-        directionFilter: (filter, cursorData, isBefore) => {
-          filter._operators = filter._operators || {};
-          filter._operators.id = filter._operators.id || {};
-          if (isBefore) {
-            filter._operators.id.lt = cursorData.id;
-          } else {
-            filter._operators.id.gt = cursorData.id;
-          }
-          return filter;
-        },
-      },
-      AGE_ID_DESC: {
-        uniqueFields: ['age', 'id'],
-        sortValue: { age: -1, id: -1 },
-        directionFilter: (filter, cursorData, isBefore) => {
-          filter._operators = filter._operators || {};
-          filter._operators.id = filter._operators.id || {};
-          filter._operators.age = filter._operators.age || {};
-          if (isBefore) {
-            filter._operators.age.gt = cursorData.age;
-            filter._operators.id.gt = cursorData.id;
-          } else {
-            filter._operators.age.lt = cursorData.age;
-            filter._operators.id.lt = cursorData.id;
-          }
-          return filter;
-        },
-      },
-    },
+    sort: sortOptions,
   });
 
   describe('basic checks', () => {
@@ -170,16 +138,8 @@ describe('composeWithRelay', () => {
       });
   });
 
-  describe('projection()', () => {
+  describe('fragments fields projection of graphql-compose', () => {
     it('should return object', async () => {
-      // const resolver = userTypeComposer.getResolver('connection');
-      // const resolve = resolver.resolve;
-      // resolver.resolve = (resolveParams) => {
-      //   const pr = getProjectionFromAST(resolveParams.info);
-      //   console.log(pr);
-      //   resolve(resolveParams);
-      // };
-
       rootQueryTypeComposer.addField('userConnection',
         userTypeComposer.getResolver('connection').getFieldConfig()
       );
@@ -187,7 +147,7 @@ describe('composeWithRelay', () => {
         query: rootQueryTypeComposer.getType(),
       });
       const query = `{
-        userConnection(first: 3) {
+        userConnection(first: 1) {
           count,
           pageInfo {
             startCursor
@@ -215,7 +175,30 @@ describe('composeWithRelay', () => {
       }
       `;
       const result = await graphql(schema, query);
-      console.log(result.data.userConnection.edges);
+      expect(result).to.deep.equal({
+        data: {
+          userConnection: {
+            count: 15,
+            edges: [
+              {
+                cursor: 'eyJpZCI6MX0=',
+                node: {
+                  age: 11,
+                  gender: 'm',
+                  id: 1,
+                  name: 'user1',
+                },
+              },
+            ],
+            pageInfo: {
+              endCursor: 'eyJpZCI6MX0=',
+              hasPreviousPage: false,
+              hasNextPage: true,
+              startCursor: 'eyJpZCI6MX0=',
+            },
+          },
+        },
+      });
     });
   });
 });

@@ -46,8 +46,8 @@ describe('mocks/userTypeComposer', () => {
       },
     });
     expect(res).to.be.deep.equal([
+      { id: 11, name: 'user11', age: 49, gender: 'm' },
       { id: 10, name: 'user10', age: 49, gender: 'f' },
-      { id: 11, name: 'user11', age: 48, gender: 'm' },
       { id: 12, name: 'user12', age: 47, gender: 'f' },
       { id: 15, name: 'user15', age: 45, gender: 'm' },
       { id: 14, name: 'user14', age: 45, gender: 'm' },

@@ -1,5 +1,5 @@
 /* @flow */
-/* eslint-disable no-use-before-define */
+/* eslint-disable no-use-before-define, no-param-reassign */
 
 import { TypeComposer } from 'graphql-compose';
 import { GraphQLEnumType } from 'graphql';

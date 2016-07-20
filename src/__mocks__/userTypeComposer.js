@@ -1,3 +1,5 @@
+/* eslint-disable no-param-reassign */
+
 import { TypeComposer, Resolver } from 'graphql-compose';
 import {
   GraphQLString,
@@ -182,3 +184,38 @@ export const countResolver = new Resolver(userTypeComposer, {
     );
   },
 });
+
+
+export const sortOptions = {
+  ID_ASC: {
+    uniqueFields: ['id'],
+    sortValue: { id: 1 },
+    directionFilter: (filter, cursorData, isBefore) => {
+      filter._operators = filter._operators || {};
+      filter._operators.id = filter._operators.id || {};
+      if (isBefore) {
+        filter._operators.id.lt = cursorData.id;
+      } else {
+        filter._operators.id.gt = cursorData.id;
+      }
+      return filter;
+    },
+  },
+  AGE_ID_DESC: {
+    uniqueFields: ['age', 'id'],
+    sortValue: { age: -1, id: -1 },
+    directionFilter: (filter, cursorData, isBefore) => {
+      filter._operators = filter._operators || {};
+      filter._operators.id = filter._operators.id || {};
+      filter._operators.age = filter._operators.age || {};
+      if (isBefore) {
+        filter._operators.age.gt = cursorData.age;
+        filter._operators.id.gt = cursorData.id;
+      } else {
+        filter._operators.age.lt = cursorData.age;
+        filter._operators.id.lt = cursorData.id;
+      }
+      return filter;
+    },
+  },
+};

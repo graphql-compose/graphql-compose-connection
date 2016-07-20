@@ -1,7 +1,7 @@
 /* eslint-disable no-param-reassign */
 
 import { expect } from 'chai';
-import { userTypeComposer, userList } from '../../__mocks__/userTypeComposer';
+import { userTypeComposer, userList, sortOptions } from '../../__mocks__/userTypeComposer';
 import { Resolver } from 'graphql-compose';
 import { dataToCursor } from '../../cursor';
 import {
@@ -14,22 +14,6 @@ import { GraphQLInt } from 'graphql';
 
 
 describe('connectionResolver', () => {
-  const sortOptions = {
-    ID_ASC: {
-      uniqueFields: ['id'],
-      sortValue: { id: 1 },
-      directionFilter: (filter, cursorData, isBefore) => {
-        filter._operators = filter._operators || {};
-        filter._operators.id = filter._operators.id || {};
-        if (isBefore) {
-          filter._operators.id.lt = cursorData.id;
-        } else {
-          filter._operators.id.gt = cursorData.id;
-        }
-        return filter;
-      },
-    },
-  };
   const connectionResolver = prepareConnectionResolver(userTypeComposer, {
     countResolverName: 'count',
     findResolverName: 'findMany',

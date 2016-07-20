@@ -64,7 +64,7 @@ composeWithConnection(userTypeComposer, {
   },
 })
 ```
-<img width="946" alt="screen shot 2016-07-14 at 15 30 24" src="https://cloud.githubusercontent.com/assets/1946920/16834977/1e0b6760-49d8-11e6-833f-cae5ffa68717.png">
+<img width="1249" alt="screen shot 2016-07-20 at 12 20 08" src="https://cloud.githubusercontent.com/assets/1946920/16976899/67a5e0f8-4e74-11e6-87e5-fc4574deaaab.png">
 
 Requirements
 ============

@@ -2,6 +2,8 @@ graphql-compose-connection
 ======================
 This is a plugin for [graphql-compose](https://github.com/nodkz/graphql-compose) family, which adds to the GraphQL types `connection` resolvers.
 
+[Live example](https://graphql-compose-mongoose.herokuapp.com)
+
 This package completely follows to Relay Cursor Connections Specification (https://facebook.github.io/relay/graphql/connections.htm).
 
 Besides standard connection arguments `first`, `last`, `before` and `after`, also added great arguments:

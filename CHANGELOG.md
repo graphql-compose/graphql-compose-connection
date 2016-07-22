@@ -1,5 +1,8 @@
 ## master
 
+## 1.0.3 (July 22, 2016)
+- If `first` or `last` args not provided, then get first 20 records by default.
+
 ## 1.0.2 (July 20, 2016)
 - fix: return non-empty PageInfo if records not found
 

@@ -1,12 +1,12 @@
 graphql-compose-connection
 ======================
-This is a plugin for [graphql-compose](https://github.com/nodkz/graphql-compose) family, which adds to the GraphQL types `connection` resolvers.
+This is a plugin for [graphql-compose](https://github.com/nodkz/graphql-compose) family, which adds to the TypeComposer `connection` resolver.
 
 [Live example](https://graphql-compose-mongoose.herokuapp.com)
 
 This package completely follows to Relay Cursor Connections Specification (https://facebook.github.io/relay/graphql/connections.htm).
 
-Besides standard connection arguments `first`, `last`, `before` and `after`, also added great arguments:
+Besides standard connection arguments `first`, `last`, `before` and `after`, also added significant arguments:
 * `filter` arg - for filtering records
 * `sort` arg - for sorting records. Build in mechanism allows sort by any unique indexes (not only by id). Also supported compound sorting (by several fields).
 
@@ -18,7 +18,7 @@ Installation
 npm install graphql graphql-compose graphql-compose-connection --save
 ```
 
-Modules `graphql` and `graphql-compose` are in `peerDependencies`, so should be installed explicitly in your app. They have global objects and should not have ability to be installed as submodule.
+Modules `graphql` and `graphql-compose` are in `peerDependencies`, so should be installed explicitly in your app. They should not installed as submodules, cause internally checks the classes instances.
 
 
 Example
@@ -76,7 +76,7 @@ Types should have following resolvers:
 
 Used in plugins
 ===============
-[graphql-compose-mongoose](https://github.com/nodkz/graphql-compose-mongoose)
+[graphql-compose-mongoose](https://github.com/nodkz/graphql-compose-mongoose) - converts mongoose models to graphql types
 
 
 License

@@ -127,7 +127,7 @@ export function prepareConnectionResolver(
         first = parseInt(first, 10) || 0;
       }
 
-      const limit = last || first;
+      const limit = last || first || 20;
       const skip = last > 0 ? first - last : 0;
 
       findManyParams.args.limit = limit + 1; // +1 document, to check next page presence

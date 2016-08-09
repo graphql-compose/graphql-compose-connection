@@ -1,6 +1,6 @@
 {
   "name": "graphql-compose-connection",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Plugin for `graphql-compose` which provide a connection resolver for types.",
   "files": [
     "es",

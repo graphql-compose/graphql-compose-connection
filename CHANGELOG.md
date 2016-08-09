@@ -1,5 +1,10 @@
 ## master
 
+## 1.0.4 (August 9, 2016)
+- Add `ofType` property to `Connection` and `Edge` types.
+Connection type is some kind of wrapper under GraphQLNamedType.
+This behavior needed for `graphql-compose` module in `projection` helper, otherwise it incorrectly construct projectionMapper for tricky fields.
+
 ## 1.0.3 (July 22, 2016)
 - If `first` or `last` args not provided, then get first 20 records by default.
 

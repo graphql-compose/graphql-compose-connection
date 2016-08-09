@@ -18,7 +18,7 @@ import PageInfoType from './pageInfoType';
 export function prepareEdgeType(typeComposer: TypeComposer): GraphQLObjectType {
   const name = `${typeComposer.getTypeName()}Edge`;
 
-  return new GraphQLObjectType({
+  const edgeType = new GraphQLObjectType({
     name,
     description: 'An edge in a connection.',
     fields: () => ({
@@ -32,13 +32,15 @@ export function prepareEdgeType(typeComposer: TypeComposer): GraphQLObjectType {
       },
     }),
   });
+  edgeType.ofType = typeComposer.getType();
+  return edgeType;
 }
 
 
 export function prepareConnectionType(typeComposer: TypeComposer): GraphQLObjectType {
   const name = `${typeComposer.getTypeName()}Connection`;
 
-  return new GraphQLObjectType({
+  const connectionType = new GraphQLObjectType({
     name,
     description: 'A connection to a list of items.',
     fields: () => ({
@@ -56,4 +58,6 @@ export function prepareConnectionType(typeComposer: TypeComposer): GraphQLObject
       },
     }),
   });
+  connectionType.ofType = typeComposer.getType();
+  return connectionType;
 }

@@ -36,6 +36,11 @@ describe('types/connectionType.js', () => {
       const cursor = getNamedType(tc.getFieldType('cursor'));
       expect(cursor).equal(GraphQLConnectionCursor);
     });
+
+    it('should have `ofType` property (like GraphQLList, GraphQLNonNull)', () => {
+      const edgeType = prepareEdgeType(userTypeComposer);
+      expect(edgeType).property('ofType').equals(userTypeComposer.getType());
+    });
   });
 
   describe('prepareConnectionType()', () => {
@@ -68,6 +73,13 @@ describe('types/connectionType.js', () => {
 
       const edges = getNamedType(tc.getFieldType('edges'));
       expect(edges).property('name').equals('UserEdge');
+    });
+
+    it('should have `ofType` property (like GraphQLList, GraphQLNonNull)', () => {
+      // this behavior needed for `graphql-compose` module in `projection` helper
+      // otherwise it incorrectly construct projectionMapper for tricky fields
+      const connectionType = prepareConnectionType(userTypeComposer);
+      expect(connectionType).property('ofType').equals(userTypeComposer.getType());
     });
   });
 });

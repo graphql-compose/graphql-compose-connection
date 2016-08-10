@@ -1,9 +1,12 @@
 ## master
 
+## 1.0.5 (August 10, 2016)
+- Update packages, add `babel-plugin-transform-runtime` for build process. Fix [issue](https://github.com/nodkz/graphql-compose-connection/issues/2) for vanilla node.js users without babel (thanks @jacobbubu).
+
 ## 1.0.4 (August 9, 2016)
 - Add `ofType` property to `Connection` and `Edge` types.
 Connection type is some kind of wrapper under GraphQLNamedType.
-This behavior needed for `graphql-compose` module in `projection` helper, otherwise it incorrectly construct projectionMapper for tricky fields.
+This behavior needed for `graphql-compose` module in `projection` helper, otherwise, it incorrectly constructs projectionMapper for tricky fields.
 
 ## 1.0.3 (July 22, 2016)
 - If `first` or `last` args not provided, then get first 20 records by default.

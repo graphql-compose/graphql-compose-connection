@@ -2,7 +2,7 @@ graphql-compose-connection
 ======================
 This is a plugin for [graphql-compose](https://github.com/nodkz/graphql-compose) family, which adds to the TypeComposer `connection` resolver.
 
-[Live example](https://graphql-compose-mongoose.herokuapp.com)
+Live demo: [https://graphql-compose.herokuapp.com/](https://graphql-compose.herokuapp.com/)
 
 This package completely follows to Relay Cursor Connections Specification (https://facebook.github.io/relay/graphql/connections.htm).
 

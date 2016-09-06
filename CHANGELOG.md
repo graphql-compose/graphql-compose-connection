@@ -1,5 +1,10 @@
 ## master
 
+## 1.0.8 (September 6, 2016)
+- Update dependencies
+- Flowtype 0.32
+- Fix code style issues
+
 ## 1.0.7 (August 15, 2016)
 - fix: babel build via the workaround https://phabricator.babeljs.io/T2877#78089 Huh, it's too tricky to use Map/Set in ES5.
 

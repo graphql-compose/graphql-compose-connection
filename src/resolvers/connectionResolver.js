@@ -97,6 +97,7 @@ export function prepareConnectionResolver(
       findManyParams.args.sort = sortOptions.sortValue;
 
       if (projection && projection.edges) {
+        // $FlowFixMe
         findManyParams.projection = projection.edges.node || {};
       } else {
         findManyParams.projection = {};

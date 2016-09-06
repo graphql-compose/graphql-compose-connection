@@ -45,7 +45,7 @@ export type CursorDataType = {
 
 export type GraphQLConnectionType = {
   count: number,
-  edges: [GraphQLConnectionEdgeType],
+  edges: [GraphQLConnectionEdgeType] | [],
   pageInfo: PageInfoType,
 }
 

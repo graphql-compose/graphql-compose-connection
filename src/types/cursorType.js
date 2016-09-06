@@ -10,6 +10,7 @@ const GraphQLConnectionCursor = new GraphQLScalarType({
   serialize: String,
   parseValue: String,
   parseLiteral(ast) {
+    // $FlowFixMe
     return ast.kind === Kind.STRING ? ast.value : null;
   },
 });

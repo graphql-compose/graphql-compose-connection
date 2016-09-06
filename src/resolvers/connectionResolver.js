@@ -1,6 +1,8 @@
 /* @flow */
 /* eslint-disable no-param-reassign, no-use-before-define */
 
+import { GraphQLInt } from 'graphql';
+import { Resolver, TypeComposer } from 'graphql-compose';
 import type {
   ResolveParams,
   ConnectionResolveParams,
@@ -8,8 +10,6 @@ import type {
   connectionSortOpts,
   GraphQLConnectionType,
 } from '../definition';
-import { Resolver, TypeComposer } from 'graphql-compose';
-import { GraphQLInt } from 'graphql';
 import { prepareConnectionType } from '../types/connectionType';
 import { prepareSortType } from '../types/sortInputType';
 import CursorType from '../types/cursorType';

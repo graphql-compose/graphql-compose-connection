@@ -1,13 +1,14 @@
 /* @flow */
 /* eslint-disable no-use-before-define, no-param-reassign */
 
-import { TypeComposer } from 'graphql-compose';
 import { GraphQLEnumType } from 'graphql';
+import { TypeComposer } from 'graphql-compose';
 import type {
   composeWithConnectionOpts,
   connectionSortOpts,
 } from '../definition.js';
 import { isFunction } from '../utils/is';
+
 
 export function prepareSortType(
   typeComposer: TypeComposer,

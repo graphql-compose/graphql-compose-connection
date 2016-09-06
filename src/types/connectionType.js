@@ -7,10 +7,10 @@ import {
   GraphQLNonNull,
   GraphQLList,
 } from 'graphql';
-import GraphQLConnectionCursor from './cursorType';
 import type {
   TypeComposer,
 } from 'graphql-compose';
+import GraphQLConnectionCursor from './cursorType';
 
 import PageInfoType from './pageInfoType';
 

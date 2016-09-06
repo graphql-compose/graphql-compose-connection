@@ -1,9 +1,10 @@
 import { expect } from 'chai';
-import { userTypeComposer } from '../../__mocks__/userTypeComposer';
-import { prepareSortType } from '../sortInputType';
 import {
   GraphQLEnumType,
 } from 'graphql';
+import { userTypeComposer } from '../../__mocks__/userTypeComposer';
+import { prepareSortType } from '../sortInputType';
+
 
 describe('types/sortInputType.js', () => {
   describe('basic checks', () => {

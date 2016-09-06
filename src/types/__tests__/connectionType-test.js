@@ -1,9 +1,4 @@
 import { expect } from 'chai';
-import { userTypeComposer } from '../../__mocks__/userTypeComposer';
-import { TypeComposer } from 'graphql-compose';
-import { prepareEdgeType, prepareConnectionType } from '../connectionType';
-import GraphQLConnectionCursor from '../cursorType';
-import PageInfoType from '../pageInfoType';
 import {
   GraphQLNonNull,
   GraphQLObjectType,
@@ -11,6 +6,12 @@ import {
   GraphQLInt,
   GraphQLList,
 } from 'graphql';
+import { TypeComposer } from 'graphql-compose';
+import { userTypeComposer } from '../../__mocks__/userTypeComposer';
+import { prepareEdgeType, prepareConnectionType } from '../connectionType';
+import GraphQLConnectionCursor from '../cursorType';
+import PageInfoType from '../pageInfoType';
+
 
 describe('types/connectionType.js', () => {
   describe('prepareEdgeType()', () => {

@@ -1,14 +1,14 @@
 /* eslint-disable no-param-reassign */
 
 import { expect } from 'chai';
-import { TypeComposer } from 'graphql-compose';
-import { composeWithConnection } from '../composeWithConnection';
-import { userTypeComposer, sortOptions } from '../__mocks__/userTypeComposer';
-import { rootQueryTypeComposer } from '../__mocks__/rootQueryTypeComposer';
 import {
   graphql,
   GraphQLSchema,
 } from 'graphql';
+import { TypeComposer } from 'graphql-compose';
+import { composeWithConnection } from '../composeWithConnection';
+import { userTypeComposer, sortOptions } from '../__mocks__/userTypeComposer';
+import { rootQueryTypeComposer } from '../__mocks__/rootQueryTypeComposer';
 
 
 describe('composeWithRelay', () => {

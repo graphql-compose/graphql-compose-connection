@@ -4,7 +4,8 @@
   "description": "Plugin for `graphql-compose` which provide a connection resolver for types.",
   "files": [
     "es",
-    "lib"
+    "lib",
+    "README.md"
   ],
   "main": "lib/index.js",
   "jsnext:main": "es/index.js",
@@ -71,6 +72,9 @@
   "config": {
     "commitizen": {
       "path": "./node_modules/cz-conventional-changelog"
+    },
+    "ghooks": {
+      "pre-commit": "npm run test"
     }
   }
 }

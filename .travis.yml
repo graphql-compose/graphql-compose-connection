@@ -18,6 +18,7 @@ before_script:
   - npm prune
 script:
   - npm run test
+  - npm run build
 after_success:
   - 'curl -Lo travis_after_all.py https://git.io/travis_after_all'
   - python travis_after_all.py

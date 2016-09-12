@@ -47,6 +47,7 @@
     "eslint-plugin-jsx-a11y": "2.2.1",
     "eslint-plugin-react": "6.2.0",
     "flow-bin": "0.32.0",
+    "ghooks": "1.3.2",
     "mocha": "3.0.2",
     "rimraf": "2.5.4",
     "sane": "1.4.1",

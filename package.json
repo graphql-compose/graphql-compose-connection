@@ -63,7 +63,6 @@
     "build-flow": "find ./src -name '*.js' -not -path '*/__*' | while read filepath; do cp $filepath `echo $filepath | sed 's/\\/src\\//\\/lib\\//g'`.flow; done",
     "cover": "nyc npm t",
     "lint": "eslint src test *.js",
-    "prepublish": "npm run build",
     "test": "babel-node ./node_modules/.bin/_mocha --compilers js:babel-core/register --reporter dot --require ./resources/mocha-bootload src/**/__tests__/**/*-test.js",
     "watch": "babel-node ./resources/watch.js",
     "link": "npm link graphql && npm link graphql-compose && npm link",

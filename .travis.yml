@@ -14,6 +14,7 @@ node_js:
   - "0.10"
 before_install:
   - npm i -g npm@^2.0.0
+  - npm i graphql graphql-compose
 before_script:
   - npm prune
 script:
@@ -25,5 +26,5 @@ after_success:
   - export $(cat .to_export_back) &> /dev/null
   - npm run semantic-release
 branches:
-  except:
-    - /^v\d+\.\d+\.\d+$/
+  only:
+    - master

@@ -1,5 +1,10 @@
-graphql-compose-connection
-======================
+# graphql-compose-connection
+
+[![](https://img.shields.io/npm/v/graphql-compose-connection.svg)](https://www.npmjs.com/package/graphql-compose-connection)
+[![npm](https://img.shields.io/npm/dt/graphql-compose-connection.svg)](https://www.npmjs.com/package/graphql-compose-connection)
+[![Join the chat at https://gitter.im/graphql-compose/Lobby](https://badges.gitter.im/nodkz/graphql-compose.svg)](https://gitter.im/graphql-compose/Lobby)
+[![Commitizen friendly](https://img.shields.io/badge/commitizen-friendly-brightgreen.svg)](http://commitizen.github.io/cz-cli/)
+
 This is a plugin for [graphql-compose](https://github.com/nodkz/graphql-compose) family, which adds to the TypeComposer `connection` resolver.
 
 Live demo: [https://graphql-compose.herokuapp.com/](https://graphql-compose.herokuapp.com/)

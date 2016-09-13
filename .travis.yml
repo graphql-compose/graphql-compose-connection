@@ -4,7 +4,7 @@ cache:
   directories:
     - node_modules
 notifications:
-  email: false
+  email: true
 node_js:
   - "6"
   - "5"
@@ -24,8 +24,8 @@ after_success:
   - 'curl -Lo travis_after_all.py https://git.io/travis_after_all'
   - python travis_after_all.py
   - export $(cat .to_export_back) &> /dev/null
-  - bash <(curl -s https://codecov.io/bash)
-  - npm run semantic-release
+  - if [[ "$TRAVIS_JOB_NUMBER" == *.1 ]]; then bash <(curl -s https://codecov.io/bash); fi
+  - if [[ "$TRAVIS_JOB_NUMBER" == *.1 ]]; then npm run semantic-release; fi
 branches:
   only:
     - master

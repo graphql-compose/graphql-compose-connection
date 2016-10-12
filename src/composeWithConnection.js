@@ -4,7 +4,7 @@ import { TypeComposer } from 'graphql-compose';
 import type {
   composeWithConnectionOpts,
 } from './definition.js';
-import { prepareConnectionResolver } from './resolvers/connectionResolver';
+import { prepareConnectionResolver } from './connectionResolver';
 
 export function composeWithConnection(
   typeComposer: TypeComposer,
@@ -27,6 +27,6 @@ export function composeWithConnection(
     opts
   );
 
-  typeComposer.addResolver(resolver);
+  typeComposer.setResolver('connection', resolver);
   return typeComposer;
 }

@@ -130,7 +130,7 @@ function sortUserList(list, sortValue = {}) {
   return list;
 }
 
-export const findManyResolver = new Resolver(userTypeComposer, {
+export const findManyResolver = new Resolver({
   name: 'findMany',
   kind: 'query',
   outputType: UserType,
@@ -167,8 +167,10 @@ export const findManyResolver = new Resolver(userTypeComposer, {
     return Promise.resolve(list);
   },
 });
+userTypeComposer.setResolver('findMany', findManyResolver);
 
-export const countResolver = new Resolver(userTypeComposer, {
+
+export const countResolver = new Resolver({
   name: 'count',
   kind: 'query',
   outputType: GraphQLInt,
@@ -184,6 +186,7 @@ export const countResolver = new Resolver(userTypeComposer, {
     );
   },
 });
+userTypeComposer.setResolver('count', countResolver);
 
 
 export const sortOptions = {

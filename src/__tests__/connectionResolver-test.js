@@ -3,14 +3,14 @@
 import { expect } from 'chai';
 import { GraphQLInt } from 'graphql';
 import { Resolver } from 'graphql-compose';
-import { userTypeComposer, userList, sortOptions } from '../../__mocks__/userTypeComposer';
-import { dataToCursor } from '../../cursor';
+import { userTypeComposer, userList, sortOptions } from '../__mocks__/userTypeComposer';
+import { dataToCursor } from '../cursor';
 import {
   prepareConnectionResolver,
   prepareFilter,
   preparePageInfo,
 } from '../connectionResolver';
-import Cursor from '../../types/cursorType';
+import Cursor from '../types/cursorType';
 
 
 describe('connectionResolver', () => {

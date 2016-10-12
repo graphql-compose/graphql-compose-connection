@@ -128,7 +128,7 @@ function runTests(filepaths) {
       ['src/**/__tests__/**/*-test.js']
   );
   // console.log(cmd);
-  return exec('babel-node', cmd).catch(() => false);
+  return exec('node', cmd).catch(() => false);
 }
 
 function lintFiles(filepaths) {

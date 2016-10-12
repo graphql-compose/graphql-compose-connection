@@ -9,11 +9,11 @@ import type {
   composeWithConnectionOpts,
   connectionSortOpts,
   GraphQLConnectionType,
-} from '../definition';
-import { prepareConnectionType } from '../types/connectionType';
-import { prepareSortType } from '../types/sortInputType';
-import CursorType from '../types/cursorType';
-import { cursorToData, dataToCursor } from '../cursor';
+} from './definition';
+import { prepareConnectionType } from './types/connectionType';
+import { prepareSortType } from './types/sortInputType';
+import CursorType from './types/cursorType';
+import { cursorToData, dataToCursor } from './cursor';
 
 export function prepareConnectionResolver(
   typeComposer: TypeComposer,
@@ -33,7 +33,7 @@ export function prepareConnectionResolver(
                   + `should have resolver with name '${opts.countResolverName}' `
                   + 'due opts.countResolverName.');
   }
-  const countResolve = countResolver.composeResolve();
+  const countResolve = countResolver.getResolve();
 
   if (!opts.findResolverName) {
     throw new Error(`TypeComposer(${typeComposer.getTypeName()}) provided to composeWithConnection `
@@ -45,7 +45,7 @@ export function prepareConnectionResolver(
                   + `should have resolver with name '${opts.findResolverName}' `
                   + 'due opts.countResolverName.');
   }
-  const findManyResolve = findManyResolver.composeResolve();
+  const findManyResolve = findManyResolver.getResolve();
 
   const additionalArgs = {};
   if (findManyResolver.hasArg('filter')) {
@@ -54,7 +54,7 @@ export function prepareConnectionResolver(
 
   const sortEnumType = prepareSortType(typeComposer, opts);
 
-  return new Resolver(typeComposer, {
+  return new Resolver({
     outputType: prepareConnectionType(typeComposer),
     name: 'connection',
     kind: 'query',

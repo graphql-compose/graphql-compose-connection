@@ -115,12 +115,21 @@ export function prepareConnectionResolver(
         throw new Error('Argument `last` should be non-negative number.');
       }
 
+      // pass count ResolveParams to top resolver
+      resolveParams.countResolveParams = {
+        ...findManyParams,
+        args: {
+          filter: Object.assign({}, findManyParams.args.filter),
+        },
+      };
       if (projection.count) {
-        countPromise = countResolve(findManyParams);
+        countPromise = countResolve(resolveParams.countResolveParams);
       } else if (!first && last) {
-        countPromise = countResolve(findManyParams);
+        countPromise = countResolve(resolveParams.countResolveParams);
       } else {
         countPromise = Promise.resolve(0);
+        // count resolver not called, so remove it from top params
+        delete resolveParams.countResolveParams;
       }
 
       if (!first && last) {
@@ -136,6 +145,9 @@ export function prepareConnectionResolver(
         findManyParams.args.skip = skip;
       }
 
+      // pass findMany ResolveParams to top resolver
+      resolveParams.findManyResolveParams = Object.assign({}, findManyParams);
+
       const filterDataForCursor = (record) => {
         const result = {};
         sortOptions.uniqueFields.forEach(fieldName => {
@@ -144,7 +156,7 @@ export function prepareConnectionResolver(
         return result;
       };
 
-      return Promise.all([findManyResolve(findManyParams), countPromise])
+      return Promise.all([findManyResolve(resolveParams.findManyResolveParams), countPromise])
         .then(([recordList, count]) => {
           const edges = [];
           // transform record to object { cursor, node }

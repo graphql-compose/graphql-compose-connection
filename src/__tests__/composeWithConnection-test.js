@@ -8,7 +8,7 @@ import {
 import { TypeComposer } from 'graphql-compose';
 import { composeWithConnection } from '../composeWithConnection';
 import { userTypeComposer, sortOptions } from '../__mocks__/userTypeComposer';
-import { rootQueryTypeComposer } from '../__mocks__/rootQueryTypeComposer';
+import { rootQueryTypeComposer as rootQueryTC } from '../__mocks__/rootQueryTypeComposer';
 
 
 describe('composeWithRelay', () => {
@@ -34,11 +34,11 @@ describe('composeWithRelay', () => {
   });
 
   it('should apply first sort ID_ASC by default', async () => {
-    rootQueryTypeComposer.addField('userConnection',
+    rootQueryTC.addField('userConnection',
       userTypeComposer.getResolver('connection').getFieldConfig()
     );
     const schema = new GraphQLSchema({
-      query: rootQueryTypeComposer.getType(),
+      query: rootQueryTC.getType(),
     });
     const query = `{
       userConnection(last: 3) {
@@ -86,11 +86,11 @@ describe('composeWithRelay', () => {
   });
 
   it('should able to change `sort` on AGE_ID_DESC', async () => {
-    rootQueryTypeComposer.addField('userConnection',
+    rootQueryTC.addField('userConnection',
       userTypeComposer.getResolver('connection').getFieldConfig()
     );
     const schema = new GraphQLSchema({
-      query: rootQueryTypeComposer.getType(),
+      query: rootQueryTC.getType(),
     });
     const query = `{
       userConnection(first: 3, sort: AGE_ID_DESC) {
@@ -140,11 +140,11 @@ describe('composeWithRelay', () => {
 
   describe('fragments fields projection of graphql-compose', () => {
     it('should return object', async () => {
-      rootQueryTypeComposer.addField('userConnection',
+      rootQueryTC.addField('userConnection',
         userTypeComposer.getResolver('connection').getFieldConfig()
       );
       const schema = new GraphQLSchema({
-        query: rootQueryTypeComposer.getType(),
+        query: rootQueryTC.getType(),
       });
       const query = `{
         userConnection(first: 1) {
@@ -200,5 +200,64 @@ describe('composeWithRelay', () => {
         },
       });
     });
+  });
+
+  it('should pass `countResolveParams` to top resolverParams', async () => {
+    let topResolveParams;
+
+    rootQueryTC.addField('userConnection',
+      userTypeComposer
+        .getResolver('connection')
+        .wrapResolve((next) => (rp) => {
+          const result = next(rp);
+          topResolveParams = rp;
+          return result;
+        })
+        .getFieldConfig()
+    );
+    const schema = new GraphQLSchema({
+      query: rootQueryTC.getType(),
+    });
+    const query = `{
+      userConnection(first: 1, filter: { age: 45 }) {
+        count
+      }
+    }`;
+    const result = await graphql(schema, query);
+    expect(topResolveParams).has.property('countResolveParams');
+    expect(topResolveParams.countResolveParams)
+      .to.contain.all.keys(['source', 'args', 'context', 'info', 'projection']);
+    expect(topResolveParams.countResolveParams.args)
+      .deep.equal({ filter: { age: 45 } });
+  });
+
+
+  it('should pass `findManyResolveParams` to top resolverParams', async () => {
+    let topResolveParams;
+
+    rootQueryTC.addField('userConnection',
+      userTypeComposer
+        .getResolver('connection')
+        .wrapResolve((next) => (rp) => {
+          const result = next(rp);
+          topResolveParams = rp;
+          return result;
+        })
+        .getFieldConfig()
+    );
+    const schema = new GraphQLSchema({
+      query: rootQueryTC.getType(),
+    });
+    const query = `{
+      userConnection(first: 1, filter: { age: 45 }) {
+        count
+      }
+    }`;
+    const result = await graphql(schema, query);
+    expect(topResolveParams).has.property('findManyResolveParams');
+    expect(topResolveParams.findManyResolveParams)
+      .to.contain.all.keys(['source', 'args', 'context', 'info', 'projection']);
+    expect(topResolveParams.findManyResolveParams.args)
+      .deep.equal({ filter: { age: 45 }, limit: 2, sort: { id: 1 } });
   });
 });

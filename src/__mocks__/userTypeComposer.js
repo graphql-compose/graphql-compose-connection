@@ -55,6 +55,9 @@ const filterArgConfig = {
       gender: {
         type: GraphQLString,
       },
+      age: {
+        type: GraphQLInt,
+      },
       _operators: {
         type: new GraphQLInputObjectType({
           name: 'OperatorsFilterUserInput',

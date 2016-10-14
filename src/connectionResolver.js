@@ -2,12 +2,13 @@
 /* eslint-disable no-param-reassign, no-use-before-define */
 
 import { GraphQLInt } from 'graphql';
-import { Resolver, TypeComposer } from 'graphql-compose';
+import { Resolver, TypeComposer, omit } from 'graphql-compose';
 import type {
   ResolveParams,
   ConnectionResolveParams,
   composeWithConnectionOpts,
   connectionSortOpts,
+  connectionSortMapOpts,
   GraphQLConnectionType,
 } from './definition';
 import { prepareConnectionType } from './types/connectionType';
@@ -88,13 +89,12 @@ export function prepareConnectionResolver(
       const findManyParams: ResolveParams = Object.assign(
         {},
         resolveParams,
-        { args: {} } // clear this params in copy
       );
 
-      const sortOptions: connectionSortOpts = args.sort;
+      const sortConfig: connectionSortOpts = findSortConfig(opts.sort, args.sort);
 
-      findManyParams.args.filter = prepareFilter(args);
-      findManyParams.args.sort = sortOptions.sortValue;
+      prepareRawQuery(resolveParams, sortConfig);
+      findManyParams.rawQuery = resolveParams.rawQuery;
 
       if (projection && projection.edges) {
         // $FlowFixMe
@@ -102,7 +102,7 @@ export function prepareConnectionResolver(
       } else {
         findManyParams.projection = {};
       }
-      sortOptions.uniqueFields.forEach(fieldName => {
+      sortConfig.cursorFields.forEach(fieldName => {
         findManyParams.projection[fieldName] = true;
       });
 
@@ -150,7 +150,7 @@ export function prepareConnectionResolver(
 
       const filterDataForCursor = (record) => {
         const result = {};
-        sortOptions.uniqueFields.forEach(fieldName => {
+        sortConfig.cursorFields.forEach(fieldName => {
           result[fieldName] = record[fieldName];
         });
         return result;
@@ -216,25 +216,29 @@ export function preparePageInfo(
   return pageInfo;
 }
 
-export function prepareFilter(
-  args: {
-    after?: string,
-    before?: string,
-    filter?: Object,
-    sort: connectionSortOpts,
-  }
+export function prepareRawQuery(
+  rp: ResolveParams,
+  sortConfig: connectionSortOpts
 ) {
-  let filter = args.filter || {};
-  const beginCursorData = cursorToData(args.after);
-  if (beginCursorData) {
-    filter = args.sort.directionFilter(filter, beginCursorData, false);
-  }
-  const endCursorData = cursorToData(args.before);
-  if (endCursorData) {
-    filter = args.sort.directionFilter(filter, endCursorData, true);
+  if (!rp.rawQuery) {
+    rp.rawQuery = {};
   }
 
-  return filter;
+  const beginCursorData = cursorToData(rp.args.after);
+  if (beginCursorData) {
+    const r = sortConfig.afterCursorQuery(rp.rawQuery, beginCursorData, rp);
+    if (r !== undefined) {
+      rp.rawQuery = r;
+    }
+  }
+
+  const endCursorData = cursorToData(rp.args.before);
+  if (endCursorData) {
+    const r = sortConfig.beforeCursorQuery(rp.rawQuery, endCursorData, rp);
+    if (r !== undefined) {
+      rp.rawQuery = r;
+    }
+  }
 }
 
 export function emptyConnection(): GraphQLConnectionType {
@@ -247,5 +251,29 @@ export function emptyConnection(): GraphQLConnectionType {
       hasPreviousPage: false,
       hasNextPage: false,
     },
+  };
+}
+
+export function findSortConfig(
+  configs: connectionSortMapOpts,
+  val: mixed
+): ?connectionSortOpts {
+  const valStringified = JSON.stringify(val);
+
+  // Object.keys(configs).forEach(k => {  // return does not works
+  for (let k in configs) {
+    const cfgVal = configs[k].value;
+    if (cfgVal === val) {
+      return configs[k];
+    }
+
+    // Yep, I know that it's now good comparision, but fast solution for now
+    // Sorry but complex sort value should has same key ordering
+    //   cause {a: 1, b: 2} != {b: 2, a: 1}
+    // BTW this code will be called only if arg.sort setuped by hands
+    //   if graphql provides arg.sort, then works above cfgVal === val comparision
+    if (JSON.stringify(cfgVal) === valStringified) {
+      return configs[k];
+    }
   };
 }

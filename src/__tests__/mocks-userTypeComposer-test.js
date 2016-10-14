@@ -19,16 +19,16 @@ describe('mocks/userTypeComposer', () => {
       args: {
         filter: {
           gender: 'm',
-          _operators: {
-            age: {
-              gt: 15,
-              lt: 20,
-            },
-            id: {
-              gt: 8,
-              lt: 20,
-            },
-          },
+        },
+      },
+      rawQuery: {
+        age: {
+          $gt: 15,
+          $lt: 20,
+        },
+        id: {
+          $gt: 8,
+          $lt: 20,
         },
       },
     });

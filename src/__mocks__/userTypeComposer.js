@@ -58,31 +58,6 @@ const filterArgConfig = {
       age: {
         type: GraphQLInt,
       },
-      _operators: {
-        type: new GraphQLInputObjectType({
-          name: 'OperatorsFilterUserInput',
-          fields: {
-            id: {
-              type: new GraphQLInputObjectType({
-                name: 'IdOperatorsFilterUserInput',
-                fields: {
-                  lt: { type: GraphQLInt },
-                  gt: { type: GraphQLInt },
-                },
-              }),
-            },
-            age: {
-              type: new GraphQLInputObjectType({
-                name: 'AgeOperatorsFilterUserInput',
-                fields: {
-                  lt: { type: GraphQLInt },
-                  gt: { type: GraphQLInt },
-                },
-              }),
-            },
-          },
-        }),
-      },
     },
   }),
 };
@@ -93,22 +68,20 @@ function filteredUserList(list, filter = {}) {
     result = result.filter(o => o.gender === filter.gender);
   }
 
-  if (filter._operators) {
-    if (filter._operators.id) {
-      if (filter._operators.id.lt) {
-        result = result.filter(o => o.id < filter._operators.id.lt);
-      }
-      if (filter._operators.id.gt) {
-        result = result.filter(o => o.id > filter._operators.id.gt);
-      }
+  if (filter.id) {
+    if (filter.id.$lt) {
+      result = result.filter(o => o.id < filter.id.$lt);
     }
-    if (filter._operators.age) {
-      if (filter._operators.age.lt) {
-        result = result.filter(o => o.age < filter._operators.age.lt);
-      }
-      if (filter._operators.age.gt) {
-        result = result.filter(o => o.age > filter._operators.age.gt);
-      }
+    if (filter.id.$gt) {
+      result = result.filter(o => o.id > filter.id.$gt);
+    }
+  }
+  if (filter.age) {
+    if (filter.age.$lt) {
+      result = result.filter(o => o.age < filter.age.$lt);
+    }
+    if (filter.age.$gt) {
+      result = result.filter(o => o.age > filter.age.$gt);
     }
   }
 
@@ -131,6 +104,17 @@ function sortUserList(list, sortValue = {}) {
     return result;
   });
   return list;
+}
+
+function prepareFilterFromArgs(resolveParams = {}) {
+  const args = resolveParams.args || {};
+  const filter = Object.assign({}, args.filter);
+  if (resolveParams.rawQuery) {
+    Object.keys(resolveParams.rawQuery).forEach((k) => {
+      filter[k] = resolveParams.rawQuery[k];
+    });
+  }
+  return filter;
 }
 
 export const findManyResolver = new Resolver({
@@ -157,7 +141,7 @@ export const findManyResolver = new Resolver({
 
     let list = userList.slice();
     list = sortUserList(list, sort);
-    list = filteredUserList(list, filter);
+    list = filteredUserList(list, prepareFilterFromArgs(resolveParams));
 
     if (skip) {
       list = list.slice(skip);
@@ -184,7 +168,7 @@ export const countResolver = new Resolver({
     return Promise.resolve(
       filteredUserList(
         userList,
-        resolveParams.args && resolveParams.args.filter
+        prepareFilterFromArgs(resolveParams)
       ).length
     );
   },
@@ -194,34 +178,31 @@ userTypeComposer.setResolver('count', countResolver);
 
 export const sortOptions = {
   ID_ASC: {
-    uniqueFields: ['id'],
-    sortValue: { id: 1 },
-    directionFilter: (filter, cursorData, isBefore) => {
-      filter._operators = filter._operators || {};
-      filter._operators.id = filter._operators.id || {};
-      if (isBefore) {
-        filter._operators.id.lt = cursorData.id;
-      } else {
-        filter._operators.id.gt = cursorData.id;
-      }
-      return filter;
+    value: { id: 1 },
+    cursorFields: ['id'],
+    beforeCursorQuery: (rawQuery, cursorData, resolveParams) => {
+      if (!rawQuery.id) rawQuery.id = {};
+      rawQuery.id.$lt = cursorData.id;
+    },
+    afterCursorQuery: (rawQuery, cursorData, resolveParams) => {
+      if (!rawQuery.id) rawQuery.id = {};
+      rawQuery.id.$gt = cursorData.id;
     },
   },
   AGE_ID_DESC: {
-    uniqueFields: ['age', 'id'],
-    sortValue: { age: -1, id: -1 },
-    directionFilter: (filter, cursorData, isBefore) => {
-      filter._operators = filter._operators || {};
-      filter._operators.id = filter._operators.id || {};
-      filter._operators.age = filter._operators.age || {};
-      if (isBefore) {
-        filter._operators.age.gt = cursorData.age;
-        filter._operators.id.gt = cursorData.id;
-      } else {
-        filter._operators.age.lt = cursorData.age;
-        filter._operators.id.lt = cursorData.id;
-      }
-      return filter;
+    value: { age: -1, id: -1 },
+    cursorFields: ['age', 'id'],
+    beforeCursorQuery: (rawQuery, cursorData, resolveParams) => {
+      if (!rawQuery.age) rawQuery.age = {};
+      if (!rawQuery.id) rawQuery.id = {};
+      rawQuery.age = { $gt: cursorData.age };
+      rawQuery.id = { $gt: cursorData.id };
+    },
+    afterCursorQuery: (rawQuery, cursorData, resolveParams) => {
+      if (!rawQuery.age) rawQuery.age = {};
+      if (!rawQuery.id) rawQuery.id = {};
+      rawQuery.age = { $lt: cursorData.age };
+      rawQuery.id = { $lt: cursorData.id };
     },
   },
 };

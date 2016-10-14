@@ -33,45 +33,77 @@ Example
 ```js
 import composeWithConnection from 'graphql-compose-connection';
 import userTypeComposer from './user.js';
-const OPERATORS_FIELDNAME = '_operators';
 
 composeWithConnection(userTypeComposer, {
   findResolverName: 'findMany',
   countResolverName: 'count',
   sort: {
-    _ID_DESC: {
-      uniqueFields: ['_id'],
-      sortValue: { _id: -1 },
-      directionFilter: (filter, cursorData, isBefore) => {
-        filter[OPERATORS_FIELDNAME] = filter[OPERATORS_FIELDNAME] || {};
-        filter[OPERATORS_FIELDNAME]._id = filter[OPERATORS_FIELDNAME]._id || {};
-        if (isBefore) {
-          filter[OPERATORS_FIELDNAME]._id.gt = cursorData._id;
-        } else {
-          filter[OPERATORS_FIELDNAME]._id.lt = cursorData._id;
-        }
-        return filter;
+    // Sorting key, visible for users in GraphQL Schema
+    _ID_ASC: {
+      // Sorting value for ORM/Driver
+      value: { _id: 1 },
+
+      // Field names in record, which data will be packed in `cursor`
+      //   edges {
+      //     cursor   <- base64(cursorData), for this example `cursorData` = { _id: 334ae453 }
+      //     node     <- record from DB
+      //   }
+      // By this fields MUST be created UNIQUE index in database!
+      cursorFields: ['_id'],
+
+      // If for connection query provided `before` argument with above `cursor`.
+      // We should construct (`rawQuery`) which will be point to dataset before cursor.
+      // Unpacked data from `cursor` will be available in (`cursorData`) argument.
+      // PS. All other filter options provided via GraphQL query will be added automatically.
+      // ----- [record] -----   sorted dataset, according to above option with `value` name
+      // ^^^^^                 `rawQuery` should filter this set    
+      beforeCursorQuery: (rawQuery, cursorData, resolveParams) => {
+        if (!rawQuery._id) rawQuery._id = {};
+        rawQuery._id.$lt = cursorData._id;
+      },
+
+      // Constructing `rawQuery` for connection `after` argument.
+      // ----- [record] -----   sorted dataset
+      //                ^^^^^  `rawQuery` should filter this set    
+      afterCursorQuery: (rawQuery, cursorData, resolveParams) => {
+        if (!rawQuery._id) rawQuery._id = {};
+        rawQuery._id.$gt = cursorData._id;
       },
     },
+
+    _ID_DESC: {
+      value: { _id: -1 },
+      cursorFields: ['_id'],
+      beforeCursorQuery: (rawQuery, cursorData, resolveParams) => {
+        if (!rawQuery._id) rawQuery._id = {};
+        rawQuery._id.$gt = cursorData._id;
+      },
+      afterCursorQuery: (rawQuery, cursorData, resolveParams) => {
+        if (!rawQuery._id) rawQuery._id = {};
+        rawQuery._id.$lt = cursorData._id;
+      },
+    },
+
+    // More complex sorting parameter with 2 fields
     AGE_ID_ASC: {
-      uniqueFields: ['age', '_id'],
-      sortValue: { age: 1, _id: -1 },
-      directionFilter: (filter, cursorData, isBefore) => {
-        filter[OPERATORS_FIELDNAME] = filter[OPERATORS_FIELDNAME] || {};
-        filter[OPERATORS_FIELDNAME]._id = filter[OPERATORS_FIELDNAME]._id || {};
-        filter[OPERATORS_FIELDNAME].age = filter[OPERATORS_FIELDNAME].age || {};
-        if (isBefore) {
-          filter[OPERATORS_FIELDNAME].age.lt = cursorData.age;
-          filter[OPERATORS_FIELDNAME]._id.gt = cursorData._id;
-        } else {
-          filter[OPERATORS_FIELDNAME].age.gt = cursorData.age;
-          filter[OPERATORS_FIELDNAME]._id.lt = cursorData._id;
-        }
-        return filter;
+      value: { age: 1, _id: -1 },
+      // By these fields MUST be created COMPOUND UNIQUE index in database!
+      cursorFields: ['age', '_id'],
+      beforeCursorQuery: (rawQuery, cursorData, resolveParams) => {
+        if (!rawQuery.age) rawQuery.age = {};
+        if (!rawQuery._id) rawQuery._id = {};
+        rawQuery.age.$lt = cursorData.age;
+        rawQuery._id.$gt = cursorData._id;
+      },
+      afterCursorQuery: (rawQuery, cursorData, resolveParams) => {
+        if (!rawQuery.age) rawQuery.age = {};
+        if (!rawQuery._id) rawQuery._id = {};
+        rawQuery.age.$gt = cursorData.age;
+        rawQuery._id.$lt = cursorData._id;
       },
     }
   },
-})
+});
 ```
 <img width="1249" alt="screen shot 2016-07-20 at 12 20 08" src="https://cloud.githubusercontent.com/assets/1946920/16976899/67a5e0f8-4e74-11e6-87e5-fc4574deaaab.png">
 

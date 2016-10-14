@@ -258,6 +258,6 @@ describe('composeWithRelay', () => {
     expect(topResolveParams.findManyResolveParams)
       .to.contain.all.keys(['source', 'args', 'context', 'info', 'projection']);
     expect(topResolveParams.findManyResolveParams.args)
-      .deep.equal({ filter: { age: 45 }, limit: 2, sort: { id: 1 } });
+      .deep.equal({ filter: { age: 45 }, limit: 2, sort: { id: 1 }, first: 1 });
   });
 });

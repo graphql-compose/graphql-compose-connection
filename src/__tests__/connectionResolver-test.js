@@ -4,10 +4,10 @@ import { expect } from 'chai';
 import { GraphQLInt } from 'graphql';
 import { Resolver } from 'graphql-compose';
 import { userTypeComposer, userList, sortOptions } from '../__mocks__/userTypeComposer';
-import { dataToCursor } from '../cursor';
+import { dataToCursor, cursorToData } from '../cursor';
 import {
   prepareConnectionResolver,
-  prepareFilter,
+  prepareRawQuery,
   preparePageInfo,
 } from '../connectionResolver';
 import Cursor from '../types/cursorType';
@@ -98,45 +98,82 @@ describe('connectionResolver', () => {
     });
   });
 
-  describe('prepareFilter()', () => {
-    const sortValue = {
-      uniqueFields: ['id'],
-      sortValue: { id: 1 },
-      directionFilter: (filter, cursorData, isBefore) => {
-        if (isBefore) {
-          filter.before = cursorData;
-        } else {
-          filter.after = cursorData;
-        }
-        return filter;
+  describe('prepareRawQuery()', () => {
+    const sortConfig = {
+      value: { id: 1 },
+      cursorFields: ['id'],
+      beforeCursorQuery: (rawQuery, cursorData, resolveParams) => {
+        rawQuery.before = cursorData;
+        return rawQuery;
+      },
+      afterCursorQuery: (rawQuery, cursorData, resolveParams) => {
+        rawQuery.after = cursorData;
+        return rawQuery;
       },
     };
 
-    it('should return filter', () => {
-      expect(prepareFilter({ filter: 123 })).to.equals(123);
+    it('should setup in resolveParams.rawQuery', () => {
+      const rp = {
+        args: { filter: 123 },
+      };
+      prepareRawQuery(rp, sortConfig);
+      expect(rp.rawQuery).to.deep.equal({});
     });
 
-    it('should add cursorData from args.after to filter', () => {
-      expect(prepareFilter({
-        after: dataToCursor({ id: 1 }),
-        sort: sortValue,
-      })).to.deep.equal({ after: { id: 1 } });
+    it('should keep resolveParams.rawQuery if beforeCursorQuery/afterCursorQuery returns undefined', () => {
+      const rawQuery = { a: 1 };
+      const resolveParams = {
+        args: {
+          before: dataToCursor({ id1: 1 }),
+          after: dataToCursor({ id2: 2 }),
+        },
+        rawQuery,
+      };
+      const dumbSortConfig = {
+        beforeCursorQuery: () => {},
+        afterCursorQuery: () => {},
+      };
+      prepareRawQuery(resolveParams, dumbSortConfig);
+      expect(resolveParams.rawQuery).equal(rawQuery);
     });
 
-    it('should add cursorData from args.before to filter', () => {
-      expect(prepareFilter({
-        before: dataToCursor({ id: 2 }),
-        sort: sortValue,
-      })).to.deep.equal({ before: { id: 2 } });
+    it('should call afterCursorQuery if provided args.after', () => {
+      const rp = {
+        args: {
+          after: dataToCursor({ id: 123 }),
+          sort: { id: 1 },
+        }
+      };
+      prepareRawQuery(rp, sortConfig);
+      expect(rp.rawQuery).to.deep.equal({ after: { id: 123 } });
     });
 
-    it('should add both before and after cursorData to filter', () => {
-      expect(prepareFilter({
-        filter: { someKey: 0 },
-        after: dataToCursor({ id: 1 }),
-        before: dataToCursor({ id: 2 }),
-        sort: sortValue,
-      })).to.deep.equal({ after: { id: 1 }, before: { id: 2 }, someKey: 0 });
+    it('should call beforeCursorQuery if provided args.before', () => {
+      const rp = {
+        args: {
+          before: dataToCursor({ id: 234 }),
+          sort: { id: 1 },
+        },
+      };
+      prepareRawQuery(rp, sortConfig);
+      expect(rp.rawQuery).to.deep.equal({ before: { id: 234 } });
+    });
+
+    it('should call afterCursorQuery and beforeCursorQuery', () => {
+      const rawQuery = { someKey: 1 };
+      const resolveParams = {
+        args: {
+          before: dataToCursor({ id1: 1 }),
+          after: dataToCursor({ id2: 2 }),
+        },
+        rawQuery,
+      };
+      prepareRawQuery(resolveParams, sortConfig);
+      expect(resolveParams.rawQuery).deep.equal({
+        someKey: 1,
+        before: { id1: 1 },
+        after: { id2: 2 },
+      });
     });
   });
 
@@ -197,7 +234,7 @@ describe('connectionResolver', () => {
       it('should return correct values for pageInfo if last is less first', async () => {
         const result = await connectionResolver.resolve({
           args: {
-            sort: sortOptions.ID_ASC,
+            sort: sortOptions.ID_ASC.value,
             first: 5,
             last: 3,
           },
@@ -209,7 +246,7 @@ describe('connectionResolver', () => {
       it('should return correct values for pageInfo if `last` equals `first`', async () => {
         const result = await connectionResolver.resolve({
           args: {
-            sort: sortOptions.ID_ASC,
+            sort: sortOptions.ID_ASC.value,
             first: 5,
             last: 5,
           },
@@ -221,7 +258,7 @@ describe('connectionResolver', () => {
       it('should return correct values for pageInfo if set only `first`', async () => {
         const result = await connectionResolver.resolve({
           args: {
-            sort: sortOptions.ID_ASC,
+            sort: sortOptions.ID_ASC.value,
             first: 5,
           },
         });
@@ -230,7 +267,7 @@ describe('connectionResolver', () => {
 
         const result2 = await connectionResolver.resolve({
           args: {
-            sort: sortOptions.ID_ASC,
+            sort: sortOptions.ID_ASC.value,
             first: userList.length,
           },
         });
@@ -241,7 +278,7 @@ describe('connectionResolver', () => {
       it('should return correct values for pageInfo if set only `last`', async () => {
         const result = await connectionResolver.resolve({
           args: {
-            sort: sortOptions.ID_ASC,
+            sort: sortOptions.ID_ASC.value,
             last: 5,
           },
         });
@@ -250,7 +287,7 @@ describe('connectionResolver', () => {
 
         const result2 = await connectionResolver.resolve({
           args: {
-            sort: sortOptions.ID_ASC,
+            sort: sortOptions.ID_ASC.value,
             last: userList.length,
           },
         });
@@ -266,7 +303,7 @@ describe('connectionResolver', () => {
         const result = await connectionResolver.resolve({
           args: {
             after: dataToCursor({ id: 2 }),
-            sort: sortOptions.ID_ASC,
+            sort: sortOptions.ID_ASC.value,
             first: 1,
           },
         });
@@ -277,7 +314,7 @@ describe('connectionResolver', () => {
         const result = await connectionResolver.resolve({
           args: {
             before: dataToCursor({ id: 2 }),
-            sort: sortOptions.ID_ASC,
+            sort: sortOptions.ID_ASC.value,
             first: 1,
           },
         });
@@ -289,7 +326,7 @@ describe('connectionResolver', () => {
           args: {
             after: dataToCursor({ id: 2 }),
             before: dataToCursor({ id: 6 }),
-            sort: sortOptions.ID_ASC,
+            sort: sortOptions.ID_ASC.value,
             first: 10,
           },
         });
@@ -303,7 +340,7 @@ describe('connectionResolver', () => {
         const promise = connectionResolver.resolve({
           args: {
             first: -5,
-            sort: sortOptions.ID_ASC,
+            sort: sortOptions.ID_ASC.value,
           },
         });
         await expect(promise).be.rejectedWith(Error, 'should be non-negative number');
@@ -312,7 +349,7 @@ describe('connectionResolver', () => {
       it('should slice edges to be length of `first`, if length is greater', async () => {
         const result = await connectionResolver.resolve({
           args: {
-            sort: sortOptions.ID_ASC,
+            sort: sortOptions.ID_ASC.value,
             first: 5,
           },
         });
@@ -323,7 +360,7 @@ describe('connectionResolver', () => {
         const promise = connectionResolver.resolve({
           args: {
             last: -5,
-            sort: sortOptions.ID_ASC,
+            sort: sortOptions.ID_ASC.value,
           },
         });
         await expect(promise).be.rejectedWith(Error, 'should be non-negative number');
@@ -332,7 +369,7 @@ describe('connectionResolver', () => {
       it('should slice edges to be length of `last`', async () => {
         const result = await connectionResolver.resolve({
           args: {
-            sort: sortOptions.ID_ASC,
+            sort: sortOptions.ID_ASC.value,
             last: 3,
           },
         });
@@ -342,7 +379,7 @@ describe('connectionResolver', () => {
       it('should slice edges to be length of `last`, if `first` and `last` present', async () => {
         const result = await connectionResolver.resolve({
           args: {
-            sort: sortOptions.ID_ASC,
+            sort: sortOptions.ID_ASC.value,
             first: 5,
             last: 2,
           },
@@ -353,7 +390,7 @@ describe('connectionResolver', () => {
       it('serve complex fetching with all connection args', async () => {
         const result = await connectionResolver.resolve({
           args: {
-            sort: sortOptions.ID_ASC,
+            sort: sortOptions.ID_ASC.value,
             after: dataToCursor({ id: 5 }),
             before: dataToCursor({ id: 13 }),
             first: 5,
@@ -377,7 +414,7 @@ describe('connectionResolver', () => {
           filter: {
             gender: 'm',
           },
-          sort: sortOptions.ID_ASC,
+          sort: sortOptions.ID_ASC.value,
           first: 100,
         },
         projection: { count: 1 },

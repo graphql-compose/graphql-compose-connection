@@ -32,7 +32,7 @@ export function prepareSortType(
 
     sortEnumValues[sortKey] = {
       name: sortKey,
-      value: opts.sort[sortKey],
+      value: opts.sort[sortKey].value,
     };
   });
 
@@ -46,23 +46,30 @@ export function prepareSortType(
 
 
 export function checkSortOpts(key: string, opts: connectionSortOpts) {
-  if (!opts.uniqueFields || !Array.isArray(opts.uniqueFields)) {
-    throw new Error('You should provide array of field(s) in `uniqueFields` '
+  if (!opts.value) {
+    throw new Error('You should provide `value` '
+                  + `for composeWithConnection in opts.sort.${key}. `
+                  + 'Connections does not work without sorting.');
+  }
+
+  if (!opts.cursorFields || !Array.isArray(opts.cursorFields)) {
+    throw new Error('You should provide array of field(s) in `cursorFields` '
                   + `for composeWithConnection in opts.sort.${key}`
                   + 'Ideally this field(s) should be in unique index. '
                   + 'Connection will work incorrectly, if some records have same values.');
   }
 
-  if (!opts.sortValue) {
-    throw new Error('You should provide `sortValue` '
-                  + `for composeWithConnection in opts.sort.${key}. `
-                  + 'Connections does not work without sorting.');
-  }
-
-  if (!opts.directionFilter || !isFunction(opts.directionFilter)) {
-    throw new Error('You should provide `directionFilter` function '
+  if (!opts.beforeCursorQuery || !isFunction(opts.beforeCursorQuery)) {
+    throw new Error('You should provide `beforeCursorQuery` function '
                   + `for composeWithConnection in opts.sort.${key}. `
                   + 'Connections should have ability to filter '
-                  + 'forward/backward records started from cursor.');
+                  + 'backward records started from cursor.');
+  }
+
+  if (!opts.afterCursorQuery || !isFunction(opts.afterCursorQuery)) {
+    throw new Error('You should provide `afterCursorQuery` function '
+                  + `for composeWithConnection in opts.sort.${key}. `
+                  + 'Connections should have ability to filter '
+                  + 'forward records started from cursor.');
   }
 }

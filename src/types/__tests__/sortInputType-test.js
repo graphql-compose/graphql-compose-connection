@@ -19,51 +19,75 @@ describe('types/sortInputType.js', () => {
       })).to.throw('should provide at least one `sort` option');
     });
 
-    it('should throw error if opts.sort.[KEY].uniqueFields are empty object', () => {
+    it('should throw error if opts.sort.[KEY].value are empty object', () => {
       expect(() => prepareSortType(userTypeComposer, {
         sort: {
           _ID_ASC: {},
         },
-      })).to.throw('should provide array of field(s) in `uniqueFields`');
-
-      expect(() => prepareSortType(userTypeComposer, {
-        sort: {
-          _ID_ASC: {
-            uniqueFields: 123,
-          },
-        },
-      })).to.throw('should provide array of field(s) in `uniqueFields`');
+      })).to.throw('should provide `value`');
     });
 
-    it('should throw error if opts.sort.[KEY].sortValue are empty object', () => {
+    it('should throw error if opts.sort.[KEY].cursorFields are empty object', () => {
       expect(() => prepareSortType(userTypeComposer, {
         sort: {
           _ID_ASC: {
-            uniqueFields: ['id'],
+            value: { id: 1 },
           },
         },
-      })).to.throw('should provide `sortValue`');
+      })).to.throw('should provide array of field(s) in `cursorFields`');
+
+      expect(() => prepareSortType(userTypeComposer, {
+        sort: {
+          _ID_ASC: {
+            value: { id: 1 },
+            cursorFields: 123,
+          },
+        },
+      })).to.throw('should provide array of field(s) in `cursorFields`');
     });
 
-    it('should throw error if opts.sort.[KEY].directionFilter are empty object', () => {
+    it('should throw error if opts.sort.[KEY].beforeCursorQuery are empty object', () => {
       expect(() => prepareSortType(userTypeComposer, {
         sort: {
           _ID_ASC: {
-            uniqueFields: ['id'],
-            sortValue: { id: 1 },
+            value: { id: 1 },
+            cursorFields: ['id'],
           },
         },
-      })).to.throw('should provide `directionFilter`');
+      })).to.throw('should provide `beforeCursorQuery`');
 
       expect(() => prepareSortType(userTypeComposer, {
         sort: {
           _ID_ASC: {
-            uniqueFields: ['id'],
-            sortValue: { id: 1 },
-            directionFilter: 123,
+            value: { id: 1 },
+            cursorFields: ['id'],
+            beforeCursorQuery: 123,
           },
         },
-      })).to.throw('should provide `directionFilter`');
+      })).to.throw('should provide `beforeCursorQuery`');
+    });
+
+    it('should throw error if opts.sort.[KEY].afterCursorQuery are empty object', () => {
+      expect(() => prepareSortType(userTypeComposer, {
+        sort: {
+          _ID_ASC: {
+            value: { id: 1 },
+            cursorFields: ['id'],
+            beforeCursorQuery: () => {},
+          },
+        },
+      })).to.throw('should provide `afterCursorQuery`');
+
+      expect(() => prepareSortType(userTypeComposer, {
+        sort: {
+          _ID_ASC: {
+            value: { id: 1 },
+            cursorFields: ['id'],
+            beforeCursorQuery: () => {},
+            afterCursorQuery: 123,
+          },
+        },
+      })).to.throw('should provide `afterCursorQuery`');
     });
   });
 
@@ -71,9 +95,10 @@ describe('types/sortInputType.js', () => {
     const sortType = prepareSortType(userTypeComposer, {
       sort: {
         _ID_ASC: {
-          uniqueFields: ['id'],
-          sortValue: { id: 1 },
-          directionFilter: () => 123,
+          value: { id: 1 },
+          cursorFields: ['id'],
+          beforeCursorQuery: () => {},
+          afterCursorQuery: () => {},
         },
       },
     });

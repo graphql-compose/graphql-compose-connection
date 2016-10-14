@@ -16,9 +16,10 @@ export type connectionSortMapOpts = {
 };
 
 export type connectionSortOpts = {
-  uniqueFields: string[],
-  sortValue: mixed,
-  directionFilter: (<T>(filterArg: T, cursorData: CursorDataType, isBefore: boolean) => T),
+  value: mixed,
+  cursorFields: string[],
+  beforeCursorQuery: (rawQuery: mixed, cursorData: CursorDataType, resolveParams: ResolveParams) => void,
+  afterCursorQuery: (rawQuery: mixed, cursorData: CursorDataType, resolveParams: ResolveParams) => void,
 };
 
 export type ResolveParams = _ResolveParams;

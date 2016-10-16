@@ -649,5 +649,18 @@ describe('connectionResolver', () => {
       expect(next).deep.property('edges.0.node.id')
         .equals(result.edges[2].node.id);
     });
+
+    it('should reduce limit if reach cursor offset', async () => {
+      const result = await connectionResolver.resolve({
+        args: {
+          sort: { name: 1 },
+          before: dataToCursor(2),
+          first: 5,
+        },
+      });
+      expect(result).deep.property('edges').to.have.length(2);
+      expect(result).deep.property('edges.0.node.id').equals(1);
+      expect(result).deep.property('edges.1.node.id').equals(2);
+    });
   });
 });

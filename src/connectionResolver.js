@@ -297,9 +297,10 @@ export function prepareLimitSkipFallback(
     newSkip = skip - beforeSkip;
     if (newSkip < 0) {
       newSkip = 0;
-      newLimit = limit + newSkip;
-      if (newLimit < 0) {
-        newLimit = 0;
+      newLimit = limit;
+      // offset 0, so limit should not exceed offset in cursor, otherwise it returns again this record
+      if (newLimit > beforeSkip) {
+        newLimit = beforeSkip;
       }
     }
   } else if (afterSkip) {

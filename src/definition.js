@@ -42,7 +42,7 @@ export type ConnectionResolveParams = {
 
 export type CursorDataType = {
   [fieldName: string]: mixed,
-};
+} | number;
 
 export type GraphQLConnectionType = {
   count: number,

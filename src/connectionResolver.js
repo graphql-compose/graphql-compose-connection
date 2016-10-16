@@ -50,6 +50,7 @@ export function prepareConnectionResolver(
 
   const additionalArgs = {};
   if (findManyResolver.hasArg('filter')) {
+    // $FlowFixMe
     additionalArgs.filter = findManyResolver.getArg('filter');
   }
 
@@ -85,26 +86,11 @@ export function prepareConnectionResolver(
     },
     resolve: async (resolveParams: ConnectionResolveParams) => {
       let countPromise;
-      const { projection = {}, args } = resolveParams;
+      const { projection = {}, args, rawQuery } = resolveParams;
       const findManyParams: ResolveParams = Object.assign(
         {},
         resolveParams,
       );
-
-      const sortConfig: connectionSortOpts = findSortConfig(opts.sort, args.sort);
-
-      prepareRawQuery(resolveParams, sortConfig);
-      findManyParams.rawQuery = resolveParams.rawQuery;
-
-      if (projection && projection.edges) {
-        // $FlowFixMe
-        findManyParams.projection = projection.edges.node || {};
-      } else {
-        findManyParams.projection = {};
-      }
-      sortConfig.cursorFields.forEach(fieldName => {
-        findManyParams.projection[fieldName] = true;
-      });
 
       let first = parseInt(args.first, 10) || 0;
       if (first < 0) {
@@ -115,21 +101,28 @@ export function prepareConnectionResolver(
         throw new Error('Argument `last` should be non-negative number.');
       }
 
-      // pass count ResolveParams to top resolver
-      resolveParams.countResolveParams = {
+      const countParams = {
         ...findManyParams,
+        rawQuery,
         args: {
-          filter: Object.assign({}, findManyParams.args.filter),
+          filter: Object.assign({}, { ...findManyParams.args.filter }),
         },
       };
+
       if (projection.count) {
-        countPromise = countResolve(resolveParams.countResolveParams);
+        countPromise = countResolve(countParams);
       } else if (!first && last) {
-        countPromise = countResolve(resolveParams.countResolveParams);
+        countPromise = countResolve(countParams);
       } else {
         countPromise = Promise.resolve(0);
-        // count resolver not called, so remove it from top params
-        delete resolveParams.countResolveParams;
+      }
+
+
+      if (projection && projection.edges) {
+        // $FlowFixMe
+        findManyParams.projection = projection.edges.node || {};
+      } else {
+        findManyParams.projection = {};
       }
 
       if (!first && last) {
@@ -137,8 +130,34 @@ export function prepareConnectionResolver(
         first = parseInt(first, 10) || 0;
       }
 
-      const limit = last || first || 20;
-      const skip = last > 0 ? first - last : 0;
+      let limit = last || first || 20;
+      let skip = last > 0 ? first - last : 0;
+
+      let prepareCursorData;
+      const sortConfig: ?connectionSortOpts = findSortConfig(opts.sort, args.sort);
+      if (sortConfig) {
+        prepareRawQuery(resolveParams, sortConfig);
+        findManyParams.rawQuery = resolveParams.rawQuery;
+        sortConfig.cursorFields.forEach(fieldName => {
+          findManyParams.projection[fieldName] = true;
+        });
+
+        prepareCursorData = (record) => {
+          const result = {};
+          sortConfig.cursorFields.forEach(fieldName => {
+            result[fieldName] = record[fieldName];
+          });
+          return result;
+        };
+      } else {
+        [limit, skip] = prepareLimitSkipFallback(resolveParams, limit, skip);
+
+        let skipIdx = -1;
+        prepareCursorData = () => {
+          skipIdx += 1;
+          return skip + skipIdx;
+        };
+      }
 
       findManyParams.args.limit = limit + 1; // +1 document, to check next page presence
       if (skip > 0) {
@@ -146,23 +165,16 @@ export function prepareConnectionResolver(
       }
 
       // pass findMany ResolveParams to top resolver
-      resolveParams.findManyResolveParams = Object.assign({}, findManyParams);
+      resolveParams.findManyResolveParams = findManyParams;
+      resolveParams.countResolveParams = countParams;
 
-      const filterDataForCursor = (record) => {
-        const result = {};
-        sortConfig.cursorFields.forEach(fieldName => {
-          result[fieldName] = record[fieldName];
-        });
-        return result;
-      };
-
-      return Promise.all([findManyResolve(resolveParams.findManyResolveParams), countPromise])
+      return Promise.all([findManyResolve(findManyParams), countPromise])
         .then(([recordList, count]) => {
           const edges = [];
           // transform record to object { cursor, node }
           recordList.forEach(record => {
             edges.push({
-              cursor: dataToCursor(filterDataForCursor(record)),
+              cursor: dataToCursor(prepareCursorData(record)),
               node: record,
             });
           });
@@ -241,6 +253,57 @@ export function prepareRawQuery(
   }
 }
 
+export function prepareLimitSkipFallback(
+  rp: ResolveParams,
+  limit: number,
+  skip: number
+): [number, number] {
+  let newLimit = limit;
+  let newSkip = skip;
+
+  let beforeSkip: number = 0;
+  let afterSkip: number = 0;
+
+  if (rp.args.before) {
+    const tmp = cursorToData(rp.args.before);
+    if (Number.isInteger(tmp)) {
+      beforeSkip = parseInt(tmp, 10);
+    }
+  }
+  if (rp.args.after) {
+    const tmp = cursorToData(rp.args.after);
+    if (Number.isInteger(tmp)) {
+      afterSkip = parseInt(tmp, 10) + 1;
+    }
+  }
+
+  if (beforeSkip && afterSkip) {
+    const rangeLimit = beforeSkip - afterSkip;
+    if (rangeLimit < 0) {
+      newLimit = 0;
+      newSkip = skip + afterSkip;
+    } else if (rangeLimit < limit) {
+      newLimit = rangeLimit;
+      newSkip = skip + beforeSkip - rangeLimit;
+    } else {
+      newSkip = skip + afterSkip;
+    }
+  } else if (beforeSkip) {
+    newSkip = skip - beforeSkip;
+    if (newSkip < 0) {
+      newSkip = 0;
+      newLimit = limit + newSkip;
+      if (newLimit < 0) {
+        newLimit = 0;
+      }
+    }
+  } else if (afterSkip) {
+    newSkip = afterSkip;
+  }
+
+  return [newLimit, newSkip];
+}
+
 export function emptyConnection(): GraphQLConnectionType {
   return {
     count: 0,
@@ -258,22 +321,22 @@ export function findSortConfig(
   configs: connectionSortMapOpts,
   val: mixed
 ): ?connectionSortOpts {
-  const valStringified = JSON.stringify(val);
-
-  // Object.keys(configs).forEach(k => {  // return does not works
+  // Object.keys(configs).forEach(k => {  // return does not works in forEach as I want
   for (let k in configs) {
-    const cfgVal = configs[k].value;
-    if (cfgVal === val) {
+    if (configs[k].value === val) {
       return configs[k];
     }
+  }
 
-    // Yep, I know that it's now good comparision, but fast solution for now
-    // Sorry but complex sort value should has same key ordering
-    //   cause {a: 1, b: 2} != {b: 2, a: 1}
-    // BTW this code will be called only if arg.sort setuped by hands
-    //   if graphql provides arg.sort, then works above cfgVal === val comparision
-    if (JSON.stringify(cfgVal) === valStringified) {
+  // Yep, I know that it's now good comparision, but fast solution for now
+  // Sorry but complex sort value should has same key ordering
+  //   cause {a: 1, b: 2} != {b: 2, a: 1}
+  // BTW this code will be called only if arg.sort setuped by hands
+  //   if graphql provides arg.sort, then first for-loop (above) done all work
+  const valStringified = JSON.stringify(val);
+  for (let k in configs) {
+    if (JSON.stringify(configs[k].value) === valStringified) {
       return configs[k];
     }
-  };
+  }
 }

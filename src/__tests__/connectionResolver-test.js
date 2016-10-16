@@ -402,7 +402,36 @@ describe('connectionResolver', () => {
         expect(result).deep.property('edges.0.node.id').equals(8);
         expect(result).deep.property('edges.1.node.id').equals(9);
         expect(result).deep.property('edges.2.node.id').equals(10);
-        expect(result).deep.property('count').equals(7);
+        expect(result).deep.property('count').equals(15);
+      });
+
+      it('should correctly prepare cursor for before and after args', async () => {
+        const result = await connectionResolver.resolve({
+          args: {
+            sort: sortOptions.ID_ASC.value,
+            first: 3,
+          },
+        });
+        expect(result).deep.property('edges').to.have.length(3);
+        const cursor = result.edges[1].cursor;
+        const prev = await connectionResolver.resolve({
+          args: {
+            sort: sortOptions.ID_ASC.value,
+            first: 1,
+            before: cursor,
+          },
+        });
+        expect(prev).deep.property('edges.0.node.id')
+          .equals(result.edges[0].node.id);
+        const next = await connectionResolver.resolve({
+          args: {
+            sort: sortOptions.ID_ASC.value,
+            first: 1,
+            after: cursor,
+          },
+        });
+        expect(next).deep.property('edges.0.node.id')
+          .equals(result.edges[2].node.id);
       });
     });
   });
@@ -421,10 +450,147 @@ describe('connectionResolver', () => {
       });
       expect(result).deep.property('edges').to.have.length(8);
       expect(result).deep.property('edges.0.node')
-        .deep.equals({ id: 1, name: 'user1', age: 11, gender: 'm' });
+        .deep.equals({ id: 1, name: 'user01', age: 11, gender: 'm' });
       expect(result).deep.property('edges.7.node')
         .deep.equals({ id: 15, name: 'user15', age: 45, gender: 'm' });
       expect(result).deep.property('count').equals(8);
+    });
+  });
+
+  describe('fallback logic (offset in cursor)', () => {
+    it('if `after` cursor is set, should return next record', async () => {
+      const result = await connectionResolver.resolve({
+        args: {
+          after: dataToCursor(1),
+          sort: { name: 1 },
+          first: 1,
+        },
+      });
+      expect(result).deep.property('edges.0.node.id').equals(3);
+    });
+
+    it('if `before` cursor is set, should return previous record', async () => {
+      const result = await connectionResolver.resolve({
+        args: {
+          before: dataToCursor(1),
+          sort: { name: 1 },
+          first: 1,
+        },
+      });
+      expect(result).deep.property('edges.0.node.id').equals(1);
+    });
+
+    it('if `before` and `after` cursors are set, should return between records', async () => {
+      const result = await connectionResolver.resolve({
+        args: {
+          after: dataToCursor(1),
+          before: dataToCursor(5),
+          sort: { name: 1 },
+          first: 10,
+        },
+      });
+      expect(result).deep.property('edges').to.have.length(3);
+      expect(result).deep.property('edges.0.node.id').equals(3);
+      expect(result).deep.property('edges.1.node.id').equals(4);
+      expect(result).deep.property('edges.2.node.id').equals(5);
+    });
+
+    it('should throw error if `first` is less than 0', async () => {
+      const promise = connectionResolver.resolve({
+        args: {
+          first: -5,
+          sort: { name: 1 },
+        },
+      });
+      await expect(promise).be.rejectedWith(Error, 'should be non-negative number');
+    });
+
+    it('should slice edges to be length of `first`, if length is greater', async () => {
+      const result = await connectionResolver.resolve({
+        args: {
+          sort: { name: 1 },
+          first: 5,
+        },
+      });
+      expect(result).deep.property('edges').to.have.length(5);
+    });
+
+    it('should throw error if `last` is less than 0', async () => {
+      const promise = connectionResolver.resolve({
+        args: {
+          last: -5,
+          sort: { name: 1 },
+        },
+      });
+      await expect(promise).be.rejectedWith(Error, 'should be non-negative number');
+    });
+
+    it('should slice edges to be length of `last`', async () => {
+      const result = await connectionResolver.resolve({
+        args: {
+          sort: { name: 1 },
+          last: 3,
+        },
+      });
+      expect(result).deep.property('edges').to.have.length(3);
+    });
+
+    it('should slice edges to be length of `last`, if `first` and `last` present', async () => {
+      const result = await connectionResolver.resolve({
+        args: {
+          sort: { name: 1 },
+          first: 5,
+          last: 2,
+        },
+      });
+      expect(result).deep.property('edges').to.have.length(2);
+    });
+
+    it('serve complex fetching with all connection args', async () => {
+      const result = await connectionResolver.resolve({
+        args: {
+          sort: { name: 1 },
+          after: dataToCursor(4),
+          before: dataToCursor(12),
+          first: 5,
+          last: 3,
+        },
+        projection: { count: 1 },
+      });
+      expect(result).deep.property('edges').to.have.length(3);
+      expect(result).deep.property('edges.0.node.id').equals(8);
+      expect(result).deep.property('edges.1.node.id').equals(9);
+      expect(result).deep.property('edges.2.node.id').equals(10);
+      expect(result).deep.property('count').equals(15);
+    });
+
+    it('should correctly prepare cursor for before and after args', async () => {
+      const result = await connectionResolver.resolve({
+        args: {
+          sort: { name: 1 },
+          first: 3,
+        },
+      });
+      expect(result).deep.property('edges').to.have.length(3);
+      const cursor = result.edges[1].cursor;
+      const prev = await connectionResolver.resolve({
+        args: {
+          sort: { name: 1 },
+          first: 1,
+          before: cursor,
+        },
+      });
+      expect(prev).deep.property('edges.0.node.id')
+        .equals(result.edges[0].node.id);
+      const next = await connectionResolver.resolve({
+        args: {
+          sort: { name: 1 },
+          first: 1,
+          after: cursor,
+        },
+      });
+      expect(next).deep.property('edges.0.node.id')
+        .equals(result.edges[2].node.id);
     });
   });
 });

@@ -10,8 +10,8 @@ export function unbase64(i: string): string {
   return ((new Buffer(i, 'base64')).toString('ascii'));
 }
 
-export function cursorToData(cursor?: ?string): ?CursorDataType {
-  if (cursor) {
+export function cursorToData(cursor?: string | mixed): CursorDataType | number | null {
+  if (typeof cursor === 'string') {
     try {
       return JSON.parse(unbase64(cursor)) || null;
     } catch (err) {
@@ -21,6 +21,6 @@ export function cursorToData(cursor?: ?string): ?CursorDataType {
   return null;
 }
 
-export function dataToCursor(data: CursorDataType): string {
+export function dataToCursor(data: CursorDataType | number): string {
   return base64(JSON.stringify(data));
 }

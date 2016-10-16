@@ -186,7 +186,7 @@ describe('composeWithRelay', () => {
                   age: 11,
                   gender: 'm',
                   id: 1,
-                  name: 'user1',
+                  name: 'user01',
                 },
               },
             ],

@@ -32,7 +32,7 @@ describe('mocks/userTypeComposer', () => {
         },
       },
     });
-    expect(res).to.be.deep.equal([{ id: 9, name: 'user9', age: 19, gender: 'm' }]);
+    expect(res).to.be.deep.equal([{ id: 9, name: 'user09', age: 19, gender: 'm' }]);
   });
 
   it('userTypeComposer should have `findMany` resolver with working `sort` arg', async () => {

@@ -20,7 +20,7 @@ describe('connectionResolver', () => {
     sort: sortOptions,
   });
 
-  describe('basic checks', () => {
+  describe('definition checks', () => {
     it('should return Resolver', () => {
       expect(connectionResolver).instanceof(Resolver);
     });
@@ -95,6 +95,63 @@ describe('connectionResolver', () => {
     it('should have `sort` arg', () => {
       expect(connectionResolver.getArg('sort'))
         .deep.property('type.name').equals('SortConnectionUserEnum');
+    });
+  });
+
+  describe('call of findMany resolver', () => {
+    let spyResolveParams;
+    let mockedConnectionResolver;
+
+    beforeEach(() => {
+      const mockedFindMany = userTypeComposer.getResolver('findMany')
+        .wrapResolve((next) => (resolveParams) => {
+          spyResolveParams = resolveParams;
+          return next(resolveParams);
+        });
+      userTypeComposer.setResolver('mockedFindMany', mockedFindMany);
+      mockedConnectionResolver = prepareConnectionResolver(userTypeComposer, {
+        countResolverName: 'count',
+        findResolverName: 'mockedFindMany',
+        sort: sortOptions,
+      });
+    });
+
+    it('should pass args.sort', async () => {
+      const result = await mockedConnectionResolver.resolve({
+        args: {
+          sort: { name: 1 },
+          first: 3,
+        },
+      });
+      expect(spyResolveParams).have.deep.property('args.sort.name', 1);
+    });
+
+    it('should pass projection edges.node on top level', async () => {
+      const result = await mockedConnectionResolver.resolve({
+        args: {},
+        projection: {
+          edges: {
+            node: {
+              name: true,
+              age: true,
+            }
+          }
+        },
+      });
+      expect(spyResolveParams).have.deep.property('projection.name', true);
+      expect(spyResolveParams).have.deep.property('projection.age', true);
+    });
+
+    it('should pass custom projections to top level', async () => {
+      const result = await mockedConnectionResolver.resolve({
+        args: {},
+        projection: {
+          score: { $meta: 'textScore' },
+        },
+      });
+      expect(spyResolveParams).have.deep.property('projection.score');
+      expect(spyResolveParams).have.deep.property('projection.score')
+        .to.deep.equal({ $meta: 'textScore' });
     });
   });
 

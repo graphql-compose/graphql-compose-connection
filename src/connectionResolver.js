@@ -119,10 +119,15 @@ export function prepareConnectionResolver(
 
 
       if (projection && projection.edges) {
-        // $FlowFixMe
-        findManyParams.projection = projection.edges.node || {};
+        // combine top level projection (maybe somebody add additional fields via resolveParams.projection)
+        // and edges.node (record needed fields)
+        findManyParams.projection = Object.assign(
+          {},
+          projection,
+          projection.edges.node || {}
+        );
       } else {
-        findManyParams.projection = {};
+        findManyParams.projection = Object.assign({}, projection);
       }
 
       if (!first && last) {

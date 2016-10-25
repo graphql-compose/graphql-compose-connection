@@ -34,7 +34,7 @@ describe('composeWithRelay', () => {
   });
 
   it('should apply first sort ID_ASC by default', async () => {
-    rootQueryTC.addField('userConnection',
+    rootQueryTC.setField('userConnection',
       userTypeComposer.getResolver('connection').getFieldConfig()
     );
     const schema = new GraphQLSchema({
@@ -86,7 +86,7 @@ describe('composeWithRelay', () => {
   });
 
   it('should able to change `sort` on AGE_ID_DESC', async () => {
-    rootQueryTC.addField('userConnection',
+    rootQueryTC.setField('userConnection',
       userTypeComposer.getResolver('connection').getFieldConfig()
     );
     const schema = new GraphQLSchema({
@@ -140,7 +140,7 @@ describe('composeWithRelay', () => {
 
   describe('fragments fields projection of graphql-compose', () => {
     it('should return object', async () => {
-      rootQueryTC.addField('userConnection',
+      rootQueryTC.setField('userConnection',
         userTypeComposer.getResolver('connection').getFieldConfig()
       );
       const schema = new GraphQLSchema({
@@ -205,7 +205,7 @@ describe('composeWithRelay', () => {
   it('should pass `countResolveParams` to top resolverParams', async () => {
     let topResolveParams;
 
-    rootQueryTC.addField('userConnection',
+    rootQueryTC.setField('userConnection',
       userTypeComposer
         .getResolver('connection')
         .wrapResolve((next) => (rp) => {
@@ -235,7 +235,7 @@ describe('composeWithRelay', () => {
   it('should pass `findManyResolveParams` to top resolverParams', async () => {
     let topResolveParams;
 
-    rootQueryTC.addField('userConnection',
+    rootQueryTC.setField('userConnection',
       userTypeComposer
         .getResolver('connection')
         .wrapResolve((next) => (rp) => {

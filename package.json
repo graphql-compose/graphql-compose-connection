@@ -25,7 +25,7 @@
   "homepage": "https://github.com/nodkz/graphql-compose-connection",
   "peerDependencies": {
     "graphql": ">=0.7.1 || >=0.8.0",
-    "graphql-compose": ">=1.0.0"
+    "graphql-compose": ">=1.4.0"
   },
   "devDependencies": {
     "babel-cli": "6.16.0",

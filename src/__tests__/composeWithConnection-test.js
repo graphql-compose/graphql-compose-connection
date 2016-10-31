@@ -4,6 +4,7 @@ import { expect } from 'chai';
 import {
   graphql,
   GraphQLSchema,
+  GraphQLList,
 } from 'graphql';
 import { TypeComposer } from 'graphql-compose';
 import { composeWithConnection } from '../composeWithConnection';
@@ -51,9 +52,19 @@ describe('composeWithRelay', () => {
     });
   });
 
-  describe('TypeComposer props', () => {
-    it('should has `connection` resolver', () => {
-      expect(userComposer.getResolver('connection')).to.be.ok;
+  describe('check `connection` resolver props', () => {
+    const rsv = userComposer.getResolver('connection');
+    const type = rsv.getOutputType();
+    const tc = new TypeComposer(type);
+
+    it('should exists', () => {
+      expect(rsv).to.be.ok;
+    });
+
+    it('should has ConnectionType as outputType', () => {
+      expect(type).to.be.ok;
+      expect(tc.getFieldNames()).to.have.members(['count', 'pageInfo', 'edges']);
+      expect(tc.getFieldType('edges')).instanceof(GraphQLList);
     });
   });
 

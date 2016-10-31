@@ -14,9 +14,16 @@ import GraphQLConnectionCursor from './cursorType';
 
 import PageInfoType from './pageInfoType';
 
+const cachedConnectionTypes = new WeakMap;
+const cachedEdgeTypes = new WeakMap;
 
 export function prepareEdgeType(typeComposer: TypeComposer): GraphQLObjectType {
   const name = `${typeComposer.getTypeName()}Edge`;
+  const type = typeComposer.getType();
+
+  if (cachedEdgeTypes.has(type)) {
+    return cachedEdgeTypes.get(type);
+  }
 
   const edgeType = new GraphQLObjectType({
     name,
@@ -32,13 +39,20 @@ export function prepareEdgeType(typeComposer: TypeComposer): GraphQLObjectType {
       },
     }),
   });
-  edgeType.ofType = typeComposer.getType();
+  edgeType.ofType = type;
+
+  cachedEdgeTypes.set(type, edgeType);
   return edgeType;
 }
 
 
 export function prepareConnectionType(typeComposer: TypeComposer): GraphQLObjectType {
   const name = `${typeComposer.getTypeName()}Connection`;
+  const type = typeComposer.getType();
+
+  if (cachedConnectionTypes.has(type)) {
+    return cachedConnectionTypes.get(type);
+  }
 
   const connectionType = new GraphQLObjectType({
     name,
@@ -58,6 +72,8 @@ export function prepareConnectionType(typeComposer: TypeComposer): GraphQLObject
       },
     }),
   });
-  connectionType.ofType = typeComposer.getType();
+  connectionType.ofType = type;
+
+  cachedConnectionTypes.set(type, connectionType);
   return connectionType;
 }

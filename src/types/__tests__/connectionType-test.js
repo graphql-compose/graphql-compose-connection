@@ -42,6 +42,12 @@ describe('types/connectionType.js', () => {
       const edgeType = prepareEdgeType(userTypeComposer);
       expect(edgeType).property('ofType').equals(userTypeComposer.getType());
     });
+
+    it('should return same type for same Type in TypeComposer', () => {
+      const t1 = prepareEdgeType(userTypeComposer);
+      const t2 = prepareEdgeType(userTypeComposer);
+      expect(t1).equals(t2);
+    });
   });
 
   describe('prepareConnectionType()', () => {
@@ -81,6 +87,12 @@ describe('types/connectionType.js', () => {
       // otherwise it incorrectly construct projectionMapper for tricky fields
       const connectionType = prepareConnectionType(userTypeComposer);
       expect(connectionType).property('ofType').equals(userTypeComposer.getType());
+    });
+
+    it('should return same type for same Type in TypeComposer', () => {
+      const t1 = prepareConnectionType(userTypeComposer);
+      const t2 = prepareConnectionType(userTypeComposer);
+      expect(t1).equals(t2);
     });
   });
 });

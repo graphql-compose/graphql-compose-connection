@@ -31,6 +31,30 @@ describe('composeWithRelay', () => {
       expect(() => composeWithConnection(userTypeComposer))
         .to.throw('should provide non-empty options');
     });
+
+    it('should not change `connection` resolver if exists', () => {
+      let myTC = TypeComposer.create('type Complex { a: String, b: Int }');
+      myTC.addResolver({
+        name: 'connection',
+        resolve: (rp) => 'mockData'
+      });
+
+      // try ovewrite `connection` resolver
+      myTC = composeWithConnection(myTC, {
+        countResolverName: 'count',
+        findResolverName: 'findMany',
+        sort: sortOptions,
+      });
+
+      expect(myTC.getResolver('connection')).to.be.ok;
+      expect(myTC.getResolver('connection').resolve()).equal('mockData');
+    });
+  });
+
+  describe('TypeComposer props', () => {
+    it('should has `connection` resolver', () => {
+      expect(userComposer.getResolver('connection')).to.be.ok;
+    });
   });
 
   it('should apply first sort ID_ASC by default', async () => {

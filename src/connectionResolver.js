@@ -86,6 +86,7 @@ export function prepareConnectionResolver(
     },
     resolve: async (resolveParams: ConnectionResolveParams) => {
       let countPromise;
+      let findManyPromise;
       const { projection = {}, args, rawQuery } = resolveParams;
       const findManyParams: ResolveParams = Object.assign(
         {},
@@ -116,7 +117,6 @@ export function prepareConnectionResolver(
       } else {
         countPromise = Promise.resolve(0);
       }
-
 
       if (projection && projection.edges) {
         // combine top level projection (maybe somebody add additional fields via resolveParams.projection)
@@ -173,7 +173,15 @@ export function prepareConnectionResolver(
       resolveParams.findManyResolveParams = findManyParams;
       resolveParams.countResolveParams = countParams;
 
-      return Promise.all([findManyResolve(findManyParams), countPromise])
+      // This allows to optimize and not actually call the findMany resolver
+      // if only the count is projected
+      if (projection.count && Object.keys(projection).length == 1) {
+        findManyPromise = Promise.resolve([]);
+      } else {
+        findManyPromise = findManyResolve(findManyParams);
+      }
+
+      return Promise.all([findManyPromise, countPromise])
         .then(([recordList, count]) => {
           const edges = [];
           // transform record to object { cursor, node }

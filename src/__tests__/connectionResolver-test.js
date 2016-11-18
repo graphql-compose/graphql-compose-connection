@@ -98,25 +98,37 @@ describe('connectionResolver', () => {
     });
   });
 
-  describe('call of findMany resolver', () => {
+  describe('call of resolvers', () => {
     let spyResolveParams;
     let mockedConnectionResolver;
+    let findManyResolverCalled;
+    let countResolverCalled;
 
     beforeEach(() => {
+      findManyResolverCalled = false;
+      countResolverCalled = false;
       const mockedFindMany = userTypeComposer.getResolver('findMany')
         .wrapResolve((next) => (resolveParams) => {
+          findManyResolverCalled = true;
+          spyResolveParams = resolveParams;
+          return next(resolveParams);
+        });
+      const mockedCount = userTypeComposer.getResolver('findMany')
+        .wrapResolve((next) => (resolveParams) => {
+          countResolverCalled = true;
           spyResolveParams = resolveParams;
           return next(resolveParams);
         });
       userTypeComposer.setResolver('mockedFindMany', mockedFindMany);
+      userTypeComposer.setResolver('mockedCount', mockedCount);
       mockedConnectionResolver = prepareConnectionResolver(userTypeComposer, {
-        countResolverName: 'count',
+        countResolverName: 'mockedCount',
         findResolverName: 'mockedFindMany',
         sort: sortOptions,
       });
     });
 
-    it('should pass args.sort', async () => {
+    it('should pass to findMany args.sort', async () => {
       const result = await mockedConnectionResolver.resolve({
         args: {
           sort: { name: 1 },
@@ -126,7 +138,7 @@ describe('connectionResolver', () => {
       expect(spyResolveParams).have.deep.property('args.sort.name', 1);
     });
 
-    it('should pass projection edges.node on top level', async () => {
+    it('should pass to findMany projection edges.node on top level', async () => {
       const result = await mockedConnectionResolver.resolve({
         args: {},
         projection: {
@@ -142,7 +154,7 @@ describe('connectionResolver', () => {
       expect(spyResolveParams).have.deep.property('projection.age', true);
     });
 
-    it('should pass custom projections to top level', async () => {
+    it('should pass to findMany custom projections to top level', async () => {
       const result = await mockedConnectionResolver.resolve({
         args: {},
         projection: {
@@ -152,6 +164,93 @@ describe('connectionResolver', () => {
       expect(spyResolveParams).have.deep.property('projection.score');
       expect(spyResolveParams).have.deep.property('projection.score')
         .to.deep.equal({ $meta: 'textScore' });
+    });
+
+    it('should call count but not findMany when only count is projected', async () => {
+      const result = await mockedConnectionResolver.resolve({
+        args: {},
+        projection: {
+          count : true
+        },
+      });
+      expect(countResolverCalled, 'count resolver called').to.be.true;
+      expect(findManyResolverCalled, 'findMany resolver called').to.be.false;
+    });
+
+    it('should call count and findMany resolver when not only count is projected', async () => {
+      const result = await mockedConnectionResolver.resolve({
+        args: {},
+        projection: {
+          count : true,
+          edges : {
+            node : {
+              name : true,
+              age : true
+            }
+          }
+        },
+      });
+      expect(countResolverCalled, 'count resolver called').to.be.true;
+      expect(findManyResolverCalled, 'findMany resolver called').to.be.true;
+    });
+
+    it('should call findMany and not count when arbitrary top level fields are projected without count', async () => {
+      const result = await mockedConnectionResolver.resolve({
+        args: {},
+        projection: {
+          name: true,
+          age: true
+        },
+      });
+      expect(countResolverCalled, 'count resolver called').to.be.false;
+      expect(findManyResolverCalled, 'findMany resolver called').to.be.true;
+    });
+
+    it('should call findMany and count when arbitrary top level fields are projected with count', async () => {
+      const result = await mockedConnectionResolver.resolve({
+        args: {},
+        projection: {
+          count: true,
+          name: true,
+          age: true
+        },
+      });
+      expect(countResolverCalled, 'count resolver called').to.be.true;
+      expect(findManyResolverCalled, 'findMany resolver called').to.be.true;
+    });
+
+    it('should call count and findMany resolver when last arg is used but not first arg', async () => {
+      const result = await mockedConnectionResolver.resolve({
+        args: {
+          last: 1
+        },
+        projection: {
+          edges : {
+            node : {
+              name : true,
+              age : true
+            }
+          }
+        },
+      });
+      expect(countResolverCalled, 'count resolver called').to.be.true;
+      expect(findManyResolverCalled, 'findMany resolver called').to.be.true;
+    });
+
+    it('should call findMany but not count resolver when first arg is used', async () => {
+      const result = await mockedConnectionResolver.resolve({
+        args: { first: 1 },
+        projection: {
+          edges : {
+            node : {
+              name : true,
+              age : true
+            }
+          }
+        },
+      });
+      expect(countResolverCalled, 'count resolver called').to.be.false;
+      expect(findManyResolverCalled, 'findMany resolver called').to.be.true;
     });
   });
 
@@ -453,7 +552,14 @@ describe('connectionResolver', () => {
             first: 5,
             last: 3,
           },
-          projection: { count: 1 },
+          projection: {
+            count: true,
+            edges : {
+              node : {
+                name: true
+              }
+            }
+          },
         });
         expect(result).deep.property('edges').to.have.length(3);
         expect(result).deep.property('edges.0.node.id').equals(8);
@@ -503,7 +609,14 @@ describe('connectionResolver', () => {
           sort: sortOptions.ID_ASC.value,
           first: 100,
         },
-        projection: { count: 1 },
+        projection: {
+          count: true,
+          edges : {
+            node : {
+              name: true
+            }
+          }
+        },
       });
       expect(result).deep.property('edges').to.have.length(8);
       expect(result).deep.property('edges.0.node')
@@ -612,7 +725,14 @@ describe('connectionResolver', () => {
           first: 5,
           last: 3,
         },
-        projection: { count: 1 },
+        projection: {
+          count: true,
+          edges : {
+            node : {
+              id: true
+            }
+          }
+        },
       });
       expect(result).deep.property('edges').to.have.length(3);
       expect(result).deep.property('edges.0.node.id').equals(8);

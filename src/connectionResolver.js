@@ -118,14 +118,6 @@ export function prepareConnectionResolver(
         countPromise = Promise.resolve(0);
       }
 
-      let onlyCountProjected = projection.count;
-      for (var property in projection) {
-          if (projection.hasOwnProperty(property) && property !== 'count') {
-            onlyCountProjected = false;
-            break;
-          }
-      }
-
       if (projection && projection.edges) {
         // combine top level projection (maybe somebody add additional fields via resolveParams.projection)
         // and edges.node (record needed fields)
@@ -182,8 +174,8 @@ export function prepareConnectionResolver(
       resolveParams.countResolveParams = countParams;
 
       // This allows to optimize and not actually call the findMany resolver
-      // if only the count is required
-      if (onlyCountProjected) {
+      // if only the count is projected
+      if (projection.count && Object.keys(projection).length == 1) {
         findManyPromise = Promise.resolve([]);
       } else {
         findManyPromise = findManyResolve(findManyParams);

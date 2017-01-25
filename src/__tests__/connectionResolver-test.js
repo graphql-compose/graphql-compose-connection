@@ -70,8 +70,8 @@ describe('connectionResolver', () => {
       expect(connectionResolver).property('kind').equals('query');
     });
 
-    it('should have outputType to be ConnectionType', () => {
-      expect(connectionResolver).deep.property('outputType.name').equals('UserConnection');
+    it('should have type to be ConnectionType', () => {
+      expect(connectionResolver).deep.property('type.name').equals('UserConnection');
     });
   });
 

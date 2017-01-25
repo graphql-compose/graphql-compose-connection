@@ -120,7 +120,7 @@ function prepareFilterFromArgs(resolveParams = {}) {
 export const findManyResolver = new Resolver({
   name: 'findMany',
   kind: 'query',
-  outputType: UserType,
+  type: UserType,
   args: {
     filter: filterArgConfig,
     sort: new GraphQLEnumType({
@@ -160,7 +160,7 @@ userTypeComposer.setResolver('findMany', findManyResolver);
 export const countResolver = new Resolver({
   name: 'count',
   kind: 'query',
-  outputType: GraphQLInt,
+  type: GraphQLInt,
   args: {
     filter: filterArgConfig,
   },

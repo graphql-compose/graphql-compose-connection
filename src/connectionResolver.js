@@ -57,7 +57,7 @@ export function prepareConnectionResolver(
   const sortEnumType = prepareSortType(typeComposer, opts);
 
   return new Resolver({
-    outputType: prepareConnectionType(typeComposer),
+    type: prepareConnectionType(typeComposer),
     name: 'connection',
     kind: 'query',
     args: {

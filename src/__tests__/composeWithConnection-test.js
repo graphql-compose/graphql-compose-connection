@@ -54,14 +54,14 @@ describe('composeWithRelay', () => {
 
   describe('check `connection` resolver props', () => {
     const rsv = userComposer.getResolver('connection');
-    const type = rsv.getOutputType();
+    const type = rsv.getType();
     const tc = new TypeComposer(type);
 
     it('should exists', () => {
       expect(rsv).to.be.ok;
     });
 
-    it('should has ConnectionType as outputType', () => {
+    it('should has ConnectionType as type', () => {
       expect(type).to.be.ok;
       expect(tc.getFieldNames()).to.have.members(['count', 'pageInfo', 'edges']);
       expect(tc.getFieldType('edges')).instanceof(GraphQLList);

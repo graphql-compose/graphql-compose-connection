@@ -16,6 +16,7 @@
   "keywords": [
     "graphql",
     "compose",
+    "graphql-compose",
     "relay"
   ],
   "license": "MIT",
@@ -24,40 +25,39 @@
   },
   "homepage": "https://github.com/nodkz/graphql-compose-connection",
   "peerDependencies": {
-    "graphql": ">=0.7.1 || >=0.8.0",
+    "graphql": ">=0.7.1 || >=0.8.0 || >=0.9.0",
     "graphql-compose": ">=1.4.0"
   },
   "devDependencies": {
-    "babel-cli": "^6.18.0",
-    "babel-core": "^6.21.0",
+    "babel-cli": "^6.22.2",
+    "babel-core": "^6.22.1",
     "babel-eslint": "^7.1.1",
     "babel-plugin-syntax-async-functions": "6.13.0",
-    "babel-plugin-transform-class-properties": "^6.19.0",
-    "babel-plugin-transform-flow-strip-types": "^6.21.0",
-    "babel-plugin-transform-object-rest-spread": "^6.20.2",
-    "babel-plugin-transform-regenerator": "^6.21.0",
-    "babel-plugin-transform-runtime": "6.15.0",
-    "babel-preset-es2015": "^6.18.0",
+    "babel-plugin-transform-class-properties": "^6.22.0",
+    "babel-plugin-transform-flow-strip-types": "^6.22.0",
+    "babel-plugin-transform-object-rest-spread": "^6.22.0",
+    "babel-plugin-transform-regenerator": "^6.22.0",
+    "babel-plugin-transform-runtime": "^6.22.0",
+    "babel-preset-es2015": "^6.22.0",
     "chai": "3.5.0",
     "chai-as-promised": "6.0.0",
     "chai-spies": "0.7.1",
     "cz-conventional-changelog": "1.2.0",
-    "eslint": "^3.12.2",
-    "eslint-config-airbnb": "11.0.0",
-    "eslint-plugin-flowtype": "^2.29.1",
+    "eslint": "^3.14.0",
+    "eslint-config-airbnb-base": "^11.0.1",
+    "eslint-plugin-flowtype": "^2.30.0",
     "eslint-plugin-import": "^2.2.0",
-    "eslint-plugin-jsx-a11y": "2.2.3",
-    "eslint-plugin-react": "6.4.1",
-    "flow-bin": "^0.37.0",
-    "ghooks": "1.3.2",
+    "flow-bin": "^0.38.0",
+    "graphql": "^0.9.0",
+    "graphql-compose": "^1.10.0",
     "mocha": "^3.2.0",
-    "nyc": "^10.0.0",
+    "nyc": "^10.1.2",
     "rimraf": "2.5.4",
-    "sane": "1.4.1",
+    "sane": "^1.5.0",
     "semantic-release": "^6.3.2"
   },
   "dependencies": {
-    "babel-runtime": "^6.20.0"
+    "babel-runtime": "^6.22.0"
   },
   "config": {
     "commitizen": {
@@ -85,8 +85,8 @@
     "lint": "eslint src test *.js",
     "test": "babel-node ./node_modules/.bin/_mocha --compilers js:babel-core/register --reporter dot --require ./resources/mocha-bootload src/**/__tests__/**/*-test.js",
     "watch": "babel-node ./resources/watch.js",
-    "link": "npm link graphql && npm link graphql-compose && npm link",
-    "unlink": "npm unlink graphql && npm unlink graphql-compose && npm install graphql graphql-compose",
+    "link": "yarn link graphql && yarn link graphql-compose && yarn link",
+    "unlink": "yarn unlink graphql && yarn unlink graphql-compose && yarn add graphql graphql-compose",
     "semantic-release": "semantic-release pre && npm publish && semantic-release post"
   }
 }

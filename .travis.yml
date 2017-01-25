@@ -12,10 +12,8 @@ node_js:
   - "5"
   - "4"
 script:
-- yarn add graphql -g
-- yarn add graphql-compose -g
-- yarn run coverage
-- yarn run build
+  - yarn run coverage
+  - yarn run build
 after_success:
   - 'curl -Lo travis_after_all.py https://git.io/travis_after_all'
   - python travis_after_all.py

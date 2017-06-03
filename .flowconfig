@@ -5,6 +5,8 @@
 .*/resources/.*
 <PROJECT_ROOT>/lib/.*
 <PROJECT_ROOT>/dist/.*
+.*/node_modules/config-chain/test/broken.json
+.*/node_modules/npmconf/test/fixtures/package.json
 
 [include]
 
@@ -13,6 +15,4 @@
 [options]
 esproposal.class_instance_fields=enable
 suppress_comment= \\(.\\|\n\\)*\\$FlowFixMe
-
-[version]
-0.38.0
+unsafe.enable_getters_and_setters=true

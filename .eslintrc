@@ -7,12 +7,17 @@
   "rules": {
     "no-underscore-dangle": 0,
     "no-unused-expressions": 0,
-    "arrow-body-style": 0
+    "arrow-body-style": 0,
+    "no-mixed-operators": 0,
+    "no-restricted-syntax": 0,
+    "import/prefer-default-export": 0,
+    "no-lonely-if": 0
   },
   "env": {
     "mocha": true
   },
-  "plugins": [
-    "flowtype"
-  ]
+  "globals": {
+    "Class": true,
+    "$Shape": true,
+  }
 }

@@ -1,12 +1,13 @@
 /* eslint-disable no-param-reassign */
 
 import { expect } from 'chai';
-import { GraphQLInt } from 'graphql';
-import { Resolver } from 'graphql-compose';
+import { Resolver, graphql } from 'graphql-compose';
 import { userTypeComposer, userList, sortOptions } from '../__mocks__/userTypeComposer';
 import { dataToCursor } from '../cursor';
 import { prepareConnectionResolver, prepareRawQuery, preparePageInfo } from '../connectionResolver';
 import Cursor from '../types/cursorType';
+
+const { GraphQLInt } = graphql;
 
 describe('connectionResolver', () => {
   const connectionResolver = prepareConnectionResolver(userTypeComposer, {

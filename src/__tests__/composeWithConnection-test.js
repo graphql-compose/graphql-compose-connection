@@ -1,11 +1,12 @@
 /* eslint-disable no-param-reassign */
 
 import { expect } from 'chai';
-import { graphql, GraphQLSchema, GraphQLList } from 'graphql';
-import { TypeComposer } from 'graphql-compose';
+import { TypeComposer, graphql } from 'graphql-compose';
 import { composeWithConnection } from '../composeWithConnection';
 import { userTypeComposer, sortOptions } from '../__mocks__/userTypeComposer';
 import { rootQueryTypeComposer as rootQueryTC } from '../__mocks__/rootQueryTypeComposer';
+
+const { GraphQLSchema, GraphQLList } = graphql;
 
 describe('composeWithRelay', () => {
   const userComposer = composeWithConnection(userTypeComposer, {
@@ -90,7 +91,7 @@ describe('composeWithRelay', () => {
         }
       }
     }`;
-    const result = await graphql(schema, query);
+    const result = await graphql.graphql(schema, query);
     expect(result).nested.property('data.userConnection').deep.equals({
       count: 15,
       pageInfo: {
@@ -143,7 +144,7 @@ describe('composeWithRelay', () => {
         }
       }
     }`;
-    const result = await graphql(schema, query);
+    const result = await graphql.graphql(schema, query);
     expect(result).nested.property('data.userConnection').deep.equals({
       count: 15,
       pageInfo: {
@@ -206,7 +207,7 @@ describe('composeWithRelay', () => {
         gender
       }
       `;
-      const result = await graphql(schema, query);
+      const result = await graphql.graphql(schema, query);
       expect(result).to.deep.equal({
         data: {
           userConnection: {
@@ -256,7 +257,7 @@ describe('composeWithRelay', () => {
         count
       }
     }`;
-    await graphql(schema, query);
+    await graphql.graphql(schema, query);
     expect(topResolveParams).has.property('countResolveParams');
     expect(topResolveParams.countResolveParams).to.contain.all.keys([
       'source',
@@ -290,7 +291,7 @@ describe('composeWithRelay', () => {
         count
       }
     }`;
-    await graphql(schema, query);
+    await graphql.graphql(schema, query);
     expect(topResolveParams).has.property('findManyResolveParams');
     expect(topResolveParams.findManyResolveParams).to.contain.all.keys([
       'source',

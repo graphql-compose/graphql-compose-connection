@@ -25,7 +25,6 @@
   },
   "homepage": "https://github.com/nodkz/graphql-compose-connection",
   "peerDependencies": {
-    "graphql": ">=0.7.1 || >=0.8.0 || >=0.9.0",
     "graphql-compose": ">=1.19.0"
   },
   "devDependencies": {
@@ -42,13 +41,13 @@
     "chai": "^4.0.1",
     "chai-as-promised": "6.0.0",
     "chai-spies": "0.7.1",
-    "graphql": "^0.9.0",
     "cz-conventional-changelog": "^2.0.0",
     "eslint": "^3.19.0",
     "eslint-config-airbnb-base": "^11.2.0",
     "eslint-plugin-flowtype": "^2.34.0",
     "eslint-plugin-import": "^2.3.0",
     "flow-bin": "^0.47.0",
+    "graphql": "^0.10.1",
     "graphql-compose": "^1.19.0",
     "mocha": "^3.4.2",
     "nyc": "^10.3.2",

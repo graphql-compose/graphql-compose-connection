@@ -1,18 +1,18 @@
 /* @flow */
 /* eslint-disable arrow-body-style */
 
-import {
+import { graphql } from 'graphql-compose';
+import type { TypeComposer } from 'graphql-compose';
+import GraphQLConnectionCursor from './cursorType';
+
+import PageInfoType from './pageInfoType';
+
+const {
   GraphQLInt,
   GraphQLObjectType,
   GraphQLNonNull,
   GraphQLList,
-} from 'graphql';
-import type {
-  TypeComposer,
-} from 'graphql-compose';
-import GraphQLConnectionCursor from './cursorType';
-
-import PageInfoType from './pageInfoType';
+} = graphql;
 
 const cachedConnectionTypes = new WeakMap();
 const cachedEdgeTypes = new WeakMap();

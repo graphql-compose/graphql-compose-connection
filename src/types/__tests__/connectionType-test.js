@@ -1,17 +1,11 @@
 import { expect } from 'chai';
-import {
-  GraphQLNonNull,
-  GraphQLObjectType,
-  getNamedType,
-  GraphQLInt,
-  GraphQLList,
-} from 'graphql';
-import { TypeComposer } from 'graphql-compose';
+import { TypeComposer, graphql } from 'graphql-compose';
 import { userTypeComposer } from '../../__mocks__/userTypeComposer';
 import { prepareEdgeType, prepareConnectionType } from '../connectionType';
 import GraphQLConnectionCursor from '../cursorType';
 import PageInfoType from '../pageInfoType';
 
+const { GraphQLNonNull, GraphQLObjectType, getNamedType, GraphQLInt, GraphQLList } = graphql;
 
 describe('types/connectionType.js', () => {
   describe('prepareEdgeType()', () => {

@@ -1,6 +1,8 @@
 /* @flow */
 
-import { GraphQLScalarType, Kind } from 'graphql';
+import { graphql } from 'graphql-compose';
+
+const { GraphQLScalarType, Kind } = graphql;
 
 const GraphQLConnectionCursor = new GraphQLScalarType({
   name: 'ConnectionCursor',

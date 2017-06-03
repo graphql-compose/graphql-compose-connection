@@ -1,13 +1,14 @@
 /* eslint-disable no-param-reassign */
 
-import {
+import { TypeComposer, Resolver, graphql } from 'graphql-compose';
+
+const {
   GraphQLString,
   GraphQLObjectType,
   GraphQLInputObjectType,
   GraphQLEnumType,
   GraphQLInt,
-} from 'graphql';
-import { TypeComposer, Resolver } from 'graphql-compose';
+} = graphql;
 
 export const UserType = new GraphQLObjectType({
   name: 'User',

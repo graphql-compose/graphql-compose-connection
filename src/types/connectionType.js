@@ -14,14 +14,15 @@ import GraphQLConnectionCursor from './cursorType';
 
 import PageInfoType from './pageInfoType';
 
-const cachedConnectionTypes = new WeakMap;
-const cachedEdgeTypes = new WeakMap;
+const cachedConnectionTypes = new WeakMap();
+const cachedEdgeTypes = new WeakMap();
 
 export function prepareEdgeType(typeComposer: TypeComposer): GraphQLObjectType {
   const name = `${typeComposer.getTypeName()}Edge`;
   const type = typeComposer.getType();
 
   if (cachedEdgeTypes.has(type)) {
+    // $FlowFixMe
     return cachedEdgeTypes.get(type);
   }
 
@@ -39,6 +40,10 @@ export function prepareEdgeType(typeComposer: TypeComposer): GraphQLObjectType {
       },
     }),
   });
+
+  // This is small HACK for providing to graphql-compose/src/projection.js
+  // information about required fields in projection and relations
+  // $FlowFixMe
   edgeType.ofType = type;
 
   cachedEdgeTypes.set(type, edgeType);
@@ -51,6 +56,7 @@ export function prepareConnectionType(typeComposer: TypeComposer): GraphQLObject
   const type = typeComposer.getType();
 
   if (cachedConnectionTypes.has(type)) {
+    // $FlowFixMe
     return cachedConnectionTypes.get(type);
   }
 
@@ -72,6 +78,10 @@ export function prepareConnectionType(typeComposer: TypeComposer): GraphQLObject
       },
     }),
   });
+
+  // This is small HACK for providing to graphql-compose/src/projection.js
+  // information about required fields in projection and relations
+  // $FlowFixMe
   connectionType.ofType = type;
 
   cachedConnectionTypes.set(type, connectionType);

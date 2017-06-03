@@ -16,13 +16,11 @@ import PageInfoType from '../pageInfoType';
 describe('types/connectionType.js', () => {
   describe('prepareEdgeType()', () => {
     it('should return GraphQLObjectType', () => {
-      expect(prepareEdgeType(userTypeComposer))
-        .to.be.instanceof(GraphQLObjectType);
+      expect(prepareEdgeType(userTypeComposer)).to.be.instanceof(GraphQLObjectType);
     });
 
     it('should have name ending with `Edge`', () => {
-      expect(prepareEdgeType(userTypeComposer))
-        .property('name').to.be.equal('UserEdge');
+      expect(prepareEdgeType(userTypeComposer)).property('name').to.be.equal('UserEdge');
     });
 
     it('should have field `node` with provided Type', () => {
@@ -52,13 +50,13 @@ describe('types/connectionType.js', () => {
 
   describe('prepareConnectionType()', () => {
     it('should return GraphQLObjectType', () => {
-      expect(prepareConnectionType(userTypeComposer))
-        .to.be.instanceof(GraphQLObjectType);
+      expect(prepareConnectionType(userTypeComposer)).to.be.instanceof(GraphQLObjectType);
     });
 
     it('should have name ending with `Connection`', () => {
       expect(prepareConnectionType(userTypeComposer))
-        .property('name').to.be.equal('UserConnection');
+        .property('name')
+        .to.be.equal('UserConnection');
     });
 
     it('should have field `count` with provided Type', () => {

@@ -3,12 +3,12 @@
 import { TypeComposer } from 'graphql-compose';
 import type {
   composeWithConnectionOpts,
-} from './definition.js';
+} from './definition';
 import { prepareConnectionResolver } from './connectionResolver';
 
 export function composeWithConnection(
   typeComposer: TypeComposer,
-  opts: composeWithConnectionOpts
+  opts: composeWithConnectionOpts,
 ): TypeComposer {
   if (!(typeComposer instanceof TypeComposer)) {
     throw new Error('You should provide TypeComposer instance to composeWithRelay method');
@@ -24,7 +24,7 @@ export function composeWithConnection(
 
   const resolver = prepareConnectionResolver(
     typeComposer,
-    opts
+    opts,
   );
 
   typeComposer.setResolver('connection', resolver);

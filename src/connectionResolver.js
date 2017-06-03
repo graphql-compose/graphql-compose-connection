@@ -1,8 +1,7 @@
 /* @flow */
 /* eslint-disable no-param-reassign, no-use-before-define */
 
-import { GraphQLInt } from 'graphql';
-import { Resolver, TypeComposer, omit } from 'graphql-compose';
+import { Resolver, TypeComposer } from 'graphql-compose';
 import type {
   ResolveParams,
   ConnectionResolveParams,
@@ -16,42 +15,52 @@ import { prepareSortType } from './types/sortInputType';
 import CursorType from './types/cursorType';
 import { cursorToData, dataToCursor } from './cursor';
 
-export function prepareConnectionResolver(
+export function prepareConnectionResolver<TSource, TContext>(
   typeComposer: TypeComposer,
-  opts: composeWithConnectionOpts
-): Resolver {
+  opts: composeWithConnectionOpts,
+): Resolver<TSource, TContext> {
   if (!(typeComposer instanceof TypeComposer)) {
     throw new Error('First arg for prepareConnectionResolver() should be instance of TypeComposer');
   }
 
   if (!opts.countResolverName) {
-    throw new Error(`TypeComposer(${typeComposer.getTypeName()}) provided to composeWithConnection `
-                  + 'should have option `opts.countResolverName`.');
+    throw new Error(
+      `TypeComposer(${typeComposer.getTypeName()}) provided to composeWithConnection ` +
+        'should have option `opts.countResolverName`.',
+    );
   }
   const countResolver = typeComposer.getResolver(opts.countResolverName);
   if (!countResolver) {
-    throw new Error(`TypeComposer(${typeComposer.getTypeName()}) provided to composeWithConnection `
-                  + `should have resolver with name '${opts.countResolverName}' `
-                  + 'due opts.countResolverName.');
+    throw new Error(
+      `TypeComposer(${typeComposer.getTypeName()}) provided to composeWithConnection ` +
+        `should have resolver with name '${opts.countResolverName}' ` +
+        'due opts.countResolverName.',
+    );
   }
   const countResolve = countResolver.getResolve();
 
   if (!opts.findResolverName) {
-    throw new Error(`TypeComposer(${typeComposer.getTypeName()}) provided to composeWithConnection `
-                  + 'should have option `opts.findResolverName`.');
+    throw new Error(
+      `TypeComposer(${typeComposer.getTypeName()}) provided to composeWithConnection ` +
+        'should have option `opts.findResolverName`.',
+    );
   }
   const findManyResolver = typeComposer.getResolver(opts.findResolverName);
   if (!findManyResolver) {
-    throw new Error(`TypeComposer(${typeComposer.getTypeName()}) provided to composeWithConnection `
-                  + `should have resolver with name '${opts.findResolverName}' `
-                  + 'due opts.countResolverName.');
+    throw new Error(
+      `TypeComposer(${typeComposer.getTypeName()}) provided to composeWithConnection ` +
+        `should have resolver with name '${opts.findResolverName}' ` +
+        'due opts.countResolverName.',
+    );
   }
   const findManyResolve = findManyResolver.getResolve();
 
   const additionalArgs = {};
   if (findManyResolver.hasArg('filter')) {
-    // $FlowFixMe
-    additionalArgs.filter = findManyResolver.getArg('filter');
+    const filter = findManyResolver.getArg('filter');
+    if (filter) {
+      additionalArgs.filter = filter;
+    }
   }
 
   const sortEnumType = prepareSortType(typeComposer, opts);
@@ -62,7 +71,7 @@ export function prepareConnectionResolver(
     kind: 'query',
     args: {
       first: {
-        type: GraphQLInt,
+        type: 'Int',
         description: 'Forward pagination argument for returning at most first edges',
       },
       after: {
@@ -70,7 +79,7 @@ export function prepareConnectionResolver(
         description: 'Forward pagination argument for returning at most first edges',
       },
       last: {
-        type: GraphQLInt,
+        type: 'Int',
         description: 'Backward pagination argument for returning at most last edges',
       },
       before: {
@@ -84,14 +93,14 @@ export function prepareConnectionResolver(
         description: 'Sort argument for data ordering',
       },
     },
-    resolve: async (resolveParams: ConnectionResolveParams) => {
+    // eslint-disable-next-line
+    resolve: async (resolveParams: $Shape<ConnectionResolveParams<TSource, TContext>>) => {
       let countPromise;
       let findManyPromise;
       const { projection = {}, args, rawQuery } = resolveParams;
-      const findManyParams: ResolveParams = Object.assign(
-        {},
-        resolveParams,
-      );
+      const findManyParams: $Shape<ResolveParams<TSource, TContext>> = {
+        ...resolveParams,
+      };
 
       let first = parseInt(args.first, 10) || 0;
       if (first < 0) {
@@ -102,11 +111,11 @@ export function prepareConnectionResolver(
         throw new Error('Argument `last` should be non-negative number.');
       }
 
-      const countParams = {
-        ...findManyParams,
+      const countParams: $Shape<ResolveParams<TSource, TContext>> = {
+        ...resolveParams,
         rawQuery,
         args: {
-          filter: Object.assign({}, { ...findManyParams.args.filter }),
+          filter: { ...resolveParams.args.filter },
         },
       };
 
@@ -119,15 +128,13 @@ export function prepareConnectionResolver(
       }
 
       if (projection && projection.edges) {
-        // combine top level projection (maybe somebody add additional fields via resolveParams.projection)
+        // combine top level projection
+        // (maybe somebody add additional fields via resolveParams.projection)
         // and edges.node (record needed fields)
-        findManyParams.projection = Object.assign(
-          {},
-          projection,
-          projection.edges.node || {}
-        );
+        // $FlowFixMe
+        findManyParams.projection = { ...projection, ...projection.edges.node };
       } else {
-        findManyParams.projection = Object.assign({}, projection);
+        findManyParams.projection = { ...projection };
       }
 
       if (!first && last) {
@@ -143,13 +150,13 @@ export function prepareConnectionResolver(
       if (sortConfig) {
         prepareRawQuery(resolveParams, sortConfig);
         findManyParams.rawQuery = resolveParams.rawQuery;
-        sortConfig.cursorFields.forEach(fieldName => {
+        sortConfig.cursorFields.forEach((fieldName) => {
           findManyParams.projection[fieldName] = true;
         });
 
         prepareCursorData = (record) => {
           const result = {};
-          sortConfig.cursorFields.forEach(fieldName => {
+          sortConfig.cursorFields.forEach((fieldName) => {
             result[fieldName] = record[fieldName];
           });
           return result;
@@ -158,7 +165,8 @@ export function prepareConnectionResolver(
         [limit, skip] = prepareLimitSkipFallback(resolveParams, limit, skip);
 
         let skipIdx = -1;
-        prepareCursorData = () => {
+        // eslint-disable-next-line
+        prepareCursorData = _ => {
           skipIdx += 1;
           return skip + skipIdx;
         };
@@ -175,7 +183,7 @@ export function prepareConnectionResolver(
 
       // This allows to optimize and not actually call the findMany resolver
       // if only the count is projected
-      if (projection.count && Object.keys(projection).length == 1) {
+      if (projection.count && Object.keys(projection).length === 1) {
         findManyPromise = Promise.resolve([]);
       } else {
         findManyPromise = findManyResolve(findManyParams);
@@ -185,7 +193,7 @@ export function prepareConnectionResolver(
         .then(([recordList, count]) => {
           const edges = [];
           // transform record to object { cursor, node }
-          recordList.forEach(record => {
+          recordList.forEach((record) => {
             edges.push({
               cursor: dataToCursor(prepareCursorData(record)),
               node: record,
@@ -195,9 +203,7 @@ export function prepareConnectionResolver(
         })
         .then(([edges, count]) => {
           const result = emptyConnection();
-          result.edges = edges.length > limit
-            ? edges.slice(0, limit)
-            : edges;
+          result.edges = edges.length > limit ? edges.slice(0, limit) : edges;
 
           result.pageInfo = preparePageInfo(edges, args, limit, skip);
           result.count = count;
@@ -215,7 +221,7 @@ export function preparePageInfo(
     first?: ?number,
   },
   limit: number,
-  skip: number
+  skip: number,
 ) {
   const pageInfo = {
     startCursor: '',
@@ -242,8 +248,8 @@ export function preparePageInfo(
 }
 
 export function prepareRawQuery(
-  rp: ResolveParams,
-  sortConfig: connectionSortOpts
+  rp: $Shape<ConnectionResolveParams<*, *>>,
+  sortConfig: connectionSortOpts,
 ) {
   if (!rp.rawQuery) {
     rp.rawQuery = {};
@@ -267,9 +273,9 @@ export function prepareRawQuery(
 }
 
 export function prepareLimitSkipFallback(
-  rp: ResolveParams,
+  rp: $Shape<ConnectionResolveParams<*, *>>,
   limit: number,
-  skip: number
+  skip: number,
 ): [number, number] {
   let newLimit = limit;
   let newSkip = skip;
@@ -306,7 +312,8 @@ export function prepareLimitSkipFallback(
     if (newSkip < 0) {
       newSkip = 0;
       newLimit = limit;
-      // offset 0, so limit should not exceed offset in cursor, otherwise it returns again this record
+      // offset 0, so limit should not exceed offset in cursor,
+      // otherwise it returns again this record
       if (newLimit > beforeSkip) {
         newLimit = beforeSkip;
       }
@@ -331,12 +338,9 @@ export function emptyConnection(): GraphQLConnectionType {
   };
 }
 
-export function findSortConfig(
-  configs: connectionSortMapOpts,
-  val: mixed
-): ?connectionSortOpts {
+export function findSortConfig(configs: connectionSortMapOpts, val: mixed): ?connectionSortOpts {
   // Object.keys(configs).forEach(k => {  // return does not works in forEach as I want
-  for (let k in configs) {
+  for (const k in configs) {
     if (configs[k].value === val) {
       return configs[k];
     }
@@ -348,9 +352,11 @@ export function findSortConfig(
   // BTW this code will be called only if arg.sort setuped by hands
   //   if graphql provides arg.sort, then first for-loop (above) done all work
   const valStringified = JSON.stringify(val);
-  for (let k in configs) {
+  for (const k in configs) {
     if (JSON.stringify(configs[k].value) === valStringified) {
       return configs[k];
     }
   }
+
+  return undefined;
 }

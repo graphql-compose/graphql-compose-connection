@@ -6,13 +6,13 @@ import { TypeComposer } from 'graphql-compose';
 import type {
   composeWithConnectionOpts,
   connectionSortOpts,
-} from '../definition.js';
+} from '../definition';
 import { isFunction } from '../utils/is';
 
 
 export function prepareSortType(
   typeComposer: TypeComposer,
-  opts: composeWithConnectionOpts
+  opts: composeWithConnectionOpts,
 ): GraphQLEnumType {
   if (!opts || !opts.sort) {
     throw new Error('Option `sort` should not be empty in composeWithConnection');
@@ -27,7 +27,7 @@ export function prepareSortType(
   }
 
   const sortEnumValues = {};
-  sortKeys.forEach(sortKey => {
+  sortKeys.forEach((sortKey) => {
     checkSortOpts(sortKey, opts.sort[sortKey]);
 
     sortEnumValues[sortKey] = {

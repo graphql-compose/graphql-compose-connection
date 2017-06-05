@@ -1,3 +1,5 @@
+/* @flow */
+
 import { expect } from 'chai';
 import { TypeComposer, graphql } from 'graphql-compose';
 import { userTypeComposer } from '../../__mocks__/userTypeComposer';

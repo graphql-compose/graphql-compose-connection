@@ -1,3 +1,4 @@
+/* @flow */
 /* eslint-disable no-param-reassign */
 
 import { expect } from 'chai';

@@ -1,3 +1,5 @@
+/* @flow */
+
 import { TypeComposer, graphql } from 'graphql-compose';
 
 const RootQuery = new graphql.GraphQLObjectType({

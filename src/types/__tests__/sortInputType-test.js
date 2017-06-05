@@ -1,6 +1,5 @@
 /* @flow */
 
-import { expect } from 'chai';
 import { graphql } from 'graphql-compose';
 import { userTypeComposer } from '../../__mocks__/userTypeComposer';
 import { prepareSortType } from '../sortInputType';
@@ -10,7 +9,7 @@ const { GraphQLEnumType } = graphql;
 describe('types/sortInputType.js', () => {
   describe('basic checks', () => {
     it('should throw error if opts.sort are empty', () => {
-      expect(() => prepareSortType(userTypeComposer, {})).to.throw(
+      expect(() => prepareSortType(userTypeComposer, {})).toThrowError(
         'Option `sort` should not be empty'
       );
     });
@@ -20,7 +19,7 @@ describe('types/sortInputType.js', () => {
         prepareSortType(userTypeComposer, {
           sort: {},
         })
-      ).to.throw('should provide at least one `sort` option');
+      ).toThrowError('should provide at least one `sort` option');
     });
 
     it('should throw error if opts.sort.[KEY].value are empty object', () => {
@@ -30,7 +29,7 @@ describe('types/sortInputType.js', () => {
             _ID_ASC: {},
           },
         })
-      ).to.throw('should provide `value`');
+      ).toThrowError('should provide `value`');
     });
 
     it('should throw error if opts.sort.[KEY].cursorFields are empty object', () => {
@@ -42,7 +41,7 @@ describe('types/sortInputType.js', () => {
             },
           },
         })
-      ).to.throw('should provide array of field(s) in `cursorFields`');
+      ).toThrowError('should provide array of field(s) in `cursorFields`');
 
       expect(() =>
         prepareSortType(userTypeComposer, {
@@ -53,7 +52,7 @@ describe('types/sortInputType.js', () => {
             },
           },
         })
-      ).to.throw('should provide array of field(s) in `cursorFields`');
+      ).toThrowError('should provide array of field(s) in `cursorFields`');
     });
 
     it('should throw error if opts.sort.[KEY].beforeCursorQuery are empty object', () => {
@@ -66,7 +65,7 @@ describe('types/sortInputType.js', () => {
             },
           },
         })
-      ).to.throw('should provide `beforeCursorQuery`');
+      ).toThrowError('should provide `beforeCursorQuery`');
 
       expect(() =>
         prepareSortType(userTypeComposer, {
@@ -78,7 +77,7 @@ describe('types/sortInputType.js', () => {
             },
           },
         })
-      ).to.throw('should provide `beforeCursorQuery`');
+      ).toThrowError('should provide `beforeCursorQuery`');
     });
 
     it('should throw error if opts.sort.[KEY].afterCursorQuery are empty object', () => {
@@ -92,7 +91,7 @@ describe('types/sortInputType.js', () => {
             },
           },
         })
-      ).to.throw('should provide `afterCursorQuery`');
+      ).toThrowError('should provide `afterCursorQuery`');
 
       expect(() =>
         prepareSortType(userTypeComposer, {
@@ -105,7 +104,7 @@ describe('types/sortInputType.js', () => {
             },
           },
         })
-      ).to.throw('should provide `afterCursorQuery`');
+      ).toThrowError('should provide `afterCursorQuery`');
     });
   });
 
@@ -122,15 +121,15 @@ describe('types/sortInputType.js', () => {
     });
 
     it('should be GraphQLEnumType', () => {
-      expect(sortType).to.be.instanceof(GraphQLEnumType);
+      expect(sortType).toBeInstanceOf(GraphQLEnumType);
     });
 
     it('should have name `SortConnection[typeName]Enum`', () => {
-      expect(sortType).property('name').to.be.equal('SortConnectionUserEnum');
+      expect(sortType.name).toBe('SortConnectionUserEnum');
     });
 
     it('should have enum values', () => {
-      expect(sortType).nested.property('_enumConfig.values._ID_ASC').to.be.ok;
+      expect(sortType._enumConfig.values._ID_ASC).toBeTruthy();
     });
   });
 });

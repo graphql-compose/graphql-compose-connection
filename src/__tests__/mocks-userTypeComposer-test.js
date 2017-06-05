@@ -1,18 +1,17 @@
 /* @flow */
 /* eslint-disable no-param-reassign */
 
-import { expect } from 'chai';
 import { userTypeComposer } from '../__mocks__/userTypeComposer';
 
 describe('mocks/userTypeComposer', () => {
   it('userTypeComposer should have `count` resolver', async () => {
     const cnt = await userTypeComposer.getResolver('count').resolve({});
-    expect(cnt).to.be.equal(15);
+    expect(cnt).toBe(15);
   });
 
   it('userTypeComposer should have `findMany` resolver', async () => {
     const res = await userTypeComposer.getResolver('findMany').resolve({});
-    expect(res).to.have.length(15);
+    expect(res).toHaveLength(15);
   });
 
   it('userTypeComposer should have `findMany` resolver with working `filter` arg', async () => {
@@ -33,7 +32,7 @@ describe('mocks/userTypeComposer', () => {
         },
       },
     });
-    expect(res).to.be.deep.equal([{ id: 9, name: 'user09', age: 19, gender: 'm' }]);
+    expect(res).toEqual([{ id: 9, name: 'user09', age: 19, gender: 'm' }]);
   });
 
   it('userTypeComposer should have `findMany` resolver with working `sort` arg', async () => {
@@ -46,7 +45,7 @@ describe('mocks/userTypeComposer', () => {
         limit: 5,
       },
     });
-    expect(res).to.be.deep.equal([
+    expect(res).toEqual([
       { id: 11, name: 'user11', age: 49, gender: 'm' },
       { id: 10, name: 'user10', age: 49, gender: 'f' },
       { id: 12, name: 'user12', age: 47, gender: 'f' },

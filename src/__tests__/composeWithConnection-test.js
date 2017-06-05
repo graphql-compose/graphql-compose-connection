@@ -1,7 +1,6 @@
 /* @flow */
 /* eslint-disable no-param-reassign */
 
-import { expect } from 'chai';
 import { TypeComposer, graphql } from 'graphql-compose';
 import { composeWithConnection } from '../composeWithConnection';
 import { userTypeComposer, sortOptions } from '../__mocks__/userTypeComposer';
@@ -18,15 +17,15 @@ describe('composeWithRelay', () => {
 
   describe('basic checks', () => {
     it('should return TypeComposer', () => {
-      expect(userComposer).instanceof(TypeComposer);
+      expect(userComposer).toBeInstanceOf(TypeComposer);
     });
 
     it('should throw error if first arg is not TypeComposer', () => {
-      expect(() => composeWithConnection(123)).to.throw('should provide TypeComposer instance');
+      expect(() => composeWithConnection(123)).toThrowError('should provide TypeComposer instance');
     });
 
     it('should throw error if options are empty', () => {
-      expect(() => composeWithConnection(userTypeComposer)).to.throw(
+      expect(() => composeWithConnection(userTypeComposer)).toThrowError(
         'should provide non-empty options'
       );
     });
@@ -45,8 +44,8 @@ describe('composeWithRelay', () => {
         sort: sortOptions,
       });
 
-      expect(myTC.getResolver('connection')).to.be.ok;
-      expect(myTC.getResolver('connection').resolve()).equal('mockData');
+      expect(myTC.getResolver('connection')).toBeTruthy();
+      expect(myTC.getResolver('connection').resolve()).toBe('mockData');
     });
   });
 
@@ -56,13 +55,13 @@ describe('composeWithRelay', () => {
     const tc = new TypeComposer(type);
 
     it('should exists', () => {
-      expect(rsv).to.be.ok;
+      expect(rsv).toBeTruthy();
     });
 
     it('should has ConnectionType as type', () => {
-      expect(type).to.be.ok;
-      expect(tc.getFieldNames()).to.have.members(['count', 'pageInfo', 'edges']);
-      expect(tc.getFieldType('edges')).instanceof(GraphQLList);
+      expect(type).toBeTruthy();
+      expect(tc.getFieldNames()).toEqual(expect.arrayContaining(['count', 'pageInfo', 'edges']));
+      expect(tc.getFieldType('edges')).toBeInstanceOf(GraphQLList);
     });
   });
 
@@ -93,7 +92,7 @@ describe('composeWithRelay', () => {
       }
     }`;
     const result = await graphql.graphql(schema, query);
-    expect(result).nested.property('data.userConnection').deep.equals({
+    expect(result.data.userConnection).toEqual({
       count: 15,
       pageInfo: {
         startCursor: 'eyJpZCI6MTN9',
@@ -146,7 +145,7 @@ describe('composeWithRelay', () => {
       }
     }`;
     const result = await graphql.graphql(schema, query);
-    expect(result).nested.property('data.userConnection').deep.equals({
+    expect(result.data.userConnection).toEqual({
       count: 15,
       pageInfo: {
         startCursor: 'eyJhZ2UiOjQ5LCJpZCI6MTF9',
@@ -209,7 +208,7 @@ describe('composeWithRelay', () => {
       }
       `;
       const result = await graphql.graphql(schema, query);
-      expect(result).to.deep.equal({
+      expect(result).toEqual({
         data: {
           userConnection: {
             count: 15,
@@ -259,15 +258,10 @@ describe('composeWithRelay', () => {
       }
     }`;
     await graphql.graphql(schema, query);
-    expect(topResolveParams).has.property('countResolveParams');
-    expect(topResolveParams.countResolveParams).to.contain.all.keys([
-      'source',
-      'args',
-      'context',
-      'info',
-      'projection',
-    ]);
-    expect(topResolveParams.countResolveParams.args).deep.equal({
+    expect(Object.keys(topResolveParams.countResolveParams)).toEqual(
+      expect.arrayContaining(['source', 'args', 'context', 'info', 'projection'])
+    );
+    expect(topResolveParams.countResolveParams.args).toEqual({
       filter: { age: 45 },
     });
   });
@@ -295,15 +289,10 @@ describe('composeWithRelay', () => {
       }
     }`;
     await graphql.graphql(schema, query);
-    expect(topResolveParams).has.property('findManyResolveParams');
-    expect(topResolveParams.findManyResolveParams).to.contain.all.keys([
-      'source',
-      'args',
-      'context',
-      'info',
-      'projection',
-    ]);
-    expect(topResolveParams.findManyResolveParams.args).deep.equal({
+    expect(Object.keys(topResolveParams.findManyResolveParams)).toEqual(
+      expect.arrayContaining(['source', 'args', 'context', 'info', 'projection'])
+    );
+    expect(topResolveParams.findManyResolveParams.args).toEqual({
       filter: { age: 45 },
       limit: 2,
       sort: { id: 1 },

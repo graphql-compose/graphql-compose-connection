@@ -1,0 +1,9 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`connectionResolver "Relay Cursor Connections Specification (Pagination algorithm)": ApplyCursorsToEdges(allEdges, before, after): should throw error if \`first\` is less than 0 1`] = `[Error: Argument \`first\` should be non-negative number.]`;
+
+exports[`connectionResolver "Relay Cursor Connections Specification (Pagination algorithm)": ApplyCursorsToEdges(allEdges, before, after): should throw error if \`last\` is less than 0 1`] = `[Error: Argument \`last\` should be non-negative number.]`;
+
+exports[`connectionResolver fallback logic (offset in cursor) should throw error if \`first\` is less than 0 1`] = `[Error: Argument \`first\` should be non-negative number.]`;
+
+exports[`connectionResolver fallback logic (offset in cursor) should throw error if \`last\` is less than 0 1`] = `[Error: Argument \`last\` should be non-negative number.]`;

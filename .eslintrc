@@ -30,7 +30,8 @@
     "no-restricted-syntax": 0,
   },
   "env": {
-    "mocha": true
+    "jasmine": true,
+    "jest": true
   },
   "globals": {
     "Class": true,

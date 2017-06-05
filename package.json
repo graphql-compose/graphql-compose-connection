@@ -3,7 +3,6 @@
   "version": "0.0.0-semantically-released",
   "description": "Plugin for `graphql-compose` which provide a connection resolver for types.",
   "files": [
-    "es",
     "lib",
     "README.md"
   ],
@@ -29,18 +28,13 @@
   },
   "devDependencies": {
     "babel-cli": "^6.24.1",
-    "babel-core": "^6.24.1",
     "babel-eslint": "^7.2.3",
-    "babel-plugin-syntax-async-functions": "6.13.0",
-    "babel-plugin-transform-class-properties": "^6.24.1",
     "babel-plugin-transform-flow-strip-types": "^6.22.0",
     "babel-plugin-transform-object-rest-spread": "^6.23.0",
-    "babel-plugin-transform-regenerator": "^6.24.1",
-    "babel-plugin-transform-runtime": "^6.23.0",
-    "babel-preset-es2015": "^6.24.1",
     "chai": "^4.0.1",
     "chai-as-promised": "6.0.0",
     "chai-spies": "0.7.1",
+    "babel-preset-env": "^1.5.1",
     "cz-conventional-changelog": "^2.0.0",
     "eslint": "^3.19.0",
     "eslint-config-airbnb-base": "^11.2.0",
@@ -58,9 +52,7 @@
     "sane": "^1.7.0",
     "semantic-release": "^6.3.2"
   },
-  "dependencies": {
-    "babel-runtime": "^6.23.0"
-  },
+  "dependencies": {},
   "config": {
     "commitizen": {
       "path": "./node_modules/cz-conventional-changelog"
@@ -79,9 +71,8 @@
     ]
   },
   "scripts": {
-    "build": "npm run build-cjs && npm run build-flow && npm run build-es",
+    "build": "npm run build-cjs && npm run build-flow",
     "build-cjs": "rimraf lib && babel src --ignore __tests__,__mocks__ -d lib",
-    "build-es": "rimraf es && BABEL_ENV=es babel src --ignore __tests__,__mocks__ -d es",
     "build-flow": "find ./src -name '*.js' -not -path '*/__*' | while read filepath; do cp $filepath `echo $filepath | sed 's/\\/src\\//\\/lib\\//g'`.flow; done",
     "coverage": "nyc npm run test",
     "lint": "eslint src test *.js",

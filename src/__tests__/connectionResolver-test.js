@@ -39,7 +39,7 @@ describe('connectionResolver', () => {
           findResolverName: 'findMany',
           sort: sortOptions,
         })
-      ).to.throw("should have resolver with name 'countDoesNotExists'");
+      ).to.throw("does not have resolver with name 'countDoesNotExists'");
     });
 
     it('should throw error if opts.findResolverName are empty', () => {
@@ -57,7 +57,7 @@ describe('connectionResolver', () => {
           findResolverName: 'findManyDoesNotExists',
           sort: sortOptions,
         })
-      ).to.throw("should have resolver with name 'findManyDoesNotExists'");
+      ).to.throw("does not have resolver with name 'findManyDoesNotExists'");
     });
   });
 

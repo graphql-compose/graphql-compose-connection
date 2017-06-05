@@ -133,7 +133,6 @@ export function prepareConnectionResolver<TSource, TContext>(
         // combine top level projection
         // (maybe somebody add additional fields via resolveParams.projection)
         // and edges.node (record needed fields)
-        // $FlowFixMe
         findManyParams.projection = { ...projection, ...projection.edges.node };
       } else {
         findManyParams.projection = { ...projection };

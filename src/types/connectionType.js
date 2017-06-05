@@ -17,8 +17,7 @@ export function prepareEdgeType(typeComposer: TypeComposer): GraphQLObjectType {
   const type = typeComposer.getType();
 
   if (cachedEdgeTypes.has(type)) {
-    // $FlowFixMe
-    return cachedEdgeTypes.get(type);
+    return (cachedEdgeTypes.get(type): any);
   }
 
   const edgeType = new GraphQLObjectType({
@@ -50,8 +49,7 @@ export function prepareConnectionType(typeComposer: TypeComposer): GraphQLObject
   const type = typeComposer.getType();
 
   if (cachedConnectionTypes.has(type)) {
-    // $FlowFixMe
-    return cachedConnectionTypes.get(type);
+    return (cachedConnectionTypes.get(type): any);
   }
 
   const connectionType = new GraphQLObjectType({

@@ -7,12 +7,7 @@ import GraphQLConnectionCursor from './cursorType';
 
 import PageInfoType from './pageInfoType';
 
-const {
-  GraphQLInt,
-  GraphQLObjectType,
-  GraphQLNonNull,
-  GraphQLList,
-} = graphql;
+const { GraphQLInt, GraphQLObjectType, GraphQLNonNull, GraphQLList } = graphql;
 
 const cachedConnectionTypes = new WeakMap();
 const cachedEdgeTypes = new WeakMap();
@@ -49,7 +44,6 @@ export function prepareEdgeType(typeComposer: TypeComposer): GraphQLObjectType {
   cachedEdgeTypes.set(type, edgeType);
   return edgeType;
 }
-
 
 export function prepareConnectionType(typeComposer: TypeComposer): GraphQLObjectType {
   const name = `${typeComposer.getTypeName()}Connection`;

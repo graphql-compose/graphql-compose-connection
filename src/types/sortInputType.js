@@ -2,17 +2,14 @@
 /* eslint-disable no-use-before-define, no-param-reassign */
 
 import { TypeComposer, graphql } from 'graphql-compose';
-import type {
-  composeWithConnectionOpts,
-  connectionSortOpts,
-} from '../definition';
+import type { composeWithConnectionOpts, connectionSortOpts } from '../definition';
 import { isFunction } from '../utils/is';
 
 const { GraphQLEnumType } = graphql;
 
 export function prepareSortType(
   typeComposer: TypeComposer,
-  opts: composeWithConnectionOpts,
+  opts: composeWithConnectionOpts
 ): GraphQLEnumType {
   if (!opts || !opts.sort) {
     throw new Error('Option `sort` should not be empty in composeWithConnection');
@@ -22,12 +19,14 @@ export function prepareSortType(
 
   const sortKeys = Object.keys(opts.sort);
   if (sortKeys.length === 0) {
-    throw new Error('You should provide at least one `sort` option '
-                  + `for composeWithConnection(${typeComposer.getTypeName()}, opts) in opts.sort`);
+    throw new Error(
+      'You should provide at least one `sort` option ' +
+        `for composeWithConnection(${typeComposer.getTypeName()}, opts) in opts.sort`
+    );
   }
 
   const sortEnumValues = {};
-  sortKeys.forEach((sortKey) => {
+  sortKeys.forEach(sortKey => {
     checkSortOpts(sortKey, opts.sort[sortKey]);
 
     sortEnumValues[sortKey] = {
@@ -44,32 +43,39 @@ export function prepareSortType(
   return sortType;
 }
 
-
 export function checkSortOpts(key: string, opts: connectionSortOpts) {
   if (!opts.value) {
-    throw new Error('You should provide `value` '
-                  + `for composeWithConnection in opts.sort.${key}. `
-                  + 'Connections does not work without sorting.');
+    throw new Error(
+      'You should provide `value` ' +
+        `for composeWithConnection in opts.sort.${key}. ` +
+        'Connections does not work without sorting.'
+    );
   }
 
   if (!opts.cursorFields || !Array.isArray(opts.cursorFields)) {
-    throw new Error('You should provide array of field(s) in `cursorFields` '
-                  + `for composeWithConnection in opts.sort.${key}`
-                  + 'Ideally this field(s) should be in unique index. '
-                  + 'Connection will work incorrectly, if some records have same values.');
+    throw new Error(
+      'You should provide array of field(s) in `cursorFields` ' +
+        `for composeWithConnection in opts.sort.${key}` +
+        'Ideally this field(s) should be in unique index. ' +
+        'Connection will work incorrectly, if some records have same values.'
+    );
   }
 
   if (!opts.beforeCursorQuery || !isFunction(opts.beforeCursorQuery)) {
-    throw new Error('You should provide `beforeCursorQuery` function '
-                  + `for composeWithConnection in opts.sort.${key}. `
-                  + 'Connections should have ability to filter '
-                  + 'backward records started from cursor.');
+    throw new Error(
+      'You should provide `beforeCursorQuery` function ' +
+        `for composeWithConnection in opts.sort.${key}. ` +
+        'Connections should have ability to filter ' +
+        'backward records started from cursor.'
+    );
   }
 
   if (!opts.afterCursorQuery || !isFunction(opts.afterCursorQuery)) {
-    throw new Error('You should provide `afterCursorQuery` function '
-                  + `for composeWithConnection in opts.sort.${key}. `
-                  + 'Connections should have ability to filter '
-                  + 'forward records started from cursor.');
+    throw new Error(
+      'You should provide `afterCursorQuery` function ' +
+        `for composeWithConnection in opts.sort.${key}. ` +
+        'Connections should have ability to filter ' +
+        'forward records started from cursor.'
+    );
   }
 }

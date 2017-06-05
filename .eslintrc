@@ -1,17 +1,33 @@
 {
-  "extends": "airbnb-base",
-  "parser": "babel-eslint",
-  "plugins": [
-    "flowtype"
+  "extends": [
+    "airbnb-base",
+    "prettier"
   ],
+  "parser": "babel-eslint",
   "rules": {
     "no-underscore-dangle": 0,
-    "no-unused-expressions": 0,
     "arrow-body-style": 0,
-    "no-mixed-operators": 0,
-    "no-restricted-syntax": 0,
+    "arrow-parens": 0,
+    "prefer-template": 0,
+    "no-use-before-define": 0,
+    "no-else-return": 0,
+    "comma-dangle": ["error", {
+      "arrays": "always-multiline",
+      "objects": "always-multiline",
+      "imports": "always-multiline",
+      "exports": "always-multiline",
+      "functions": "ignore",
+    }],
+    "no-plusplus": 0,
+    "import/no-extraneous-dependencies": 0,
     "import/prefer-default-export": 0,
-    "no-lonely-if": 0
+    "prettier/prettier": ["error", {
+      "printWidth": 100,
+      "singleQuote": true,
+      "trailingComma": "es5",
+    }],
+    "no-unused-expressions": 0,
+    "no-restricted-syntax": 0,
   },
   "env": {
     "mocha": true
@@ -19,5 +35,9 @@
   "globals": {
     "Class": true,
     "$Shape": true,
-  }
+  },
+  "plugins": [
+    "flowtype",
+    "prettier"
+  ],
 }

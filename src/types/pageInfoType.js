@@ -2,12 +2,7 @@
 
 import { graphql } from 'graphql-compose';
 
-const {
-  GraphQLBoolean,
-  GraphQLString,
-  GraphQLObjectType,
-  GraphQLNonNull,
-} = graphql;
+const { GraphQLBoolean, GraphQLString, GraphQLObjectType, GraphQLNonNull } = graphql;
 
 const PageInfoType = new GraphQLObjectType({
   name: 'PageInfo',

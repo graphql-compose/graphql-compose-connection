@@ -27,7 +27,7 @@ describe('connectionResolver', () => {
 
     it('should throw error if opts.countResolverName are empty', () => {
       expect(() => prepareConnectionResolver(userTypeComposer, {})).to.throw(
-        'should have option `opts.countResolverName`',
+        'should have option `opts.countResolverName`'
       );
     });
 
@@ -37,7 +37,7 @@ describe('connectionResolver', () => {
           countResolverName: 'countDoesNotExists',
           findResolverName: 'findMany',
           sort: sortOptions,
-        }),
+        })
       ).to.throw("should have resolver with name 'countDoesNotExists'");
     });
 
@@ -45,7 +45,7 @@ describe('connectionResolver', () => {
       expect(() =>
         prepareConnectionResolver(userTypeComposer, {
           countResolverName: 'count',
-        }),
+        })
       ).to.throw('should have option `opts.findResolverName`');
     });
 
@@ -55,7 +55,7 @@ describe('connectionResolver', () => {
           countResolverName: 'count',
           findResolverName: 'findManyDoesNotExists',
           sort: sortOptions,
-        }),
+        })
       ).to.throw("should have resolver with name 'findManyDoesNotExists'");
     });
   });
@@ -109,14 +109,14 @@ describe('connectionResolver', () => {
       countResolverCalled = false;
       const mockedFindMany = userTypeComposer
         .getResolver('findMany')
-        .wrapResolve(next => (resolveParams) => {
+        .wrapResolve(next => resolveParams => {
           findManyResolverCalled = true;
           spyResolveParams = resolveParams;
           return next(resolveParams);
         });
       const mockedCount = userTypeComposer
         .getResolver('findMany')
-        .wrapResolve(next => (resolveParams) => {
+        .wrapResolve(next => resolveParams => {
           countResolverCalled = true;
           spyResolveParams = resolveParams;
           return next(resolveParams);

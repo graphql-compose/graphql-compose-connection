@@ -111,7 +111,7 @@ function prepareFilterFromArgs(resolveParams = {}) {
   const args = resolveParams.args || {};
   const filter = Object.assign({}, args.filter);
   if (resolveParams.rawQuery) {
-    Object.keys(resolveParams.rawQuery).forEach((k) => {
+    Object.keys(resolveParams.rawQuery).forEach(k => {
       filter[k] = resolveParams.rawQuery[k];
     });
   }
@@ -136,9 +136,9 @@ export const findManyResolver = new Resolver({
     limit: GraphQLInt,
     skip: GraphQLInt,
   },
-  resolve: (resolveParams) => {
+  resolve: resolveParams => {
     const args = resolveParams.args || {};
-    const { filter, sort, limit, skip } = args;
+    const { sort, limit, skip } = args;
 
     let list = userList.slice();
     list = sortUserList(list, sort);
@@ -157,7 +157,6 @@ export const findManyResolver = new Resolver({
 });
 userTypeComposer.setResolver('findMany', findManyResolver);
 
-
 export const countResolver = new Resolver({
   name: 'count',
   kind: 'query',
@@ -165,27 +164,21 @@ export const countResolver = new Resolver({
   args: {
     filter: filterArgConfig,
   },
-  resolve: (resolveParams) => {
-    return Promise.resolve(
-      filteredUserList(
-        userList,
-        prepareFilterFromArgs(resolveParams)
-      ).length
-    );
+  resolve: resolveParams => {
+    return Promise.resolve(filteredUserList(userList, prepareFilterFromArgs(resolveParams)).length);
   },
 });
 userTypeComposer.setResolver('count', countResolver);
-
 
 export const sortOptions = {
   ID_ASC: {
     value: { id: 1 },
     cursorFields: ['id'],
-    beforeCursorQuery: (rawQuery, cursorData, resolveParams) => {
+    beforeCursorQuery: (rawQuery, cursorData) => {
       if (!rawQuery.id) rawQuery.id = {};
       rawQuery.id.$lt = cursorData.id;
     },
-    afterCursorQuery: (rawQuery, cursorData, resolveParams) => {
+    afterCursorQuery: (rawQuery, cursorData) => {
       if (!rawQuery.id) rawQuery.id = {};
       rawQuery.id.$gt = cursorData.id;
     },
@@ -193,13 +186,13 @@ export const sortOptions = {
   AGE_ID_DESC: {
     value: { age: -1, id: -1 },
     cursorFields: ['age', 'id'],
-    beforeCursorQuery: (rawQuery, cursorData, resolveParams) => {
+    beforeCursorQuery: (rawQuery, cursorData) => {
       if (!rawQuery.age) rawQuery.age = {};
       if (!rawQuery.id) rawQuery.id = {};
       rawQuery.age = { $gt: cursorData.age };
       rawQuery.id = { $gt: cursorData.id };
     },
-    afterCursorQuery: (rawQuery, cursorData, resolveParams) => {
+    afterCursorQuery: (rawQuery, cursorData) => {
       if (!rawQuery.age) rawQuery.age = {};
       if (!rawQuery.id) rawQuery.id = {};
       rawQuery.age = { $lt: cursorData.age };

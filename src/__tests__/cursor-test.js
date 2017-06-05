@@ -7,7 +7,10 @@ describe('cursor behavior', () => {
   });
 
   it('should decode object from base64', () => {
-    expect(cursorToData('eyJpZCI6MSwiYWdlIjozMH0=')).to.deep.equal({ id: 1, age: 30 });
+    expect(cursorToData('eyJpZCI6MSwiYWdlIjozMH0=')).to.deep.equal({
+      id: 1,
+      age: 30,
+    });
   });
 
   it('should return null if cursor is invalid', () => {

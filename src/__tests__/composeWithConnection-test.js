@@ -26,7 +26,7 @@ describe('composeWithRelay', () => {
 
     it('should throw error if options are empty', () => {
       expect(() => composeWithConnection(userTypeComposer)).to.throw(
-        'should provide non-empty options',
+        'should provide non-empty options'
       );
     });
 
@@ -68,7 +68,7 @@ describe('composeWithRelay', () => {
   it('should apply first sort ID_ASC by default', async () => {
     rootQueryTC.setField(
       'userConnection',
-      userTypeComposer.getResolver('connection').getFieldConfig(),
+      userTypeComposer.getResolver('connection').getFieldConfig()
     );
     const schema = new GraphQLSchema({
       query: rootQueryTC.getType(),
@@ -120,7 +120,7 @@ describe('composeWithRelay', () => {
   it('should able to change `sort` on AGE_ID_DESC', async () => {
     rootQueryTC.setField(
       'userConnection',
-      userTypeComposer.getResolver('connection').getFieldConfig(),
+      userTypeComposer.getResolver('connection').getFieldConfig()
     );
     const schema = new GraphQLSchema({
       query: rootQueryTC.getType(),
@@ -174,7 +174,7 @@ describe('composeWithRelay', () => {
     it('should return object', async () => {
       rootQueryTC.setField(
         'userConnection',
-        userTypeComposer.getResolver('connection').getFieldConfig(),
+        userTypeComposer.getResolver('connection').getFieldConfig()
       );
       const schema = new GraphQLSchema({
         query: rootQueryTC.getType(),
@@ -242,12 +242,12 @@ describe('composeWithRelay', () => {
       'userConnection',
       userTypeComposer
         .getResolver('connection')
-        .wrapResolve(next => (rp) => {
+        .wrapResolve(next => rp => {
           const result = next(rp);
           topResolveParams = rp;
           return result;
         })
-        .getFieldConfig(),
+        .getFieldConfig()
     );
     const schema = new GraphQLSchema({
       query: rootQueryTC.getType(),
@@ -266,7 +266,9 @@ describe('composeWithRelay', () => {
       'info',
       'projection',
     ]);
-    expect(topResolveParams.countResolveParams.args).deep.equal({ filter: { age: 45 } });
+    expect(topResolveParams.countResolveParams.args).deep.equal({
+      filter: { age: 45 },
+    });
   });
 
   it('should pass `findManyResolveParams` to top resolverParams', async () => {
@@ -276,12 +278,12 @@ describe('composeWithRelay', () => {
       'userConnection',
       userTypeComposer
         .getResolver('connection')
-        .wrapResolve(next => (rp) => {
+        .wrapResolve(next => rp => {
           const result = next(rp);
           topResolveParams = rp;
           return result;
         })
-        .getFieldConfig(),
+        .getFieldConfig()
     );
     const schema = new GraphQLSchema({
       query: rootQueryTC.getType(),

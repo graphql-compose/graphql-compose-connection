@@ -17,7 +17,7 @@ import { cursorToData, dataToCursor } from './cursor';
 
 export function prepareConnectionResolver<TSource, TContext>(
   typeComposer: TypeComposer,
-  opts: composeWithConnectionOpts,
+  opts: composeWithConnectionOpts
 ): Resolver<TSource, TContext> {
   if (!(typeComposer instanceof TypeComposer)) {
     throw new Error('First arg for prepareConnectionResolver() should be instance of TypeComposer');
@@ -26,7 +26,7 @@ export function prepareConnectionResolver<TSource, TContext>(
   if (!opts.countResolverName) {
     throw new Error(
       `TypeComposer(${typeComposer.getTypeName()}) provided to composeWithConnection ` +
-        'should have option `opts.countResolverName`.',
+        'should have option `opts.countResolverName`.'
     );
   }
   const countResolver = typeComposer.getResolver(opts.countResolverName);
@@ -34,7 +34,7 @@ export function prepareConnectionResolver<TSource, TContext>(
     throw new Error(
       `TypeComposer(${typeComposer.getTypeName()}) provided to composeWithConnection ` +
         `should have resolver with name '${opts.countResolverName}' ` +
-        'due opts.countResolverName.',
+        'due opts.countResolverName.'
     );
   }
   const countResolve = countResolver.getResolve();
@@ -42,7 +42,7 @@ export function prepareConnectionResolver<TSource, TContext>(
   if (!opts.findResolverName) {
     throw new Error(
       `TypeComposer(${typeComposer.getTypeName()}) provided to composeWithConnection ` +
-        'should have option `opts.findResolverName`.',
+        'should have option `opts.findResolverName`.'
     );
   }
   const findManyResolver = typeComposer.getResolver(opts.findResolverName);
@@ -50,7 +50,7 @@ export function prepareConnectionResolver<TSource, TContext>(
     throw new Error(
       `TypeComposer(${typeComposer.getTypeName()}) provided to composeWithConnection ` +
         `should have resolver with name '${opts.findResolverName}' ` +
-        'due opts.countResolverName.',
+        'due opts.countResolverName.'
     );
   }
   const findManyResolve = findManyResolver.getResolve();
@@ -94,7 +94,9 @@ export function prepareConnectionResolver<TSource, TContext>(
       },
     },
     // eslint-disable-next-line
-    resolve: async (resolveParams: $Shape<ConnectionResolveParams<TSource, TContext>>) => {
+    resolve: async (
+      resolveParams: $Shape<ConnectionResolveParams<TSource, TContext>>
+    ) => {
       let countPromise;
       let findManyPromise;
       const { projection = {}, args, rawQuery } = resolveParams;
@@ -150,13 +152,13 @@ export function prepareConnectionResolver<TSource, TContext>(
       if (sortConfig) {
         prepareRawQuery(resolveParams, sortConfig);
         findManyParams.rawQuery = resolveParams.rawQuery;
-        sortConfig.cursorFields.forEach((fieldName) => {
+        sortConfig.cursorFields.forEach(fieldName => {
           findManyParams.projection[fieldName] = true;
         });
 
-        prepareCursorData = (record) => {
+        prepareCursorData = record => {
           const result = {};
-          sortConfig.cursorFields.forEach((fieldName) => {
+          sortConfig.cursorFields.forEach(fieldName => {
             result[fieldName] = record[fieldName];
           });
           return result;
@@ -193,7 +195,7 @@ export function prepareConnectionResolver<TSource, TContext>(
         .then(([recordList, count]) => {
           const edges = [];
           // transform record to object { cursor, node }
-          recordList.forEach((record) => {
+          recordList.forEach(record => {
             edges.push({
               cursor: dataToCursor(prepareCursorData(record)),
               node: record,
@@ -221,7 +223,7 @@ export function preparePageInfo(
     first?: ?number,
   },
   limit: number,
-  skip: number,
+  skip: number
 ) {
   const pageInfo = {
     startCursor: '',
@@ -249,7 +251,7 @@ export function preparePageInfo(
 
 export function prepareRawQuery(
   rp: $Shape<ConnectionResolveParams<*, *>>,
-  sortConfig: connectionSortOpts,
+  sortConfig: connectionSortOpts
 ) {
   if (!rp.rawQuery) {
     rp.rawQuery = {};
@@ -275,7 +277,7 @@ export function prepareRawQuery(
 export function prepareLimitSkipFallback(
   rp: $Shape<ConnectionResolveParams<*, *>>,
   limit: number,
-  skip: number,
+  skip: number
 ): [number, number] {
   let newLimit = limit;
   let newSkip = skip;

@@ -6,7 +6,7 @@ import type {
   GraphQLArgumentConfig as _GraphQLArgumentConfig,
   GraphQLResolveInfo,
   ProjectionType,
-} from 'graphql-compose/lib/definition.js';
+} from "graphql-compose/lib/definition.js";
 
 export type composeWithConnectionOpts = {
   findResolverName: string,
@@ -24,17 +24,20 @@ export type connectionSortOpts = {
   beforeCursorQuery: (
     rawQuery: mixed,
     cursorData: CursorDataType,
-    resolveParams: ConnectionResolveParams<*, *>,
+    resolveParams: ConnectionResolveParams<*, *>
   ) => void,
   afterCursorQuery: (
     rawQuery: mixed,
     cursorData: CursorDataType,
-    resolveParams: ConnectionResolveParams<*, *>,
+    resolveParams: ConnectionResolveParams<*, *>
   ) => void,
 };
 
 export type GraphQLArgumentConfig = _GraphQLArgumentConfig;
-export type ResolveParams<TSource, TContext> = _ResolveParams<TSource, TContext>;
+export type ResolveParams<TSource, TContext> = _ResolveParams<
+  TSource,
+  TContext
+>;
 
 export type ConnectionResolveParams<TSource, TContext> = {
   source: TSource,

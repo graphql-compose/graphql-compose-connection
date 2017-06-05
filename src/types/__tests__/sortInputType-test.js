@@ -9,7 +9,7 @@ describe('types/sortInputType.js', () => {
   describe('basic checks', () => {
     it('should throw error if opts.sort are empty', () => {
       expect(() => prepareSortType(userTypeComposer, {})).to.throw(
-        'Option `sort` should not be empty',
+        'Option `sort` should not be empty'
       );
     });
 
@@ -17,7 +17,7 @@ describe('types/sortInputType.js', () => {
       expect(() =>
         prepareSortType(userTypeComposer, {
           sort: {},
-        }),
+        })
       ).to.throw('should provide at least one `sort` option');
     });
 
@@ -27,7 +27,7 @@ describe('types/sortInputType.js', () => {
           sort: {
             _ID_ASC: {},
           },
-        }),
+        })
       ).to.throw('should provide `value`');
     });
 
@@ -39,7 +39,7 @@ describe('types/sortInputType.js', () => {
               value: { id: 1 },
             },
           },
-        }),
+        })
       ).to.throw('should provide array of field(s) in `cursorFields`');
 
       expect(() =>
@@ -50,7 +50,7 @@ describe('types/sortInputType.js', () => {
               cursorFields: 123,
             },
           },
-        }),
+        })
       ).to.throw('should provide array of field(s) in `cursorFields`');
     });
 
@@ -63,7 +63,7 @@ describe('types/sortInputType.js', () => {
               cursorFields: ['id'],
             },
           },
-        }),
+        })
       ).to.throw('should provide `beforeCursorQuery`');
 
       expect(() =>
@@ -75,7 +75,7 @@ describe('types/sortInputType.js', () => {
               beforeCursorQuery: 123,
             },
           },
-        }),
+        })
       ).to.throw('should provide `beforeCursorQuery`');
     });
 
@@ -89,7 +89,7 @@ describe('types/sortInputType.js', () => {
               beforeCursorQuery: () => {},
             },
           },
-        }),
+        })
       ).to.throw('should provide `afterCursorQuery`');
 
       expect(() =>
@@ -102,7 +102,7 @@ describe('types/sortInputType.js', () => {
               afterCursorQuery: 123,
             },
           },
-        }),
+        })
       ).to.throw('should provide `afterCursorQuery`');
     });
   });

@@ -5,8 +5,4 @@ import { cursorToData, dataToCursor } from './cursor';
 
 export default composeWithConnection;
 
-export {
-  composeWithConnection,
-  cursorToData,
-  dataToCursor,
-};
+export { composeWithConnection, cursorToData, dataToCursor };

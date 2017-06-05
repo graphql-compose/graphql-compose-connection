@@ -11,10 +11,8 @@ export default function deepmerge(target: Object, src: Object): Object | mixed[]
         dst[i] = e;
       } else if (typeof e === 'object') {
         dst[i] = deepmerge(target[i], e);
-      } else {
-        if (target.indexOf(e) === -1) {
-          dst.push(e);
-        }
+      } else if (target.indexOf(e) === -1) {
+        dst.push(e);
       }
     });
     return dst;
@@ -22,19 +20,17 @@ export default function deepmerge(target: Object, src: Object): Object | mixed[]
 
   const dst = {};
   if (target && typeof target === 'object') {
-    Object.keys(target).forEach((key) => {
+    Object.keys(target).forEach(key => {
       dst[key] = target[key];
     });
   }
-  Object.keys(src).forEach((key) => {
+  Object.keys(src).forEach(key => {
     if (typeof src[key] !== 'object' || !src[key]) {
       dst[key] = src[key];
+    } else if (!target[key]) {
+      dst[key] = src[key];
     } else {
-      if (!target[key]) {
-        dst[key] = src[key];
-      } else {
-        dst[key] = deepmerge(target[key], src[key]);
-      }
+      dst[key] = deepmerge(target[key], src[key]);
     }
   });
 

@@ -2,14 +2,14 @@
 /* eslint-disable no-use-before-define, no-param-reassign */
 
 import { TypeComposer, graphql } from 'graphql-compose';
-import type { composeWithConnectionOpts, connectionSortOpts } from '../definition';
+import type { ComposeWithConnectionOpts, ConnectionSortOpts } from '../definition';
 import { isFunction } from '../utils/is';
 
 const { GraphQLEnumType } = graphql;
 
 export function prepareSortType(
   typeComposer: TypeComposer,
-  opts: composeWithConnectionOpts
+  opts: ComposeWithConnectionOpts
 ): GraphQLEnumType {
   if (!opts || !opts.sort) {
     throw new Error('Option `sort` should not be empty in composeWithConnection');
@@ -43,7 +43,7 @@ export function prepareSortType(
   return sortType;
 }
 
-export function checkSortOpts(key: string, opts: connectionSortOpts) {
+export function checkSortOpts(key: string, opts: ConnectionSortOpts) {
   if (!opts.value) {
     throw new Error(
       'You should provide `value` ' +

@@ -9,6 +9,7 @@ const { GraphQLEnumType } = graphql;
 describe('types/sortInputType.js', () => {
   describe('basic checks', () => {
     it('should throw error if opts.sort are empty', () => {
+      // $FlowFixMe
       expect(() => prepareSortType(userTypeComposer, {})).toThrowError(
         'Option `sort` should not be empty'
       );
@@ -16,6 +17,7 @@ describe('types/sortInputType.js', () => {
 
     it('should throw error if opts.sort are empty object', () => {
       expect(() =>
+        // $FlowFixMe
         prepareSortType(userTypeComposer, {
           sort: {},
         })
@@ -24,6 +26,7 @@ describe('types/sortInputType.js', () => {
 
     it('should throw error if opts.sort.[KEY].value are empty object', () => {
       expect(() =>
+        // $FlowFixMe
         prepareSortType(userTypeComposer, {
           sort: {
             _ID_ASC: {},
@@ -34,6 +37,7 @@ describe('types/sortInputType.js', () => {
 
     it('should throw error if opts.sort.[KEY].cursorFields are empty object', () => {
       expect(() =>
+        // $FlowFixMe
         prepareSortType(userTypeComposer, {
           sort: {
             _ID_ASC: {
@@ -44,6 +48,7 @@ describe('types/sortInputType.js', () => {
       ).toThrowError('should provide array of field(s) in `cursorFields`');
 
       expect(() =>
+        // $FlowFixMe
         prepareSortType(userTypeComposer, {
           sort: {
             _ID_ASC: {
@@ -57,6 +62,7 @@ describe('types/sortInputType.js', () => {
 
     it('should throw error if opts.sort.[KEY].beforeCursorQuery are empty object', () => {
       expect(() =>
+        // $FlowFixMe
         prepareSortType(userTypeComposer, {
           sort: {
             _ID_ASC: {
@@ -68,6 +74,7 @@ describe('types/sortInputType.js', () => {
       ).toThrowError('should provide `beforeCursorQuery`');
 
       expect(() =>
+        // $FlowFixMe
         prepareSortType(userTypeComposer, {
           sort: {
             _ID_ASC: {
@@ -82,6 +89,7 @@ describe('types/sortInputType.js', () => {
 
     it('should throw error if opts.sort.[KEY].afterCursorQuery are empty object', () => {
       expect(() =>
+        // $FlowFixMe
         prepareSortType(userTypeComposer, {
           sort: {
             _ID_ASC: {
@@ -94,6 +102,7 @@ describe('types/sortInputType.js', () => {
       ).toThrowError('should provide `afterCursorQuery`');
 
       expect(() =>
+        // $FlowFixMe
         prepareSortType(userTypeComposer, {
           sort: {
             _ID_ASC: {
@@ -118,6 +127,8 @@ describe('types/sortInputType.js', () => {
           afterCursorQuery: () => {},
         },
       },
+      findResolverName: 'finMany',
+      countResolverName: 'count',
     });
 
     it('should be GraphQLEnumType', () => {

@@ -22,12 +22,14 @@ describe('connectionResolver', () => {
     });
 
     it('should throw error if first arg is not TypeComposer', () => {
+      // $FlowFixMe
       expect(() => prepareConnectionResolver(123)).toThrowError(
         'should be instance of TypeComposer'
       );
     });
 
     it('should throw error if opts.countResolverName are empty', () => {
+      // $FlowFixMe
       expect(() => prepareConnectionResolver(userTypeComposer, {})).toThrowError(
         'should have option `opts.countResolverName`'
       );
@@ -45,6 +47,7 @@ describe('connectionResolver', () => {
 
     it('should throw error if opts.findResolverName are empty', () => {
       expect(() =>
+        // $FlowFixMe
         prepareConnectionResolver(userTypeComposer, {
           countResolverName: 'count',
         })
@@ -72,28 +75,34 @@ describe('connectionResolver', () => {
     });
 
     it('should have type to be ConnectionType', () => {
+      // $FlowFixMe
       expect(connectionResolver.type.name).toBe('UserConnection');
     });
   });
 
   describe('resolver args', () => {
     it('should have `first` arg', () => {
+      // $FlowFixMe
       expect(connectionResolver.getArg('first').type).toBe(GraphQLInt);
     });
 
     it('should have `last` arg', () => {
+      // $FlowFixMe
       expect(connectionResolver.getArg('last').type).toBe(GraphQLInt);
     });
 
     it('should have `after` arg', () => {
+      // $FlowFixMe
       expect(connectionResolver.getArg('after').type).toBe(Cursor);
     });
 
     it('should have `before` arg', () => {
+      // $FlowFixMe
       expect(connectionResolver.getArg('before').type).toBe(Cursor);
     });
 
     it('should have `sort` arg', () => {
+      // $FlowFixMe
       expect(connectionResolver.getArg('sort').type.name).toBe('SortConnectionUserEnum');
     });
   });
@@ -173,8 +182,8 @@ describe('connectionResolver', () => {
           count: true,
         },
       });
-      expect(countResolverCalled, 'count resolver called').toBe(true);
-      expect(findManyResolverCalled, 'findMany resolver called').toBe(false);
+      expect(countResolverCalled).toBe(true);
+      expect(findManyResolverCalled).toBe(false);
     });
 
     it('should call count and findMany resolver when not only count is projected', async () => {
@@ -190,8 +199,8 @@ describe('connectionResolver', () => {
           },
         },
       });
-      expect(countResolverCalled, 'count resolver called').toBe(true);
-      expect(findManyResolverCalled, 'findMany resolver called').toBe(true);
+      expect(countResolverCalled).toBe(true);
+      expect(findManyResolverCalled).toBe(true);
     });
 
     it('should call findMany and not count when arbitrary top level fields are projected without count', async () => {
@@ -202,8 +211,8 @@ describe('connectionResolver', () => {
           age: true,
         },
       });
-      expect(countResolverCalled, 'count resolver called').toBe(false);
-      expect(findManyResolverCalled, 'findMany resolver called').toBe(true);
+      expect(countResolverCalled).toBe(false);
+      expect(findManyResolverCalled).toBe(true);
     });
 
     it('should call findMany and count when arbitrary top level fields are projected with count', async () => {
@@ -215,8 +224,8 @@ describe('connectionResolver', () => {
           age: true,
         },
       });
-      expect(countResolverCalled, 'count resolver called').toBe(true);
-      expect(findManyResolverCalled, 'findMany resolver called').toBe(true);
+      expect(countResolverCalled).toBe(true);
+      expect(findManyResolverCalled).toBe(true);
     });
 
     it('should call count and findMany resolver when last arg is used but not first arg', async () => {
@@ -233,8 +242,8 @@ describe('connectionResolver', () => {
           },
         },
       });
-      expect(countResolverCalled, 'count resolver called').toBe(true);
-      expect(findManyResolverCalled, 'findMany resolver called').toBe(true);
+      expect(countResolverCalled).toBe(true);
+      expect(findManyResolverCalled).toBe(true);
     });
 
     it('should call findMany but not count resolver when first arg is used', async () => {
@@ -249,8 +258,8 @@ describe('connectionResolver', () => {
           },
         },
       });
-      expect(countResolverCalled, 'count resolver called').toBe(false);
-      expect(findManyResolverCalled, 'findMany resolver called').toBe(true);
+      expect(countResolverCalled).toBe(false);
+      expect(findManyResolverCalled).toBe(true);
     });
   });
 
@@ -270,9 +279,10 @@ describe('connectionResolver', () => {
 
     it('should setup in resolveParams.rawQuery', () => {
       const rp = {
-        args: { filter: 123 },
+        args: { filter: { id: 123 } },
       };
       prepareRawQuery(rp, sortConfig);
+      // $FlowFixMe
       expect(rp.rawQuery).toEqual({});
     });
 
@@ -286,6 +296,8 @@ describe('connectionResolver', () => {
         rawQuery,
       };
       const dumbSortConfig = {
+        value: { id: 1 },
+        cursorFields: ['id'],
         beforeCursorQuery: () => {},
         afterCursorQuery: () => {},
       };
@@ -297,10 +309,11 @@ describe('connectionResolver', () => {
       const rp = {
         args: {
           after: dataToCursor({ id: 123 }),
-          sort: { id: 1 },
+          sort: sortConfig,
         },
       };
       prepareRawQuery(rp, sortConfig);
+      // $FlowFixMe
       expect(rp.rawQuery).toEqual({ after: { id: 123 } });
     });
 
@@ -308,10 +321,11 @@ describe('connectionResolver', () => {
       const rp = {
         args: {
           before: dataToCursor({ id: 234 }),
-          sort: { id: 1 },
+          sort: sortConfig,
         },
       };
       prepareRawQuery(rp, sortConfig);
+      // $FlowFixMe
       expect(rp.rawQuery).toEqual({ before: { id: 234 } });
     });
 

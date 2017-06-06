@@ -8,29 +8,29 @@ import type {
   ProjectionType,
 } from "graphql-compose/lib/definition.js";
 
-export type composeWithConnectionOpts = {
+export type ComposeWithConnectionOpts = {
   findResolverName: string,
   countResolverName: string,
-  sort: connectionSortMapOpts,
+  sort: ConnectionSortMapOpts,
 };
 
-export type connectionSortMapOpts = {
-  [sortName: string]: connectionSortOpts,
+export type ConnectionSortMapOpts = {
+  [sortName: string]: ConnectionSortOpts,
 };
 
-export type connectionSortOpts = {
-  value: mixed,
+export type ConnectionSortOpts = {
+  value: any,
   cursorFields: string[],
   beforeCursorQuery: (
-    rawQuery: mixed,
+    rawQuery: any,
     cursorData: CursorDataType,
     resolveParams: ConnectionResolveParams<*, *>
-  ) => void,
+  ) => any,
   afterCursorQuery: (
-    rawQuery: mixed,
+    rawQuery: any,
     cursorData: CursorDataType,
     resolveParams: ConnectionResolveParams<*, *>
-  ) => void,
+  ) => any,
 };
 
 export type GraphQLArgumentConfig = _GraphQLArgumentConfig;
@@ -46,21 +46,21 @@ export type ConnectionResolveParams<TSource, TContext> = {
     after?: string,
     last?: ?number,
     before?: string,
-    sort: connectionSortOpts,
-    filter: { [fieldName: string]: mixed },
-    [argName: string]: mixed,
+    sort?: ConnectionSortOpts,
+    filter?: { [fieldName: string]: any },
+    [argName: string]: any,
   },
   context: TContext,
   info: GraphQLResolveInfo,
   projection: $Shape<ProjectionType>,
-  [opt: string]: mixed,
+  [opt: string]: any,
 };
 
 export type CursorDataType =
   | {
-      [fieldName: string]: mixed,
+      [fieldName: string]: any,
     }
-  | number;
+  | any;
 
 export type GraphQLConnectionType = {
   count: number,

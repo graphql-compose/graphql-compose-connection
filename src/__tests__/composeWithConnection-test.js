@@ -21,10 +21,12 @@ describe('composeWithRelay', () => {
     });
 
     it('should throw error if first arg is not TypeComposer', () => {
+      // $FlowFixMe
       expect(() => composeWithConnection(123)).toThrowError('should provide TypeComposer instance');
     });
 
     it('should throw error if options are empty', () => {
+      // $FlowFixMe
       expect(() => composeWithConnection(userTypeComposer)).toThrowError(
         'should provide non-empty options'
       );
@@ -52,6 +54,7 @@ describe('composeWithRelay', () => {
   describe('check `connection` resolver props', () => {
     const rsv = userComposer.getResolver('connection');
     const type = rsv.getType();
+    // $FlowFixMe
     const tc = new TypeComposer(type);
 
     it('should exists', () => {
@@ -92,6 +95,8 @@ describe('composeWithRelay', () => {
       }
     }`;
     const result = await graphql.graphql(schema, query);
+
+    // $FlowFixMe
     expect(result.data.userConnection).toEqual({
       count: 15,
       pageInfo: {
@@ -145,6 +150,8 @@ describe('composeWithRelay', () => {
       }
     }`;
     const result = await graphql.graphql(schema, query);
+
+    // $FlowFixMe
     expect(result.data.userConnection).toEqual({
       count: 15,
       pageInfo: {
@@ -258,9 +265,11 @@ describe('composeWithRelay', () => {
       }
     }`;
     await graphql.graphql(schema, query);
+    // $FlowFixMe
     expect(Object.keys(topResolveParams.countResolveParams)).toEqual(
       expect.arrayContaining(['source', 'args', 'context', 'info', 'projection'])
     );
+    // $FlowFixMe
     expect(topResolveParams.countResolveParams.args).toEqual({
       filter: { age: 45 },
     });
@@ -289,9 +298,11 @@ describe('composeWithRelay', () => {
       }
     }`;
     await graphql.graphql(schema, query);
+    // $FlowFixMe
     expect(Object.keys(topResolveParams.findManyResolveParams)).toEqual(
       expect.arrayContaining(['source', 'args', 'context', 'info', 'projection'])
     );
+    // $FlowFixMe
     expect(topResolveParams.findManyResolveParams.args).toEqual({
       filter: { age: 45 },
       limit: 2,

@@ -5,9 +5,9 @@ import { Resolver, TypeComposer } from 'graphql-compose';
 import type {
   ResolveParams,
   ConnectionResolveParams,
-  composeWithConnectionOpts,
-  connectionSortOpts,
-  connectionSortMapOpts,
+  ComposeWithConnectionOpts,
+  ConnectionSortOpts,
+  ConnectionSortMapOpts,
   GraphQLConnectionType,
 } from './definition';
 import { prepareConnectionType } from './types/connectionType';
@@ -17,7 +17,7 @@ import { cursorToData, dataToCursor } from './cursor';
 
 export function prepareConnectionResolver<TSource, TContext>(
   typeComposer: TypeComposer,
-  opts: composeWithConnectionOpts
+  opts: ComposeWithConnectionOpts
 ): Resolver<TSource, TContext> {
   if (!(typeComposer instanceof TypeComposer)) {
     throw new Error('First arg for prepareConnectionResolver() should be instance of TypeComposer');
@@ -147,7 +147,7 @@ export function prepareConnectionResolver<TSource, TContext>(
       let skip = last > 0 ? first - last : 0;
 
       let prepareCursorData;
-      const sortConfig: ?connectionSortOpts = findSortConfig(opts.sort, args.sort);
+      const sortConfig: ?ConnectionSortOpts = findSortConfig(opts.sort, args.sort);
       if (sortConfig) {
         prepareRawQuery(resolveParams, sortConfig);
         findManyParams.rawQuery = resolveParams.rawQuery;
@@ -250,7 +250,7 @@ export function preparePageInfo(
 
 export function prepareRawQuery(
   rp: $Shape<ConnectionResolveParams<*, *>>,
-  sortConfig: connectionSortOpts
+  sortConfig: ConnectionSortOpts
 ) {
   if (!rp.rawQuery) {
     rp.rawQuery = {};
@@ -339,7 +339,7 @@ export function emptyConnection(): GraphQLConnectionType {
   };
 }
 
-export function findSortConfig(configs: connectionSortMapOpts, val: mixed): ?connectionSortOpts {
+export function findSortConfig(configs: ConnectionSortMapOpts, val: mixed): ?ConnectionSortOpts {
   // Object.keys(configs).forEach(k => {  // return does not works in forEach as I want
   for (const k in configs) {
     if (configs[k].value === val) {

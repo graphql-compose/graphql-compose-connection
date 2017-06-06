@@ -3,6 +3,8 @@
 
 import { TypeComposer, Resolver, graphql } from 'graphql-compose';
 
+import type { ConnectionSortMapOpts } from '../definition';
+
 const {
   GraphQLString,
   GraphQLObjectType,
@@ -171,7 +173,7 @@ export const countResolver = new Resolver({
 });
 userTypeComposer.setResolver('count', countResolver);
 
-export const sortOptions = {
+export const sortOptions: ConnectionSortMapOpts = {
   ID_ASC: {
     value: { id: 1 },
     cursorFields: ['id'],

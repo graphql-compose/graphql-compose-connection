@@ -1,5 +1,7 @@
 # graphql-compose-connection
 
+[![Greenkeeper badge](https://badges.greenkeeper.io/nodkz/graphql-compose-connection.svg)](https://greenkeeper.io/)
+
 [![travis build](https://img.shields.io/travis/nodkz/graphql-compose-connection.svg)](https://travis-ci.org/nodkz/graphql-compose-connection)
 [![codecov coverage](https://img.shields.io/codecov/c/github/nodkz/graphql-compose-connection.svg)](https://codecov.io/github/nodkz/graphql-compose-connection)
 [![](https://img.shields.io/npm/v/graphql-compose-connection.svg)](https://www.npmjs.com/package/graphql-compose-connection)

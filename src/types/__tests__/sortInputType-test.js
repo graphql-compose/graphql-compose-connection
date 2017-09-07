@@ -1,10 +1,8 @@
 /* @flow */
 
-import { graphql } from 'graphql-compose';
+import { GraphQLEnumType } from 'graphql-compose/lib/graphql';
 import { userTypeComposer } from '../../__mocks__/userTypeComposer';
 import { prepareSortType } from '../sortInputType';
-
-const { GraphQLEnumType } = graphql;
 
 describe('types/sortInputType.js', () => {
   describe('basic checks', () => {

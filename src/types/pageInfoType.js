@@ -1,8 +1,11 @@
 /* @flow */
 
-import { graphql } from 'graphql-compose';
-
-const { GraphQLBoolean, GraphQLString, GraphQLObjectType, GraphQLNonNull } = graphql;
+import {
+  GraphQLBoolean,
+  GraphQLString,
+  GraphQLObjectType,
+  GraphQLNonNull,
+} from 'graphql-compose/lib/graphql';
 
 const PageInfoType = new GraphQLObjectType({
   name: 'PageInfo',

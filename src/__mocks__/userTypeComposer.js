@@ -1,17 +1,15 @@
 /* @flow */
 /* eslint-disable no-param-reassign */
 
-import { TypeComposer, Resolver, graphql } from 'graphql-compose';
-
-import type { ConnectionSortMapOpts } from '../connectionResolver';
-
-const {
+import { TypeComposer, Resolver } from 'graphql-compose';
+import {
   GraphQLString,
   GraphQLObjectType,
   GraphQLInputObjectType,
   GraphQLEnumType,
   GraphQLInt,
-} = graphql;
+} from 'graphql-compose/lib/graphql';
+import type { ConnectionSortMapOpts } from '../connectionResolver';
 
 export const UserType = new GraphQLObjectType({
   name: 'User',

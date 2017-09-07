@@ -1,12 +1,17 @@
 /* @flow */
 
-import { TypeComposer, graphql } from 'graphql-compose';
+import { TypeComposer } from 'graphql-compose';
+import {
+  GraphQLNonNull,
+  GraphQLObjectType,
+  getNamedType,
+  GraphQLInt,
+  GraphQLList,
+} from 'graphql-compose/lib/graphql';
 import { userTypeComposer } from '../../__mocks__/userTypeComposer';
 import { prepareEdgeType, prepareConnectionType } from '../connectionType';
 import GraphQLConnectionCursor from '../cursorType';
 import PageInfoType from '../pageInfoType';
-
-const { GraphQLNonNull, GraphQLObjectType, getNamedType, GraphQLInt, GraphQLList } = graphql;
 
 describe('types/connectionType.js', () => {
   describe('prepareEdgeType()', () => {

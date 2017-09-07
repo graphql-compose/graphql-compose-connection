@@ -1,12 +1,11 @@
 /* @flow */
 /* eslint-disable no-param-reassign */
 
-import { TypeComposer, graphql } from 'graphql-compose';
+import { TypeComposer } from 'graphql-compose';
+import { GraphQLSchema, GraphQLList, graphql } from 'graphql-compose/lib/graphql';
 import { composeWithConnection } from '../composeWithConnection';
 import { userTypeComposer, sortOptions } from '../__mocks__/userTypeComposer';
 import { rootQueryTypeComposer as rootQueryTC } from '../__mocks__/rootQueryTypeComposer';
-
-const { GraphQLSchema, GraphQLList } = graphql;
 
 describe('composeWithRelay', () => {
   const userComposer = composeWithConnection(userTypeComposer, {
@@ -94,7 +93,7 @@ describe('composeWithRelay', () => {
         }
       }
     }`;
-    const result = await graphql.graphql(schema, query);
+    const result = await graphql(schema, query);
 
     // $FlowFixMe
     expect(result.data.userConnection).toEqual({
@@ -149,7 +148,7 @@ describe('composeWithRelay', () => {
         }
       }
     }`;
-    const result = await graphql.graphql(schema, query);
+    const result = await graphql(schema, query);
 
     // $FlowFixMe
     expect(result.data.userConnection).toEqual({
@@ -214,7 +213,7 @@ describe('composeWithRelay', () => {
         gender
       }
       `;
-      const result = await graphql.graphql(schema, query);
+      const result = await graphql(schema, query);
       expect(result).toEqual({
         data: {
           userConnection: {
@@ -264,7 +263,7 @@ describe('composeWithRelay', () => {
         count
       }
     }`;
-    await graphql.graphql(schema, query);
+    await graphql(schema, query);
     // $FlowFixMe
     expect(Object.keys(topResolveParams.countResolveParams)).toEqual(
       expect.arrayContaining(['source', 'args', 'context', 'info', 'projection'])
@@ -297,7 +296,7 @@ describe('composeWithRelay', () => {
         count
       }
     }`;
-    await graphql.graphql(schema, query);
+    await graphql(schema, query);
     // $FlowFixMe
     expect(Object.keys(topResolveParams.findManyResolveParams)).toEqual(
       expect.arrayContaining(['source', 'args', 'context', 'info', 'projection'])

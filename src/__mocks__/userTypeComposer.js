@@ -3,7 +3,7 @@
 
 import { TypeComposer, Resolver, graphql } from 'graphql-compose';
 
-import type { ConnectionSortMapOpts } from '../definition';
+import type { ConnectionSortMapOpts } from '../connectionResolver';
 
 const {
   GraphQLString,

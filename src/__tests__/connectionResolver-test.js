@@ -580,7 +580,7 @@ describe('connectionResolver', () => {
           },
         });
         expect(result.edges).toHaveLength(3);
-        const cursor = result.edges[1].cursor;
+        const { cursor } = result.edges[1];
         const prev = await connectionResolver.resolve({
           args: {
             sort: sortOptions.ID_ASC.value,
@@ -759,7 +759,7 @@ describe('connectionResolver', () => {
         },
       });
       expect(result.edges).toHaveLength(3);
-      const cursor = result.edges[1].cursor;
+      const { cursor } = result.edges[1];
       const prev = await connectionResolver.resolve({
         args: {
           sort: { name: 1 },

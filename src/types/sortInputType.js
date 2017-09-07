@@ -2,8 +2,9 @@
 /* eslint-disable no-use-before-define, no-param-reassign */
 
 import { TypeComposer, graphql } from 'graphql-compose';
-import type { ComposeWithConnectionOpts, ConnectionSortOpts } from '../definition';
 import { isFunction } from '../utils/is';
+import type { ComposeWithConnectionOpts } from '../composeWithConnection';
+import type { ConnectionSortOpts } from '../connectionResolver';
 
 const { GraphQLEnumType } = graphql;
 

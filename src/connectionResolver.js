@@ -2,18 +2,67 @@
 /* eslint-disable no-param-reassign, no-use-before-define */
 
 import { Resolver, TypeComposer } from 'graphql-compose';
-import type {
-  ResolveParams,
-  ConnectionResolveParams,
-  ComposeWithConnectionOpts,
-  ConnectionSortOpts,
-  ConnectionSortMapOpts,
-  GraphQLConnectionType,
-} from './definition';
+import type { ResolveParams, ProjectionType } from 'graphql-compose';
+import type { GraphQLResolveInfo } from 'graphql-compose/lib/graphql';
 import { prepareConnectionType } from './types/connectionType';
 import { prepareSortType } from './types/sortInputType';
 import CursorType from './types/cursorType';
-import { cursorToData, dataToCursor } from './cursor';
+import { cursorToData, dataToCursor, type CursorDataType } from './cursor';
+import type { ComposeWithConnectionOpts } from './composeWithConnection';
+
+export type ConnectionSortOpts = {
+  value: any,
+  cursorFields: string[],
+  beforeCursorQuery: (
+    rawQuery: any,
+    cursorData: CursorDataType,
+    resolveParams: ConnectionResolveParams<*, *>
+  ) => any,
+  afterCursorQuery: (
+    rawQuery: any,
+    cursorData: CursorDataType,
+    resolveParams: ConnectionResolveParams<*, *>
+  ) => any,
+};
+
+export type ConnectionSortMapOpts = {
+  [sortName: string]: ConnectionSortOpts,
+};
+
+export type ConnectionResolveParams<TSource, TContext> = {
+  source: TSource,
+  args: {
+    first?: ?number,
+    after?: string,
+    last?: ?number,
+    before?: string,
+    sort?: ConnectionSortOpts,
+    filter?: { [fieldName: string]: any },
+    [argName: string]: any,
+  },
+  context: TContext,
+  info: GraphQLResolveInfo,
+  projection: $Shape<ProjectionType>,
+  [opt: string]: any,
+};
+
+export type ConnectionType = {
+  count: number,
+  edges: ConnectionEdgeType[],
+  pageInfo: PageInfoType,
+};
+
+export type ConnectionEdgeType = {
+  cursor: string,
+  node: mixed,
+};
+
+export type PageInfoType = {
+  startCursor: string,
+  endCursor: string,
+  hasPreviousPage: boolean,
+  hasNextPage: boolean,
+};
 
 export function prepareConnectionResolver<TSource, TContext>(
   typeComposer: TypeComposer,
@@ -326,7 +375,7 @@ export function prepareLimitSkipFallback(
   return [newLimit, newSkip];
 }
 
-export function emptyConnection(): GraphQLConnectionType {
+export function emptyConnection(): ConnectionType {
   return {
     count: 0,
     edges: [],

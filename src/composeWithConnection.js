@@ -1,8 +1,13 @@
 /* @flow */
 
 import { TypeComposer } from 'graphql-compose';
-import type { ComposeWithConnectionOpts } from './definition';
-import { prepareConnectionResolver } from './connectionResolver';
+import { prepareConnectionResolver, type ConnectionSortMapOpts } from './connectionResolver';
+
+export type ComposeWithConnectionOpts = {
+  findResolverName: string,
+  countResolverName: string,
+  sort: ConnectionSortMapOpts,
+};
 
 export function composeWithConnection(
   typeComposer: TypeComposer,

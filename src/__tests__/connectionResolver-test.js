@@ -598,6 +598,19 @@ describe('connectionResolver', () => {
         expect(conn.edges[0].node.id).toBe(result.edges[2].node.id);
       });
     });
+
+    it('should return previous edges when querying with last and before', async () => {
+      const result = await connectionResolver.resolve({
+        args: {
+          sort: sortOptions.ID_ASC.value,
+          before: dataToCursor({ id: 4 }),
+          last: 2,
+        },
+      });
+      expect(result.edges).toHaveLength(2);
+      expect(result.edges[0].node.id).toBe(2);
+      expect(result.edges[1].node.id).toBe(3);
+    });
   });
 
   describe('how works filter argument with resolve', () => {

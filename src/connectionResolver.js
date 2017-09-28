@@ -187,8 +187,22 @@ export function prepareConnectionResolver<TSource, TContext>(
         findManyParams.projection = { ...projection };
       }
 
+      // Apply the rawQuery to the count to get accurate results with last and before
+      const sortConfig: ?ConnectionSortOpts = findSortConfig(opts.sort, args.sort);
+      if (sortConfig) {
+        prepareRawQuery(resolveParams, sortConfig);
+      }
+
       if (!first && last) {
-        first = await countPromise;
+        // Get the number of edges targeted by the findMany resolver (not the whole count)
+        const filteredCountParams: $Shape<ResolveParams<TSource, TContext>> = {
+          ...resolveParams,
+          args: {
+            filter: { ...resolveParams.args.filter },
+          },
+        };
+
+        first = await countResolve(filteredCountParams);
         first = parseInt(first, 10) || 0;
       }
 
@@ -196,9 +210,7 @@ export function prepareConnectionResolver<TSource, TContext>(
       let skip = last > 0 ? first - last : 0;
 
       let prepareCursorData;
-      const sortConfig: ?ConnectionSortOpts = findSortConfig(opts.sort, args.sort);
       if (sortConfig) {
-        prepareRawQuery(resolveParams, sortConfig);
         findManyParams.rawQuery = resolveParams.rawQuery;
         sortConfig.cursorFields.forEach(fieldName => {
           findManyParams.projection[fieldName] = true;

@@ -357,8 +357,11 @@ describe('connectionResolver', () => {
 
     describe('"Relay Cursor Connections Specification (PageInfo)":', () => {
       describe('HasPreviousPage', () => {
-        it('If last was not set, return false.', () => {
-          expect(preparePageInfo(fiveEdges, {}, 5, 2).hasPreviousPage).toBe(false);
+        it('If last was not set (but first is present), return false.', () => {
+          expect(preparePageInfo(fiveEdges, { first: 2 }, 5, 2).hasPreviousPage).toBe(false);
+        });
+        it('If last was not set (and first is empty), return true.', () => {
+          expect(preparePageInfo(fiveEdges, {}, 5, 2).hasPreviousPage).toBe(true);
         });
         it('If edges contains more than last elements, return true.', () => {
           expect(preparePageInfo(fiveEdges, { last: 3 }, 3, 2).hasPreviousPage).toBe(true);
@@ -809,6 +812,28 @@ describe('connectionResolver', () => {
       expect(result.edges).toHaveLength(2);
       expect(result.edges[0].node.id).toBe(1);
       expect(result.edges[1].node.id).toBe(2);
+    });
+  });
+
+  describe('default `first` argument if first/last are empty', () => {
+    const defaultResolver = prepareConnectionResolver(userTypeComposer, {
+      countResolverName: 'count',
+      findResolverName: 'findMany',
+      sort: sortOptions,
+      defaultLimit: 5,
+    });
+
+    it('should use defaultLimit option', async () => {
+      const data = await defaultResolver.resolve({ args: {} });
+      expect(data.edges.length).toBe(5);
+      expect(data.pageInfo.hasNextPage).toBe(true);
+    });
+
+    it('should use defaultLimit option with after option', async () => {
+      const data = await defaultResolver.resolve({ args: { after: 'NA==' } });
+      expect(data.edges.length).toBe(5);
+      expect(data.pageInfo.hasNextPage).toBe(true);
+      expect(data.pageInfo.hasPreviousPage).toBe(true);
     });
   });
 });

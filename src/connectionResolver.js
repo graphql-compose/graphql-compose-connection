@@ -206,7 +206,7 @@ export function prepareConnectionResolver<TSource, TContext>(
         first = parseInt(first, 10) || 0;
       }
 
-      let limit = last || first || 20;
+      let limit = last || first || opts.defaultLimit || 20;
       let skip = last > 0 ? first - last : 0;
 
       let prepareCursorData;

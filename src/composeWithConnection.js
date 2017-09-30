@@ -7,6 +7,7 @@ export type ComposeWithConnectionOpts = {
   findResolverName: string,
   countResolverName: string,
   sort: ConnectionSortMapOpts,
+  defaultLimit?: ?number,
 };
 
 export function composeWithConnection(

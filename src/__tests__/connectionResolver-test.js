@@ -347,7 +347,7 @@ describe('connectionResolver', () => {
   });
 
   describe('preparePageInfo()', () => {
-    const edges = [
+    const fiveEdges = [
       { cursor: 1, node: 1 },
       { cursor: 2, node: 2 },
       { cursor: 3, node: 3 },
@@ -357,37 +357,37 @@ describe('connectionResolver', () => {
 
     describe('"Relay Cursor Connections Specification (PageInfo)":', () => {
       describe('HasPreviousPage', () => {
-        it('1. If last was not set, return false.', () => {
-          expect(preparePageInfo(edges, {}, 5, 2).hasPreviousPage).toBe(false);
+        it('If last was not set, return false.', () => {
+          expect(preparePageInfo(fiveEdges, {}, 5, 2).hasPreviousPage).toBe(false);
         });
-        it('3. If edges contains more than last elements, return true.', () => {
-          expect(preparePageInfo(edges, { last: 3 }, 3, 2).hasPreviousPage).toBe(true);
+        it('If edges contains more than last elements, return true.', () => {
+          expect(preparePageInfo(fiveEdges, { last: 3 }, 3, 2).hasPreviousPage).toBe(true);
         });
-        it('4. Return false', () => {
-          expect(preparePageInfo(edges, { last: 5 }, 5, 0).hasPreviousPage).toBe(false);
+        it('Return false', () => {
+          expect(preparePageInfo(fiveEdges, { last: 5 }, 5, 0).hasPreviousPage).toBe(false);
         });
       });
 
       describe('HasNextPage', () => {
-        it('1. If first was not set, return false.', () => {
-          expect(preparePageInfo(edges, {}, 4, 0).hasNextPage).toBe(false);
+        it('If first was not set, return false.', () => {
+          expect(preparePageInfo(fiveEdges, {}, 4, 0).hasNextPage).toBe(false);
         });
-        it('3. If edges contains more than first elements, return true.', () => {
-          expect(preparePageInfo(edges, { first: 4 }, 4, 0).hasNextPage).toBe(true);
+        it('If edges contains more than first elements, return true.', () => {
+          expect(preparePageInfo(fiveEdges, { first: 4 }, 4, 0).hasNextPage).toBe(true);
         });
-        it('4. Return false', () => {
-          expect(preparePageInfo(edges, { first: 5 }, 5, 0).hasNextPage).toBe(false);
+        it('Return false', () => {
+          expect(preparePageInfo(fiveEdges, { first: 5 }, 5, 0).hasNextPage).toBe(false);
         });
       });
 
       it('should return startCursor', () => {
-        expect(preparePageInfo(edges, {}, 4, 0).startCursor).toBe(1);
-        expect(preparePageInfo(edges, {}, 4, 2).startCursor).toBe(1);
+        expect(preparePageInfo(fiveEdges, {}, 4, 0).startCursor).toBe(1);
+        expect(preparePageInfo(fiveEdges, {}, 4, 2).startCursor).toBe(1);
       });
 
       it('should return endCursor', () => {
-        expect(preparePageInfo(edges, {}, 4, 0).endCursor).toBe(4);
-        expect(preparePageInfo(edges, {}, 20, 0).endCursor).toBe(5);
+        expect(preparePageInfo(fiveEdges, {}, 4, 0).endCursor).toBe(4);
+        expect(preparePageInfo(fiveEdges, {}, 20, 0).endCursor).toBe(5);
       });
 
       it('should return correct values for pageInfo if last is less first', async () => {

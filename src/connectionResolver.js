@@ -303,7 +303,7 @@ export function preparePageInfo(
       pageInfo.endCursor = edges[edges.length - 1].cursor;
     }
     pageInfo.hasPreviousPage = !!args.last && skip > 0;
-    pageInfo.hasNextPage = !!args.first && hasExtraRecords;
+    pageInfo.hasNextPage = (!!args.first || !args.last) && hasExtraRecords;
   }
 
   return pageInfo;

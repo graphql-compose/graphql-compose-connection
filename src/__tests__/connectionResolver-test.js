@@ -369,8 +369,16 @@ describe('connectionResolver', () => {
       });
 
       describe('HasNextPage', () => {
-        it('If first was not set, return false.', () => {
-          expect(preparePageInfo(fiveEdges, {}, 4, 0).hasNextPage).toBe(false);
+        it('If first was not set (and last is empty), return true.', () => {
+          // By current Relay Cursor Connections Specification
+          //   if `first` and `last` are empty `hasNextPage` should be false.
+          // This rule is deviation from specification for better dev experience:
+          //   when first and last args are empty
+          //   we should check if exist more edges and provide correct `hasNextPage` value.
+          expect(preparePageInfo(fiveEdges, {}, 4, 0).hasNextPage).toBe(true);
+        });
+        it('If first was not set (but last is present), return false.', () => {
+          expect(preparePageInfo(fiveEdges, { last: 200 }, 4, 0).hasNextPage).toBe(false);
         });
         it('If edges contains more than first elements, return true.', () => {
           expect(preparePageInfo(fiveEdges, { first: 4 }, 4, 0).hasNextPage).toBe(true);

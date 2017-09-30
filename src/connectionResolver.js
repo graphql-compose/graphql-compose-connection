@@ -281,6 +281,7 @@ export function preparePageInfo(
   args: {
     last?: ?number,
     first?: ?number,
+    after?: string,
   },
   limit: number,
   skip: number
@@ -302,7 +303,7 @@ export function preparePageInfo(
     } else {
       pageInfo.endCursor = edges[edges.length - 1].cursor;
     }
-    pageInfo.hasPreviousPage = (!!args.last || !args.first) && skip > 0;
+    pageInfo.hasPreviousPage = (!!args.last || !args.first) && (skip > 0 || !!args.after);
     pageInfo.hasNextPage = (!!args.first || !args.last) && hasExtraRecords;
   }
 

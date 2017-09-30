@@ -363,6 +363,9 @@ describe('connectionResolver', () => {
         it('If last was not set (and first is empty), return true.', () => {
           expect(preparePageInfo(fiveEdges, {}, 5, 2).hasPreviousPage).toBe(true);
         });
+        it('If last was not set (but after is present), return true.', () => {
+          expect(preparePageInfo(fiveEdges, { after: 'abc' }, 5, 0).hasPreviousPage).toBe(true);
+        });
         it('If edges contains more than last elements, return true.', () => {
           expect(preparePageInfo(fiveEdges, { last: 3 }, 3, 2).hasPreviousPage).toBe(true);
         });

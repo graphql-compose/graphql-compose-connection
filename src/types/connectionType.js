@@ -3,12 +3,12 @@
 
 import {
   GraphQLInt,
+  GraphQLString,
   GraphQLObjectType,
   GraphQLNonNull,
   GraphQLList,
 } from 'graphql-compose/lib/graphql';
 import type { TypeComposer } from 'graphql-compose';
-import GraphQLConnectionCursor from './cursorType';
 
 import PageInfoType from './pageInfoType';
 
@@ -32,7 +32,7 @@ export function prepareEdgeType(typeComposer: TypeComposer): GraphQLObjectType {
         description: 'The item at the end of the edge',
       },
       cursor: {
-        type: new GraphQLNonNull(GraphQLConnectionCursor),
+        type: new GraphQLNonNull(GraphQLString),
         description: 'A cursor for use in pagination',
       },
     }),
@@ -68,7 +68,9 @@ export function prepareConnectionType(typeComposer: TypeComposer): GraphQLObject
         description: 'Information to aid in pagination.',
       },
       edges: {
-        type: new GraphQLList(prepareEdgeType(typeComposer)),
+        type: new GraphQLNonNull(
+          new GraphQLList(new GraphQLNonNull(prepareEdgeType(typeComposer)))
+        ),
         description: 'Information to aid in pagination.',
       },
     }),

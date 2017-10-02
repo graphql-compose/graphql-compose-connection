@@ -2,11 +2,10 @@
 /* eslint-disable no-param-reassign */
 
 import { Resolver } from 'graphql-compose';
-import { GraphQLInt } from 'graphql-compose/lib/graphql';
+import { GraphQLInt, GraphQLString } from 'graphql-compose/lib/graphql';
 import { userTypeComposer, userList, sortOptions } from '../__mocks__/userTypeComposer';
 import { dataToCursor } from '../cursor';
 import { prepareConnectionResolver, prepareRawQuery, preparePageInfo } from '../connectionResolver';
-import Cursor from '../types/cursorType';
 
 describe('connectionResolver', () => {
   const connectionResolver = prepareConnectionResolver(userTypeComposer, {
@@ -92,12 +91,12 @@ describe('connectionResolver', () => {
 
     it('should have `after` arg', () => {
       // $FlowFixMe
-      expect(connectionResolver.getArg('after').type).toBe(Cursor);
+      expect(connectionResolver.getArg('after').type).toBe(GraphQLString);
     });
 
     it('should have `before` arg', () => {
       // $FlowFixMe
-      expect(connectionResolver.getArg('before').type).toBe(Cursor);
+      expect(connectionResolver.getArg('before').type).toBe(GraphQLString);
     });
 
     it('should have `sort` arg', () => {

@@ -2,7 +2,7 @@
 /* eslint-disable no-param-reassign */
 
 import { TypeComposer } from 'graphql-compose';
-import { GraphQLSchema, GraphQLList, graphql } from 'graphql-compose/lib/graphql';
+import { GraphQLSchema, GraphQLList, GraphQLNonNull, graphql } from 'graphql-compose/lib/graphql';
 import { composeWithConnection } from '../composeWithConnection';
 import { userTypeComposer, sortOptions } from '../__mocks__/userTypeComposer';
 import { rootQueryTypeComposer as rootQueryTC } from '../__mocks__/rootQueryTypeComposer';
@@ -63,7 +63,8 @@ describe('composeWithRelay', () => {
     it('should has ConnectionType as type', () => {
       expect(type).toBeTruthy();
       expect(tc.getFieldNames()).toEqual(expect.arrayContaining(['count', 'pageInfo', 'edges']));
-      expect(tc.getFieldType('edges')).toBeInstanceOf(GraphQLList);
+      expect(tc.getFieldType('edges')).toBeInstanceOf(GraphQLNonNull);
+      expect(tc.getFieldType('edges').ofType).toBeInstanceOf(GraphQLList);
     });
   });
 

@@ -6,11 +6,11 @@ import {
   GraphQLObjectType,
   getNamedType,
   GraphQLInt,
+  GraphQLString,
   GraphQLList,
 } from 'graphql-compose/lib/graphql';
 import { userTypeComposer } from '../../__mocks__/userTypeComposer';
 import { prepareEdgeType, prepareConnectionType } from '../connectionType';
-import GraphQLConnectionCursor from '../cursorType';
 import PageInfoType from '../pageInfoType';
 
 describe('types/connectionType.js', () => {
@@ -28,12 +28,12 @@ describe('types/connectionType.js', () => {
       expect(tc.getFieldType('node')).toBe(userTypeComposer.getType());
     });
 
-    it('should have field `cursor` with GraphQLNonNull(GraphQLConnectionCursor)', () => {
+    it('should have field `cursor` with GraphQLNonNull(GraphQLString)', () => {
       const tc = new TypeComposer(prepareEdgeType(userTypeComposer));
       expect(tc.getFieldType('cursor')).toBeInstanceOf(GraphQLNonNull);
 
       const cursor = getNamedType(tc.getFieldType('cursor'));
-      expect(cursor).toBe(GraphQLConnectionCursor);
+      expect(cursor).toBe(GraphQLString);
     });
 
     it('should have `ofType` property (like GraphQLList, GraphQLNonNull)', () => {
@@ -73,7 +73,8 @@ describe('types/connectionType.js', () => {
 
     it('should have field `edges` with GraphQLList(EdgeType)', () => {
       const tc = new TypeComposer(prepareConnectionType(userTypeComposer));
-      expect(tc.getFieldType('edges')).toBeInstanceOf(GraphQLList);
+      expect(tc.getFieldType('edges')).toBeInstanceOf(GraphQLNonNull);
+      expect(tc.getFieldType('edges').ofType).toBeInstanceOf(GraphQLList);
 
       const edges = getNamedType(tc.getFieldType('edges'));
       // $FlowFixMe

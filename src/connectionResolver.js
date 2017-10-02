@@ -6,7 +6,6 @@ import type { ResolveParams, ProjectionType } from 'graphql-compose';
 import type { GraphQLResolveInfo } from 'graphql-compose/lib/graphql';
 import { prepareConnectionType } from './types/connectionType';
 import { prepareSortType } from './types/sortInputType';
-import CursorType from './types/cursorType';
 import { cursorToData, dataToCursor, type CursorDataType } from './cursor';
 import type { ComposeWithConnectionOpts } from './composeWithConnection';
 
@@ -124,7 +123,7 @@ export function prepareConnectionResolver<TSource, TContext>(
         description: 'Forward pagination argument for returning at most first edges',
       },
       after: {
-        type: CursorType,
+        type: 'String',
         description: 'Forward pagination argument for returning at most first edges',
       },
       last: {
@@ -132,7 +131,7 @@ export function prepareConnectionResolver<TSource, TContext>(
         description: 'Backward pagination argument for returning at most last edges',
       },
       before: {
-        type: CursorType,
+        type: 'String',
         description: 'Backward pagination argument for returning at most last edges',
       },
       ...additionalArgs,

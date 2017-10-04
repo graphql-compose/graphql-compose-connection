@@ -28,7 +28,7 @@ export function prepareEdgeType(typeComposer: TypeComposer): GraphQLObjectType {
     description: 'An edge in a connection.',
     fields: () => ({
       node: {
-        type: typeComposer.getType(),
+        type: new GraphQLNonNull(typeComposer.getType()),
         description: 'The item at the end of the edge',
       },
       cursor: {

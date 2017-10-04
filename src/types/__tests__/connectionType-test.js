@@ -25,7 +25,8 @@ describe('types/connectionType.js', () => {
 
     it('should have field `node` with provided Type', () => {
       const tc = new TypeComposer(prepareEdgeType(userTypeComposer));
-      expect(tc.getFieldType('node')).toBe(userTypeComposer.getType());
+      expect(tc.getFieldType('node')).toBeInstanceOf(GraphQLNonNull);
+      expect(tc.getFieldType('node').ofType).toBe(userTypeComposer.getType());
     });
 
     it('should have field `cursor` with GraphQLNonNull(GraphQLString)', () => {

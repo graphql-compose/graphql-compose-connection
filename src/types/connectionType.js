@@ -60,7 +60,7 @@ export function prepareConnectionType(typeComposer: TypeComposer): GraphQLObject
     description: 'A connection to a list of items.',
     fields: () => ({
       count: {
-        type: GraphQLInt,
+        type: new GraphQLNonNull(GraphQLInt),
         description: 'Total object count.',
       },
       pageInfo: {

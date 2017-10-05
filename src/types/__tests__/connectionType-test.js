@@ -61,7 +61,8 @@ describe('types/connectionType.js', () => {
 
     it('should have field `count` with provided Type', () => {
       const tc = new TypeComposer(prepareConnectionType(userTypeComposer));
-      expect(tc.getFieldType('count')).toBe(GraphQLInt);
+      expect(tc.getFieldType('count')).toBeInstanceOf(GraphQLNonNull);
+      expect(tc.getFieldType('count').ofType).toBe(GraphQLInt);
     });
 
     it('should have field `pageInfo` with GraphQLNonNull(PageInfoType)', () => {

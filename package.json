@@ -68,7 +68,7 @@
     "watch": "jest --watch",
     "coverage": "jest --coverage",
     "lint": "eslint --ext .js ./src",
-    "flow": "./node_modules/.bin/flow stop && ./node_modules/.bin/flow",
+    "flow": "./node_modules/.bin/flow",
     "test": "npm run coverage && npm run lint && npm run flow",
     "link": "yarn build && yarn link graphql-compose && yarn link",
     "unlink": "yarn unlink graphql-compose && yarn add graphql-compose",

@@ -38,8 +38,7 @@ describe('types/connectionType.js', () => {
     });
 
     it('should have `ofType` property (like GraphQLList, GraphQLNonNull)', () => {
-      const edgeType = prepareEdgeType(userTypeComposer);
-      // $FlowFixMe
+      const edgeType: any = prepareEdgeType(userTypeComposer);
       expect(edgeType.ofType).toEqual(userTypeComposer.getType());
     });
 
@@ -78,16 +77,14 @@ describe('types/connectionType.js', () => {
       expect(tc.getFieldType('edges')).toBeInstanceOf(GraphQLNonNull);
       expect(tc.getFieldType('edges').ofType).toBeInstanceOf(GraphQLList);
 
-      const edges = getNamedType(tc.getFieldType('edges'));
-      // $FlowFixMe
+      const edges: any = getNamedType(tc.getFieldType('edges'));
       expect(edges.name).toEqual('UserEdge');
     });
 
     it('should have `ofType` property (like GraphQLList, GraphQLNonNull)', () => {
       // this behavior needed for `graphql-compose` module in `projection` helper
       // otherwise it incorrectly construct projectionMapper for tricky fields
-      const connectionType = prepareConnectionType(userTypeComposer);
-      // $FlowFixMe
+      const connectionType: any = prepareConnectionType(userTypeComposer);
       expect(connectionType.ofType).toEqual(userTypeComposer.getType());
     });
 

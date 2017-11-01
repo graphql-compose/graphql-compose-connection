@@ -2,7 +2,7 @@
 /* eslint-disable no-param-reassign, no-use-before-define */
 
 import { Resolver, TypeComposer } from 'graphql-compose';
-import type { ResolveParams, ProjectionType } from 'graphql-compose';
+import type { ResolveParams, ProjectionType, ComposeFieldConfigArgumentMap } from 'graphql-compose';
 import type { GraphQLResolveInfo } from 'graphql-compose/lib/graphql';
 import { prepareConnectionType } from './types/connectionType';
 import { prepareSortType } from './types/sortInputType';
@@ -103,9 +103,9 @@ export function prepareConnectionResolver<TSource, TContext>(
   }
   const findManyResolve = findManyResolver.getResolve();
 
-  const additionalArgs = {};
+  const additionalArgs: ComposeFieldConfigArgumentMap = {};
   if (findManyResolver.hasArg('filter')) {
-    const filter = findManyResolver.getArg('filter');
+    const filter: any = findManyResolver.getArg('filter');
     if (filter) {
       additionalArgs.filter = filter;
     }

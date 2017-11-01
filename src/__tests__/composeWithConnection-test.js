@@ -20,15 +20,17 @@ describe('composeWithRelay', () => {
     });
 
     it('should throw error if first arg is not TypeComposer', () => {
-      // $FlowFixMe
-      expect(() => composeWithConnection(123)).toThrowError('should provide TypeComposer instance');
+      expect(() => {
+        const wrongArgs: any = [123];
+        composeWithConnection(...wrongArgs);
+      }).toThrowError('should provide TypeComposer instance');
     });
 
     it('should throw error if options are empty', () => {
-      // $FlowFixMe
-      expect(() => composeWithConnection(userTypeComposer)).toThrowError(
-        'should provide non-empty options'
-      );
+      expect(() => {
+        const wrongArgs: any = [userTypeComposer];
+        composeWithConnection(...wrongArgs);
+      }).toThrowError('should provide non-empty options');
     });
 
     it('should not change `connection` resolver if exists', () => {
@@ -52,8 +54,7 @@ describe('composeWithRelay', () => {
 
   describe('check `connection` resolver props', () => {
     const rsv = userComposer.getResolver('connection');
-    const type = rsv.getType();
-    // $FlowFixMe
+    const type: any = rsv.getType();
     const tc = new TypeComposer(type);
 
     it('should exists', () => {
@@ -94,9 +95,8 @@ describe('composeWithRelay', () => {
         }
       }
     }`;
-    const result = await graphql(schema, query);
+    const result: any = await graphql(schema, query);
 
-    // $FlowFixMe
     expect(result.data.userConnection).toEqual({
       count: 15,
       pageInfo: {
@@ -149,9 +149,8 @@ describe('composeWithRelay', () => {
         }
       }
     }`;
-    const result = await graphql(schema, query);
+    const result: any = await graphql(schema, query);
 
-    // $FlowFixMe
     expect(result.data.userConnection).toEqual({
       count: 15,
       pageInfo: {
@@ -243,7 +242,7 @@ describe('composeWithRelay', () => {
   });
 
   it('should pass `countResolveParams` to top resolverParams', async () => {
-    let topResolveParams;
+    let topResolveParams: any = {};
 
     rootQueryTC.setField(
       'userConnection',
@@ -265,18 +264,18 @@ describe('composeWithRelay', () => {
       }
     }`;
     await graphql(schema, query);
-    // $FlowFixMe
+
     expect(Object.keys(topResolveParams.countResolveParams)).toEqual(
       expect.arrayContaining(['source', 'args', 'context', 'info', 'projection'])
     );
-    // $FlowFixMe
+
     expect(topResolveParams.countResolveParams.args).toEqual({
       filter: { age: 45 },
     });
   });
 
   it('should pass `findManyResolveParams` to top resolverParams', async () => {
-    let topResolveParams;
+    let topResolveParams: any = {};
 
     rootQueryTC.setField(
       'userConnection',
@@ -298,11 +297,11 @@ describe('composeWithRelay', () => {
       }
     }`;
     await graphql(schema, query);
-    // $FlowFixMe
+
     expect(Object.keys(topResolveParams.findManyResolveParams)).toEqual(
       expect.arrayContaining(['source', 'args', 'context', 'info', 'projection'])
     );
-    // $FlowFixMe
+
     expect(topResolveParams.findManyResolveParams.args).toEqual({
       filter: { age: 45 },
       limit: 2,

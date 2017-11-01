@@ -20,17 +20,17 @@ describe('connectionResolver', () => {
     });
 
     it('should throw error if first arg is not TypeComposer', () => {
-      // $FlowFixMe
-      expect(() => prepareConnectionResolver(123)).toThrowError(
-        'should be instance of TypeComposer'
-      );
+      expect(() => {
+        const wrongArgs: any = [123];
+        prepareConnectionResolver(...wrongArgs);
+      }).toThrowError('should be instance of TypeComposer');
     });
 
     it('should throw error if opts.countResolverName are empty', () => {
-      // $FlowFixMe
-      expect(() => prepareConnectionResolver(userTypeComposer, {})).toThrowError(
-        'should have option `opts.countResolverName`'
-      );
+      expect(() => {
+        const wrongArgs: any = [userTypeComposer, {}];
+        prepareConnectionResolver(...wrongArgs);
+      }).toThrowError('should have option `opts.countResolverName`');
     });
 
     it('should throw error if resolver opts.countResolverName does not exists', () => {
@@ -44,22 +44,24 @@ describe('connectionResolver', () => {
     });
 
     it('should throw error if opts.findResolverName are empty', () => {
-      expect(() =>
-        // $FlowFixMe
-        prepareConnectionResolver(userTypeComposer, {
-          countResolverName: 'count',
-        })
-      ).toThrowError('should have option `opts.findResolverName`');
+      expect(() => {
+        const wrongArgs: any = [userTypeComposer, { countResolverName: 'count' }];
+        prepareConnectionResolver(...wrongArgs);
+      }).toThrowError('should have option `opts.findResolverName`');
     });
 
     it('should throw error if resolver opts.countResolverName does not exists', () => {
-      expect(() =>
-        prepareConnectionResolver(userTypeComposer, {
-          countResolverName: 'count',
-          findResolverName: 'findManyDoesNotExists',
-          sort: sortOptions,
-        })
-      ).toThrowError("does not have resolver with name 'findManyDoesNotExists'");
+      expect(() => {
+        const wrongArgs: any = [
+          userTypeComposer,
+          {
+            countResolverName: 'count',
+            findResolverName: 'findManyDoesNotExists',
+            sort: sortOptions,
+          },
+        ];
+        prepareConnectionResolver(...wrongArgs);
+      }).toThrowError("does not have resolver with name 'findManyDoesNotExists'");
     });
   });
 
@@ -73,34 +75,28 @@ describe('connectionResolver', () => {
     });
 
     it('should have type to be ConnectionType', () => {
-      // $FlowFixMe
-      expect(connectionResolver.type.name).toBe('UserConnection');
+      expect((connectionResolver.type: any).name).toBe('UserConnection');
     });
   });
 
   describe('resolver args', () => {
     it('should have `first` arg', () => {
-      // $FlowFixMe
       expect(connectionResolver.getArg('first').type).toBe(GraphQLInt);
     });
 
     it('should have `last` arg', () => {
-      // $FlowFixMe
       expect(connectionResolver.getArg('last').type).toBe(GraphQLInt);
     });
 
     it('should have `after` arg', () => {
-      // $FlowFixMe
       expect(connectionResolver.getArg('after').type).toBe(GraphQLString);
     });
 
     it('should have `before` arg', () => {
-      // $FlowFixMe
       expect(connectionResolver.getArg('before').type).toBe(GraphQLString);
     });
 
     it('should have `sort` arg', () => {
-      // $FlowFixMe
       expect(connectionResolver.getArg('sort').type.name).toBe('SortConnectionUserEnum');
     });
   });
@@ -276,11 +272,10 @@ describe('connectionResolver', () => {
     };
 
     it('should setup in resolveParams.rawQuery', () => {
-      const rp = {
+      const rp: any = {
         args: { filter: { id: 123 } },
       };
       prepareRawQuery(rp, sortConfig);
-      // $FlowFixMe
       expect(rp.rawQuery).toEqual({});
     });
 
@@ -304,26 +299,24 @@ describe('connectionResolver', () => {
     });
 
     it('should call afterCursorQuery if provided args.after', () => {
-      const rp = {
+      const rp: any = {
         args: {
           after: dataToCursor({ id: 123 }),
           sort: sortConfig,
         },
       };
       prepareRawQuery(rp, sortConfig);
-      // $FlowFixMe
       expect(rp.rawQuery).toEqual({ after: { id: 123 } });
     });
 
     it('should call beforeCursorQuery if provided args.before', () => {
-      const rp = {
+      const rp: any = {
         args: {
           before: dataToCursor({ id: 234 }),
           sort: sortConfig,
         },
       };
       prepareRawQuery(rp, sortConfig);
-      // $FlowFixMe
       expect(rp.rawQuery).toEqual({ before: { id: 234 } });
     });
 

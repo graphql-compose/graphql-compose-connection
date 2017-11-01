@@ -7,111 +7,114 @@ import { prepareSortType } from '../sortInputType';
 describe('types/sortInputType.js', () => {
   describe('basic checks', () => {
     it('should throw error if opts.sort are empty', () => {
-      // $FlowFixMe
-      expect(() => prepareSortType(userTypeComposer, {})).toThrowError(
-        'Option `sort` should not be empty'
-      );
+      expect(() => {
+        const wrongArgs: any = [userTypeComposer, {}];
+        prepareSortType(...wrongArgs);
+      }).toThrowError('Option `sort` should not be empty');
     });
 
     it('should throw error if opts.sort are empty object', () => {
-      expect(() =>
-        // $FlowFixMe
-        prepareSortType(userTypeComposer, {
-          sort: {},
-        })
-      ).toThrowError('should provide at least one `sort` option');
+      expect(() => {
+        const wrongArgs: any = [userTypeComposer, { sort: {} }];
+        prepareSortType(...wrongArgs);
+      }).toThrowError('should provide at least one `sort` option');
     });
 
     it('should throw error if opts.sort.[KEY].value are empty object', () => {
-      expect(() =>
-        // $FlowFixMe
-        prepareSortType(userTypeComposer, {
-          sort: {
-            _ID_ASC: {},
-          },
-        })
-      ).toThrowError('should provide `value`');
+      expect(() => {
+        const wrongArgs: any = [userTypeComposer, { sort: { _ID_ASC: {} } }];
+        prepareSortType(...wrongArgs);
+      }).toThrowError('should provide `value`');
     });
 
     it('should throw error if opts.sort.[KEY].cursorFields are empty object', () => {
-      expect(() =>
-        // $FlowFixMe
-        prepareSortType(userTypeComposer, {
-          sort: {
-            _ID_ASC: {
-              value: { id: 1 },
-            },
-          },
-        })
-      ).toThrowError('should provide array of field(s) in `cursorFields`');
+      expect(() => {
+        const wrongArgs: any = [userTypeComposer, { sort: { _ID_ASC: { value: { id: 1 } } } }];
+        prepareSortType(...wrongArgs);
+      }).toThrowError('should provide array of field(s) in `cursorFields`');
 
-      expect(() =>
-        // $FlowFixMe
-        prepareSortType(userTypeComposer, {
-          sort: {
-            _ID_ASC: {
-              value: { id: 1 },
-              cursorFields: 123,
+      expect(() => {
+        const wrongArgs: any = [
+          userTypeComposer,
+          {
+            sort: {
+              _ID_ASC: {
+                value: { id: 1 },
+                cursorFields: 123,
+              },
             },
           },
-        })
-      ).toThrowError('should provide array of field(s) in `cursorFields`');
+        ];
+        prepareSortType(...wrongArgs);
+      }).toThrowError('should provide array of field(s) in `cursorFields`');
     });
 
     it('should throw error if opts.sort.[KEY].beforeCursorQuery are empty object', () => {
-      expect(() =>
-        // $FlowFixMe
-        prepareSortType(userTypeComposer, {
-          sort: {
-            _ID_ASC: {
-              value: { id: 1 },
-              cursorFields: ['id'],
+      expect(() => {
+        const wrongArgs: any = [
+          userTypeComposer,
+          {
+            sort: {
+              _ID_ASC: {
+                value: { id: 1 },
+                cursorFields: ['id'],
+              },
             },
           },
-        })
-      ).toThrowError('should provide `beforeCursorQuery`');
+        ];
+        prepareSortType(...wrongArgs);
+      }).toThrowError('should provide `beforeCursorQuery`');
 
-      expect(() =>
-        // $FlowFixMe
-        prepareSortType(userTypeComposer, {
-          sort: {
-            _ID_ASC: {
-              value: { id: 1 },
-              cursorFields: ['id'],
-              beforeCursorQuery: 123,
+      expect(() => {
+        const wrongArgs: any = [
+          userTypeComposer,
+          {
+            sort: {
+              _ID_ASC: {
+                value: { id: 1 },
+                cursorFields: ['id'],
+                beforeCursorQuery: 123,
+              },
             },
           },
-        })
-      ).toThrowError('should provide `beforeCursorQuery`');
+        ];
+        prepareSortType(...wrongArgs);
+      }).toThrowError('should provide `beforeCursorQuery`');
     });
 
     it('should throw error if opts.sort.[KEY].afterCursorQuery are empty object', () => {
-      expect(() =>
-        // $FlowFixMe
-        prepareSortType(userTypeComposer, {
-          sort: {
-            _ID_ASC: {
-              value: { id: 1 },
-              cursorFields: ['id'],
-              beforeCursorQuery: () => {},
+      expect(() => {
+        const wrongArgs: any = [
+          userTypeComposer,
+          {
+            sort: {
+              _ID_ASC: {
+                value: { id: 1 },
+                cursorFields: ['id'],
+                beforeCursorQuery: () => {},
+              },
             },
           },
-        })
-      ).toThrowError('should provide `afterCursorQuery`');
+        ];
+        prepareSortType(...wrongArgs);
+      }).toThrowError('should provide `afterCursorQuery`');
 
-      expect(() =>
-        // $FlowFixMe
-        prepareSortType(userTypeComposer, {
-          sort: {
-            _ID_ASC: {
-              value: { id: 1 },
-              cursorFields: ['id'],
-              beforeCursorQuery: () => {},
-              afterCursorQuery: 123,
+      expect(() => {
+        const wrongArgs: any = [
+          userTypeComposer,
+          {
+            sort: {
+              _ID_ASC: {
+                value: { id: 1 },
+                cursorFields: ['id'],
+                beforeCursorQuery: () => {},
+                afterCursorQuery: 123,
+              },
             },
           },
-        })
-      ).toThrowError('should provide `afterCursorQuery`');
+        ];
+        prepareSortType(...wrongArgs);
+      }).toThrowError('should provide `afterCursorQuery`');
     });
   });
 

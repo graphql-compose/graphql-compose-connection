@@ -46,7 +46,7 @@
     "jest": "^21.2.1",
     "prettier": "^1.7.4",
     "rimraf": "^2.6.2",
-    "semantic-release": "^8.2.0"
+    "semantic-release": "^11.0.2"
   },
   "dependencies": {
     "babel-runtime": "^6.26.0"

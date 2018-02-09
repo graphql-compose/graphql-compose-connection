@@ -14,7 +14,7 @@ export function composeWithConnection(
   typeComposer: TypeComposer,
   opts: ComposeWithConnectionOpts
 ): TypeComposer {
-  if (!(typeComposer instanceof TypeComposer)) {
+  if (!typeComposer || typeComposer.constructor.name !== 'TypeComposer') {
     throw new Error('You should provide TypeComposer instance to composeWithRelay method');
   }
 

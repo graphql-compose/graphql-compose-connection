@@ -25,8 +25,9 @@ describe('types/connectionType.js', () => {
 
     it('should have field `node` with provided Type', () => {
       const tc = new TypeComposer(prepareEdgeType(userTypeComposer));
-      expect(tc.getFieldType('node')).toBeInstanceOf(GraphQLNonNull);
-      expect(tc.getFieldType('node').ofType).toBe(userTypeComposer.getType());
+      const nodeType: any = tc.getFieldType('node');
+      expect(nodeType).toBeInstanceOf(GraphQLNonNull);
+      expect(nodeType.ofType).toBe(userTypeComposer.getType());
     });
 
     it('should have field `cursor` with GraphQLNonNull(GraphQLString)', () => {
@@ -60,8 +61,9 @@ describe('types/connectionType.js', () => {
 
     it('should have field `count` with provided Type', () => {
       const tc = new TypeComposer(prepareConnectionType(userTypeComposer));
-      expect(tc.getFieldType('count')).toBeInstanceOf(GraphQLNonNull);
-      expect(tc.getFieldType('count').ofType).toBe(GraphQLInt);
+      const countType: any = tc.getFieldType('count');
+      expect(countType).toBeInstanceOf(GraphQLNonNull);
+      expect(countType.ofType).toBe(GraphQLInt);
     });
 
     it('should have field `pageInfo` with GraphQLNonNull(PageInfoType)', () => {
@@ -74,8 +76,9 @@ describe('types/connectionType.js', () => {
 
     it('should have field `edges` with GraphQLList(EdgeType)', () => {
       const tc = new TypeComposer(prepareConnectionType(userTypeComposer));
-      expect(tc.getFieldType('edges')).toBeInstanceOf(GraphQLNonNull);
-      expect(tc.getFieldType('edges').ofType).toBeInstanceOf(GraphQLList);
+      const edgesType: any = tc.getFieldType('edges');
+      expect(edgesType).toBeInstanceOf(GraphQLNonNull);
+      expect(edgesType.ofType).toBeInstanceOf(GraphQLList);
 
       const edges: any = getNamedType(tc.getFieldType('edges'));
       expect(edges.name).toEqual('UserEdge');

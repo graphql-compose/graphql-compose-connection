@@ -66,7 +66,7 @@ export type PageInfoType = {
 export function prepareConnectionResolver<TSource, TContext>(
   typeComposer: TypeComposer,
   opts: ComposeWithConnectionOpts
-): Resolver<TSource, TContext> {
+): Resolver {
   if (!typeComposer || typeComposer.constructor.name !== 'TypeComposer') {
     throw new Error('First arg for prepareConnectionResolver() should be instance of TypeComposer');
   }

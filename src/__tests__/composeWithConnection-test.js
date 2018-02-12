@@ -64,16 +64,14 @@ describe('composeWithRelay', () => {
     it('should has ConnectionType as type', () => {
       expect(type).toBeTruthy();
       expect(tc.getFieldNames()).toEqual(expect.arrayContaining(['count', 'pageInfo', 'edges']));
-      expect(tc.getFieldType('edges')).toBeInstanceOf(GraphQLNonNull);
-      expect(tc.getFieldType('edges').ofType).toBeInstanceOf(GraphQLList);
+      const edgesType: any = tc.getFieldType('edges');
+      expect(edgesType).toBeInstanceOf(GraphQLNonNull);
+      expect(edgesType.ofType).toBeInstanceOf(GraphQLList);
     });
   });
 
   it('should apply first sort ID_ASC by default', async () => {
-    rootQueryTC.setField(
-      'userConnection',
-      userTypeComposer.getResolver('connection').getFieldConfig()
-    );
+    rootQueryTC.setField('userConnection', userTypeComposer.getResolver('connection'));
     const schema = new GraphQLSchema({
       query: rootQueryTC.getType(),
     });
@@ -123,10 +121,7 @@ describe('composeWithRelay', () => {
   });
 
   it('should able to change `sort` on AGE_ID_DESC', async () => {
-    rootQueryTC.setField(
-      'userConnection',
-      userTypeComposer.getResolver('connection').getFieldConfig()
-    );
+    rootQueryTC.setField('userConnection', userTypeComposer.getResolver('connection'));
     const schema = new GraphQLSchema({
       query: rootQueryTC.getType(),
     });
@@ -178,10 +173,7 @@ describe('composeWithRelay', () => {
 
   describe('fragments fields projection of graphql-compose', () => {
     it('should return object', async () => {
-      rootQueryTC.setField(
-        'userConnection',
-        userTypeComposer.getResolver('connection').getFieldConfig()
-      );
+      rootQueryTC.setField('userConnection', userTypeComposer.getResolver('connection'));
       const schema = new GraphQLSchema({
         query: rootQueryTC.getType(),
       });
@@ -246,14 +238,11 @@ describe('composeWithRelay', () => {
 
     rootQueryTC.setField(
       'userConnection',
-      userTypeComposer
-        .getResolver('connection')
-        .wrapResolve(next => rp => {
-          const result = next(rp);
-          topResolveParams = rp;
-          return result;
-        })
-        .getFieldConfig()
+      userTypeComposer.getResolver('connection').wrapResolve(next => rp => {
+        const result = next(rp);
+        topResolveParams = rp;
+        return result;
+      })
     );
     const schema = new GraphQLSchema({
       query: rootQueryTC.getType(),
@@ -279,14 +268,11 @@ describe('composeWithRelay', () => {
 
     rootQueryTC.setField(
       'userConnection',
-      userTypeComposer
-        .getResolver('connection')
-        .wrapResolve(next => rp => {
-          const result = next(rp);
-          topResolveParams = rp;
-          return result;
-        })
-        .getFieldConfig()
+      userTypeComposer.getResolver('connection').wrapResolve(next => rp => {
+        const result = next(rp);
+        topResolveParams = rp;
+        return result;
+      })
     );
     const schema = new GraphQLSchema({
       query: rootQueryTC.getType(),

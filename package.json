@@ -9,7 +9,7 @@
   "main": "lib/index.js",
   "repository": {
     "type": "git",
-    "url": "https://github.com/nodkz/graphql-compose-connection.git"
+    "url": "https://github.com/graphql-compose/graphql-compose-connection.git"
   },
   "keywords": [
     "graphql",
@@ -19,9 +19,9 @@
   ],
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/nodkz/graphql-compose-connection/issues"
+    "url": "https://github.com/graphql-compose/graphql-compose-connection/issues"
   },
-  "homepage": "https://github.com/nodkz/graphql-compose-connection",
+  "homepage": "https://github.com/graphql-compose/graphql-compose-connection",
   "peerDependencies": {
     "graphql-compose": ">=3.0.0"
   },

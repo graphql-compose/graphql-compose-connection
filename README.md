@@ -1,14 +1,14 @@
 # graphql-compose-connection
 
-[![travis build](https://img.shields.io/travis/nodkz/graphql-compose-connection.svg)](https://travis-ci.org/nodkz/graphql-compose-connection)
-[![codecov coverage](https://img.shields.io/codecov/c/github/nodkz/graphql-compose-connection.svg)](https://codecov.io/github/nodkz/graphql-compose-connection)
+[![travis build](https://img.shields.io/travis/graphql-compose/graphql-compose-connection.svg)](https://travis-ci.org/graphql-compose/graphql-compose-connection)
+[![codecov coverage](https://img.shields.io/codecov/c/github/graphql-compose/graphql-compose-connection.svg)](https://codecov.io/github/graphql-compose/graphql-compose-connection)
 [![](https://img.shields.io/npm/v/graphql-compose-connection.svg)](https://www.npmjs.com/package/graphql-compose-connection)
 [![npm](https://img.shields.io/npm/dt/graphql-compose-connection.svg)](http://www.npmtrends.com/graphql-compose-connection)
-[![Join the chat at https://gitter.im/graphql-compose/Lobby](https://badges.gitter.im/nodkz/graphql-compose.svg)](https://gitter.im/graphql-compose/Lobby)
+[![Join the chat at https://gitter.im/graphql-compose/Lobby](https://badges.gitter.im/graphql-compose/graphql-compose.svg)](https://gitter.im/graphql-compose/Lobby)
 [![Commitizen friendly](https://img.shields.io/badge/commitizen-friendly-brightgreen.svg)](http://commitizen.github.io/cz-cli/)
-[![Greenkeeper badge](https://badges.greenkeeper.io/nodkz/graphql-compose-connection.svg)](https://greenkeeper.io/)
+[![Greenkeeper badge](https://badges.greenkeeper.io/graphql-compose/graphql-compose-connection.svg)](https://greenkeeper.io/)
 
-This is a plugin for [graphql-compose](https://github.com/nodkz/graphql-compose) family, which adds to the TypeComposer `connection` resolver.
+This is a plugin for [graphql-compose](https://github.com/graphql-compose/graphql-compose) family, which adds to the TypeComposer `connection` resolver.
 
 Live demo: [https://graphql-compose.herokuapp.com/](https://graphql-compose.herokuapp.com/)
 
@@ -18,7 +18,7 @@ Besides standard connection arguments `first`, `last`, `before` and `after`, als
 * `filter` arg - for filtering records
 * `sort` arg - for sorting records. Build in mechanism allows sort by any unique indexes (not only by id). Also supported compound sorting (by several fields).
 
-[CHANGELOG](https://github.com/nodkz/graphql-compose-connection/blob/master/CHANGELOG.md)
+[CHANGELOG](https://github.com/graphql-compose/graphql-compose-connection/blob/master/CHANGELOG.md)
 
 Installation
 ============
@@ -116,9 +116,9 @@ Types should have following resolvers:
 
 Used in plugins
 ===============
-[graphql-compose-mongoose](https://github.com/nodkz/graphql-compose-mongoose) - converts mongoose models to graphql types
+[graphql-compose-mongoose](https://github.com/graphql-compose/graphql-compose-mongoose) - converts mongoose models to graphql types
 
 
 License
 =======
-[MIT](https://github.com/nodkz/graphql-compose-connection/blob/master/LICENSE.md)
+[MIT](https://github.com/graphql-compose/graphql-compose-connection/blob/master/LICENSE.md)

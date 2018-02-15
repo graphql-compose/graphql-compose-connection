@@ -1,8 +1,13 @@
 /* @flow */
 /* eslint-disable no-param-reassign, no-use-before-define */
 
-import { Resolver, TypeComposer } from 'graphql-compose';
-import type { ResolveParams, ProjectionType, ComposeFieldConfigArgumentMap } from 'graphql-compose';
+import type {
+  Resolver,
+  TypeComposer,
+  ResolveParams, // eslint-disable-line
+  ProjectionType,
+  ComposeFieldConfigArgumentMap,
+} from 'graphql-compose';
 import type { GraphQLResolveInfo } from 'graphql-compose/lib/graphql';
 import { prepareConnectionType } from './types/connectionType';
 import { prepareSortType } from './types/sortInputType';
@@ -15,12 +20,12 @@ export type ConnectionSortOpts = {
   beforeCursorQuery: (
     rawQuery: any,
     cursorData: CursorDataType,
-    resolveParams: ConnectionResolveParams<*, *>
+    resolveParams: ConnectionResolveParams<any>
   ) => any,
   afterCursorQuery: (
     rawQuery: any,
     cursorData: CursorDataType,
-    resolveParams: ConnectionResolveParams<*, *>
+    resolveParams: ConnectionResolveParams<any>
   ) => any,
 };
 
@@ -28,8 +33,8 @@ export type ConnectionSortMapOpts = {
   [sortName: string]: ConnectionSortOpts,
 };
 
-export type ConnectionResolveParams<TSource, TContext> = {
-  source: TSource,
+export type ConnectionResolveParams<TContext> = {
+  source: any,
   args: {
     first?: ?number,
     after?: string,
@@ -63,24 +68,24 @@ export type PageInfoType = {
   hasNextPage: boolean,
 };
 
-export function prepareConnectionResolver<TSource, TContext>(
-  typeComposer: TypeComposer,
+export function prepareConnectionResolver(
+  tc: TypeComposer,
   opts: ComposeWithConnectionOpts
 ): Resolver {
-  if (!typeComposer || typeComposer.constructor.name !== 'TypeComposer') {
+  if (!tc || tc.constructor.name !== 'TypeComposer') {
     throw new Error('First arg for prepareConnectionResolver() should be instance of TypeComposer');
   }
 
   if (!opts.countResolverName) {
     throw new Error(
-      `TypeComposer(${typeComposer.getTypeName()}) provided to composeWithConnection ` +
+      `TypeComposer(${tc.getTypeName()}) provided to composeWithConnection ` +
         'should have option `opts.countResolverName`.'
     );
   }
-  const countResolver = typeComposer.getResolver(opts.countResolverName);
+  const countResolver = tc.getResolver(opts.countResolverName);
   if (!countResolver) {
     throw new Error(
-      `TypeComposer(${typeComposer.getTypeName()}) provided to composeWithConnection ` +
+      `TypeComposer(${tc.getTypeName()}) provided to composeWithConnection ` +
         `should have resolver with name '${opts.countResolverName}' ` +
         'due opts.countResolverName.'
     );
@@ -89,14 +94,14 @@ export function prepareConnectionResolver<TSource, TContext>(
 
   if (!opts.findResolverName) {
     throw new Error(
-      `TypeComposer(${typeComposer.getTypeName()}) provided to composeWithConnection ` +
+      `TypeComposer(${tc.getTypeName()}) provided to composeWithConnection ` +
         'should have option `opts.findResolverName`.'
     );
   }
-  const findManyResolver = typeComposer.getResolver(opts.findResolverName);
+  const findManyResolver = tc.getResolver(opts.findResolverName);
   if (!findManyResolver) {
     throw new Error(
-      `TypeComposer(${typeComposer.getTypeName()}) provided to composeWithConnection ` +
+      `TypeComposer(${tc.getTypeName()}) provided to composeWithConnection ` +
         `should have resolver with name '${opts.findResolverName}' ` +
         'due opts.countResolverName.'
     );
@@ -111,10 +116,10 @@ export function prepareConnectionResolver<TSource, TContext>(
     }
   }
 
-  const sortEnumType = prepareSortType(typeComposer, opts);
+  const sortEnumType = prepareSortType(tc, opts);
 
-  return new Resolver({
-    type: prepareConnectionType(typeComposer),
+  return new tc.constructor.schemaComposer.Resolver({
+    type: prepareConnectionType(tc),
     name: 'connection',
     kind: 'query',
     args: {
@@ -142,13 +147,13 @@ export function prepareConnectionResolver<TSource, TContext>(
       },
     },
     // eslint-disable-next-line
-    resolve: async (
-      resolveParams: $Shape<ConnectionResolveParams<TSource, TContext>>
+    resolve: async /* :: <TContext> */(
+      resolveParams/* : $Shape<ConnectionResolveParams<TContext>> */
     ) => {
       let countPromise;
       let findManyPromise;
       const { projection = {}, args, rawQuery } = resolveParams;
-      const findManyParams: $Shape<ResolveParams<TSource, TContext>> = {
+      const findManyParams /* :  $Shape<ResolveParams<any, TContext>> */ = {
         ...resolveParams,
       };
 
@@ -161,7 +166,7 @@ export function prepareConnectionResolver<TSource, TContext>(
         throw new Error('Argument `last` should be non-negative number.');
       }
 
-      const countParams: $Shape<ResolveParams<TSource, TContext>> = {
+      const countParams /* : $Shape<ResolveParams<any, TContext>> */ = {
         ...resolveParams,
         rawQuery,
         args: {
@@ -194,7 +199,7 @@ export function prepareConnectionResolver<TSource, TContext>(
 
       if (!first && last) {
         // Get the number of edges targeted by the findMany resolver (not the whole count)
-        const filteredCountParams: $Shape<ResolveParams<TSource, TContext>> = {
+        const filteredCountParams /* : $Shape<ResolveParams<any, TContext>> */ = {
           ...resolveParams,
           args: {
             filter: { ...resolveParams.args.filter },
@@ -310,7 +315,7 @@ export function preparePageInfo(
 }
 
 export function prepareRawQuery(
-  rp: $Shape<ConnectionResolveParams<*, *>>,
+  rp: $Shape<ConnectionResolveParams<any>>,
   sortConfig: ConnectionSortOpts
 ) {
   if (!rp.rawQuery) {
@@ -335,7 +340,7 @@ export function prepareRawQuery(
 }
 
 export function prepareLimitSkipFallback(
-  rp: $Shape<ConnectionResolveParams<*, *>>,
+  rp: $Shape<ConnectionResolveParams<any>>,
   limit: number,
   skip: number
 ): [number, number] {

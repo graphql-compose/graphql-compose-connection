@@ -81,23 +81,23 @@ describe('connectionResolver', () => {
 
   describe('resolver args', () => {
     it('should have `first` arg', () => {
-      expect(connectionResolver.getArg('first').type).toBe(GraphQLInt);
+      expect(connectionResolver.getArgType('first')).toBe(GraphQLInt);
     });
 
     it('should have `last` arg', () => {
-      expect(connectionResolver.getArg('last').type).toBe(GraphQLInt);
+      expect(connectionResolver.getArgType('last')).toBe(GraphQLInt);
     });
 
     it('should have `after` arg', () => {
-      expect(connectionResolver.getArg('after').type).toBe(GraphQLString);
+      expect(connectionResolver.getArgType('after')).toBe(GraphQLString);
     });
 
     it('should have `before` arg', () => {
-      expect(connectionResolver.getArg('before').type).toBe(GraphQLString);
+      expect(connectionResolver.getArgType('before')).toBe(GraphQLString);
     });
 
     it('should have `sort` arg', () => {
-      expect(connectionResolver.getArg('sort').type.name).toBe('SortConnectionUserEnum');
+      expect((connectionResolver.getArgType('sort'): any).name).toBe('SortConnectionUserEnum');
     });
   });
 

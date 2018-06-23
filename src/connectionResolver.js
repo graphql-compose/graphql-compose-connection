@@ -142,7 +142,7 @@ export function prepareConnectionResolver(
       ...additionalArgs,
       sort: {
         type: sortEnumType,
-        defaultValue: sortEnumType.getValues()[0].value,
+        defaultValue: sortEnumType.getValues()[0].name,
         description: 'Sort argument for data ordering',
       },
     },

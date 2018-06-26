@@ -8,7 +8,7 @@
     "README.md"
   ],
   "main": "lib/index.js",
-  "module": "mjs/index.js",
+  "module": "mjs/index.mjs",
   "repository": {
     "type": "git",
     "url": "https://github.com/graphql-compose/graphql-compose-connection.git"
@@ -45,7 +45,7 @@
     "eslint-plugin-prettier": "^2.6.1",
     "flow-bin": "^0.75.0",
     "graphql": "0.13.2",
-    "graphql-compose": "^4.4.0",
+    "graphql-compose": "^4.4.1",
     "jest": "^23.2.0",
     "prettier": "^1.13.6",
     "rimraf": "^2.6.2",
@@ -65,7 +65,7 @@
     ]
   },
   "scripts": {
-    "build": "npm run build-cjs && npm run build-mjs && npm run build-flow",
+    "build": "npm run build-cjs && npm run build-mjs",
     "build-cjs": "rimraf lib && BABEL_ENV=cjs babel src --ignore __tests__,__mocks__ -d lib && COPY_TO_FOLDER=lib npm run build-flow",
     "build-mjs": "rimraf mjs && BABEL_ENV=mjs babel src --ignore __tests__,__mocks__ -d mjs && yarn build-mjs-rename && COPY_TO_FOLDER=mjs npm run build-flow",
     "build-mjs-rename": "find ./mjs -name \"*.js\" -exec bash -c 'mv \"$1\" \"${1%.js}\".mjs' - '{}' \\;",

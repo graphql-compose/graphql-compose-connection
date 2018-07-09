@@ -12,7 +12,13 @@ import type { GraphQLResolveInfo } from 'graphql-compose/lib/graphql';
 import { prepareConnectionType } from './types/connectionType';
 import { prepareSortType } from './types/sortInputType';
 import { cursorToData, dataToCursor, type CursorDataType } from './cursor';
-import type { ComposeWithConnectionOpts } from './composeWithConnection';
+
+export type ComposeWithConnectionOpts = {
+  findResolverName: string,
+  countResolverName: string,
+  sort: ConnectionSortMapOpts,
+  defaultLimit?: ?number,
+};
 
 export type ConnectionSortOpts = {
   value: any,

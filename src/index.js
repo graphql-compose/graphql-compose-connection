@@ -2,10 +2,14 @@
 
 import { composeWithConnection } from './composeWithConnection';
 import { cursorToData, dataToCursor } from './cursor';
+import { prepareConnectionResolver } from './connectionResolver';
 
 export default composeWithConnection;
 
-export { composeWithConnection, cursorToData, dataToCursor };
+export { composeWithConnection, prepareConnectionResolver, cursorToData, dataToCursor };
 
-export type { ComposeWithConnectionOpts } from './composeWithConnection';
-export type { ConnectionSortOpts, ConnectionSortMapOpts } from './connectionResolver';
+export type {
+  ComposeWithConnectionOpts,
+  ConnectionSortOpts,
+  ConnectionSortMapOpts,
+} from './connectionResolver';

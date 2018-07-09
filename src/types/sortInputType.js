@@ -4,8 +4,7 @@
 import { TypeComposer } from 'graphql-compose';
 import { GraphQLEnumType } from 'graphql-compose/lib/graphql';
 import { isFunction } from '../utils/is';
-import type { ComposeWithConnectionOpts } from '../composeWithConnection';
-import type { ConnectionSortOpts } from '../connectionResolver';
+import type { ConnectionSortOpts, ComposeWithConnectionOpts } from '../connectionResolver';
 
 export function prepareSortType(
   typeComposer: TypeComposer,

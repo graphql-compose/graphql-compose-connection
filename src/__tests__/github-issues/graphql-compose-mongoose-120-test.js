@@ -11,7 +11,7 @@ describe('check last/before args', () => {
     sort: sortOptions,
   });
 
-  it('should use defaultLimit option', async () => {
+  it('with sort arg', async () => {
     const res1 = await defaultResolver.resolve({
       args: {
         last: 2,
@@ -34,6 +34,30 @@ describe('check last/before args', () => {
     expect(res2.edges).toEqual([
       { cursor: 'eyJpZCI6MTJ9', node: { age: 47, gender: 'f', id: 12, name: 'user12' } },
       { cursor: 'eyJpZCI6MTN9', node: { age: 45, gender: 'f', id: 13, name: 'user13' } },
+    ]);
+  });
+
+  it('without sort arg', async () => {
+    const res1 = await defaultResolver.resolve({
+      args: {
+        last: 2,
+        before: '',
+      },
+    });
+    expect(res1.edges).toEqual([
+      { cursor: 'MTM=', node: { age: 45, gender: 'm', id: 14, name: 'user14' } },
+      { cursor: 'MTQ=', node: { age: 45, gender: 'f', id: 13, name: 'user13' } },
+    ]);
+
+    const res2 = await defaultResolver.resolve({
+      args: {
+        last: 2,
+        before: 'MTM=',
+      },
+    });
+    expect(res2.edges).toEqual([
+      { cursor: 'MTE=', node: { age: 47, gender: 'f', id: 12, name: 'user12' } },
+      { cursor: 'MTI=', node: { age: 45, gender: 'm', id: 15, name: 'user15' } },
     ]);
   });
 });

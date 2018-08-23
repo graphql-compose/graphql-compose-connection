@@ -152,10 +152,9 @@ export function prepareConnectionResolver(
         description: 'Sort argument for data ordering',
       },
     },
-    // eslint-disable-next-line
-    resolve: async /* :: <TContext> */(
-      resolveParams/* : $Shape<ConnectionResolveParams<TContext>> */
-    ) => {
+    async resolve /* :: <TContext> */(
+      resolveParams /* : $Shape<ConnectionResolveParams<TContext>> */
+    ) {
       let countPromise;
       let findManyPromise;
       const { projection = {}, args, rawQuery } = resolveParams;
@@ -381,7 +380,9 @@ export function prepareLimitSkipFallback(
       newSkip = skip + afterSkip;
     }
   } else if (beforeSkip) {
-    newSkip = skip - beforeSkip;
+    // just simple backward listing (without after arg)
+    // so we simple take previous records reducing skip by limit value
+    newSkip = beforeSkip - limit;
     if (newSkip < 0) {
       newSkip = 0;
       newLimit = limit;

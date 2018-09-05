@@ -1,5 +1,6 @@
 /* @flow */
 
+import { EnumTypeComposer } from 'graphql-compose';
 import { GraphQLEnumType } from 'graphql-compose/lib/graphql';
 import { userTypeComposer } from '../../__mocks__/userTypeComposer';
 import { prepareSortType } from '../sortInputType';
@@ -141,7 +142,8 @@ describe('types/sortInputType.js', () => {
     });
 
     it('should have enum values', () => {
-      expect(sortType._enumConfig.values._ID_ASC).toBeTruthy();
+      const etc = EnumTypeComposer.create(sortType);
+      expect(etc.hasField('_ID_ASC')).toBeTruthy();
     });
   });
 });

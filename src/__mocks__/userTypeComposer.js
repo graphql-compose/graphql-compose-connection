@@ -128,10 +128,10 @@ export const findManyResolver = new Resolver({
     sort: new GraphQLEnumType({
       name: 'SortUserInput',
       values: {
-        ID_ASC: { name: 'ID_ASC', value: { id: 1 } },
-        ID_DESC: { name: 'ID_DESC', value: { id: -1 } },
-        AGE_ASC: { name: 'AGE_ASC', value: { age: 1 } },
-        AGE_DESC: { name: 'AGE_DESC', value: { age: -1 } },
+        ID_ASC: { value: { id: 1 } },
+        ID_DESC: { value: { id: -1 } },
+        AGE_ASC: { value: { age: 1 } },
+        AGE_DESC: { value: { age: -1 } },
       },
     }),
     limit: GraphQLInt,

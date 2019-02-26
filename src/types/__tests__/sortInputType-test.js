@@ -141,6 +141,23 @@ describe('types/sortInputType.js', () => {
       expect(sortType.name).toBe('SortConnectionUserEnum');
     });
 
+    it('should have name `Sort[resolverName][typeName]Enum`', () => {
+      const otherSortType = prepareSortType(userTypeComposer, {
+        sort: {
+          _ID_ASC: {
+            value: { id: 1 },
+            cursorFields: ['id'],
+            beforeCursorQuery: () => {},
+            afterCursorQuery: () => {},
+          },
+        },
+        findResolverName: 'finMany',
+        countResolverName: 'count',
+        connectionResolverName: 'otherConnection',
+      });
+      expect(otherSortType.name).toBe('SortOtherConnectionUserEnum');
+    });
+
     it('should have enum values', () => {
       const etc = EnumTypeComposer.create(sortType);
       expect(etc.hasField('_ID_ASC')).toBeTruthy();

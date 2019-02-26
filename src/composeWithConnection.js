@@ -3,6 +3,7 @@
 import { TypeComposer } from 'graphql-compose';
 import { prepareConnectionResolver } from './connectionResolver';
 import type { ComposeWithConnectionOpts } from './connectionResolver';
+import { resolverName } from './utils/name';
 
 export function composeWithConnection(
   typeComposer: TypeComposer,
@@ -16,12 +17,12 @@ export function composeWithConnection(
     throw new Error('You should provide non-empty options to composeWithConnection');
   }
 
-  if (typeComposer.hasResolver('connection')) {
+  if (typeComposer.hasResolver(resolverName(opts.connectionResolverName))) {
     return typeComposer;
   }
 
   const resolver = prepareConnectionResolver(typeComposer, opts);
 
-  typeComposer.setResolver('connection', resolver);
+  typeComposer.setResolver(resolverName(opts.connectionResolverName), resolver);
   return typeComposer;
 }

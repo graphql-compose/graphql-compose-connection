@@ -55,8 +55,29 @@ describe('types/connectionType.js', () => {
       expect(prepareConnectionType(userTypeComposer)).toBeInstanceOf(GraphQLObjectType);
     });
 
+    it('should return the same GraphQLObjectType object when called again', () => {
+      const firstConnectionType = prepareConnectionType(userTypeComposer);
+      const secondConnectionType = prepareConnectionType(userTypeComposer);
+      expect(firstConnectionType).toBeInstanceOf(GraphQLObjectType);
+      expect(firstConnectionType).toBe(secondConnectionType);
+    });
+
+    it('should return a separate GraphQLObjectType with a different name', () => {
+      const connectionType = prepareConnectionType(userTypeComposer);
+      const otherConnectionType = prepareConnectionType(userTypeComposer, 'otherConnection');
+      expect(connectionType).toBeInstanceOf(GraphQLObjectType);
+      expect(otherConnectionType).toBeInstanceOf(GraphQLObjectType);
+      expect(connectionType).not.toBe(otherConnectionType);
+    });
+
     it('should have name ending with `Connection`', () => {
       expect(prepareConnectionType(userTypeComposer).name).toBe('UserConnection');
+    });
+
+    it('should have name ending with `OtherConnection` when passed lowercase otherConnection', () => {
+      expect(prepareConnectionType(userTypeComposer, 'otherConnection').name).toBe(
+        'UserOtherConnection'
+      );
     });
 
     it('should have field `count` with provided Type', () => {

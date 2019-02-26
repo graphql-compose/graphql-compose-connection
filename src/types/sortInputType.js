@@ -4,6 +4,7 @@
 import { TypeComposer } from 'graphql-compose';
 import { GraphQLEnumType } from 'graphql-compose/lib/graphql';
 import { isFunction } from '../utils/is';
+import { typeName as uppercaseTypeName } from '../utils/name';
 import type { ConnectionSortOpts, ComposeWithConnectionOpts } from '../connectionResolver';
 
 export function prepareSortType(
@@ -14,7 +15,9 @@ export function prepareSortType(
     throw new Error('Option `sort` should not be empty in composeWithConnection');
   }
 
-  const typeName = `SortConnection${typeComposer.getTypeName()}Enum`;
+  const typeName = `Sort${uppercaseTypeName(
+    opts.connectionResolverName
+  )}${typeComposer.getTypeName()}Enum`;
 
   const sortKeys = Object.keys(opts.sort);
   if (sortKeys.length === 0) {

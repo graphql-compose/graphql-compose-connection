@@ -11,6 +11,7 @@ import {
 import type { TypeComposer } from 'graphql-compose';
 
 import PageInfoType from './pageInfoType';
+import { typeName } from '../utils/name';
 
 const cachedConnectionTypes = new WeakMap();
 const cachedEdgeTypes = new WeakMap();
@@ -47,12 +48,15 @@ export function prepareEdgeType(typeComposer: TypeComposer): GraphQLObjectType {
   return edgeType;
 }
 
-export function prepareConnectionType(typeComposer: TypeComposer): GraphQLObjectType {
-  const name = `${typeComposer.getTypeName()}Connection`;
+export function prepareConnectionType(
+  typeComposer: TypeComposer,
+  resolverName: ?string
+): GraphQLObjectType {
+  const name = `${typeComposer.getTypeName()}${typeName(resolverName)}`;
   const type = typeComposer.getType();
 
-  if (cachedConnectionTypes.has(type)) {
-    return (cachedConnectionTypes.get(type): any);
+  if (cachedConnectionTypes.has(type) && (cachedConnectionTypes.get(type): any).has(name)) {
+    return ((cachedConnectionTypes.get(type): any).get(name): any);
   }
 
   const connectionType = new GraphQLObjectType({
@@ -81,6 +85,10 @@ export function prepareConnectionType(typeComposer: TypeComposer): GraphQLObject
   // $FlowFixMe
   connectionType.ofType = type;
 
-  cachedConnectionTypes.set(type, connectionType);
+  if (!cachedConnectionTypes.has(type)) {
+    cachedConnectionTypes.set(type, new Map());
+    // Can't use WeakMap because keys must be strings
+  }
+  (cachedConnectionTypes.get(type): any).set(name, connectionType);
   return connectionType;
 }

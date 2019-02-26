@@ -50,6 +50,53 @@ describe('composeWithRelay', () => {
       expect(myTC.getResolver('connection')).toBeTruthy();
       expect(myTC.getResolver('connection').resolve()).toBe('mockData');
     });
+
+    it('should add resolver with user-specified name', () => {
+      let myTC = TypeComposer.create('type CustomComplex { a: String, b: Int }');
+      myTC.addResolver({
+        name: 'count',
+        resolve: () => 1,
+      });
+      myTC.addResolver({
+        name: 'findMany',
+        resolve: () => ['mockData'],
+      });
+      myTC = composeWithConnection(myTC, {
+        connectionResolverName: 'customConnection',
+        countResolverName: 'count',
+        findResolverName: 'findMany',
+        sort: sortOptions,
+      });
+
+      expect(myTC.getResolver('customConnection')).toBeTruthy();
+      expect(myTC.hasResolver('connection')).toBeFalsy();
+    });
+
+    it('should add two connection resolvers', () => {
+      let myTC = TypeComposer.create('type CustomComplex { a: String, b: Int }');
+      myTC.addResolver({
+        name: 'count',
+        resolve: () => 1,
+      });
+      myTC.addResolver({
+        name: 'findMany',
+        resolve: () => ['mockData'],
+      });
+      myTC = composeWithConnection(myTC, {
+        countResolverName: 'count',
+        findResolverName: 'findMany',
+        sort: sortOptions,
+      });
+      myTC = composeWithConnection(myTC, {
+        connectionResolverName: 'customConnection',
+        countResolverName: 'count',
+        findResolverName: 'findMany',
+        sort: sortOptions,
+      });
+
+      expect(myTC.hasResolver('connection')).toBeTruthy();
+      expect(myTC.getResolver('customConnection')).toBeTruthy();
+    });
   });
 
   describe('check `connection` resolver props', () => {

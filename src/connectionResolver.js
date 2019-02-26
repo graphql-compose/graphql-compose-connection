@@ -12,8 +12,10 @@ import type { GraphQLResolveInfo } from 'graphql-compose/lib/graphql';
 import { prepareConnectionType } from './types/connectionType';
 import { prepareSortType } from './types/sortInputType';
 import { cursorToData, dataToCursor, type CursorDataType } from './cursor';
+import { resolverName } from './utils/name';
 
 export type ComposeWithConnectionOpts = {
+  connectionResolverName?: string,
   findResolverName: string,
   countResolverName: string,
   sort: ConnectionSortMapOpts,
@@ -125,8 +127,8 @@ export function prepareConnectionResolver(
   const sortEnumType = prepareSortType(tc, opts);
 
   return new tc.constructor.schemaComposer.Resolver({
-    type: prepareConnectionType(tc),
-    name: 'connection',
+    type: prepareConnectionType(tc, opts.connectionResolverName),
+    name: resolverName(opts.connectionResolverName),
     kind: 'query',
     args: {
       first: {

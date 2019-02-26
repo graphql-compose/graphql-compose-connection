@@ -36,6 +36,7 @@ import composeWithConnection from 'graphql-compose-connection';
 import userTypeComposer from './user.js';
 
 composeWithConnection(userTypeComposer, {
+  connectionResolverName: 'connection', // Default
   findResolverName: 'findMany',
   countResolverName: 'count',
   sort: {

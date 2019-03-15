@@ -3,12 +3,12 @@
 
 import { Resolver } from 'graphql-compose';
 import { GraphQLInt, GraphQLString } from 'graphql-compose/lib/graphql';
-import { userTypeComposer, userList, sortOptions } from '../__mocks__/userTypeComposer';
+import { userTC, userList, sortOptions } from '../__mocks__/userTC';
 import { dataToCursor } from '../cursor';
 import { prepareConnectionResolver, prepareRawQuery, preparePageInfo } from '../connectionResolver';
 
 describe('connectionResolver', () => {
-  const connectionResolver = prepareConnectionResolver(userTypeComposer, {
+  const connectionResolver = prepareConnectionResolver(userTC, {
     countResolverName: 'count',
     findResolverName: 'findMany',
     sort: sortOptions,
@@ -19,23 +19,23 @@ describe('connectionResolver', () => {
       expect(connectionResolver).toBeInstanceOf(Resolver);
     });
 
-    it('should throw error if first arg is not TypeComposer', () => {
+    it('should throw error if first arg is not ObjectTypeComposer', () => {
       expect(() => {
         const wrongArgs: any = [123];
         prepareConnectionResolver(...wrongArgs);
-      }).toThrowError('should be instance of TypeComposer');
+      }).toThrowError('should be instance of ObjectTypeComposer');
     });
 
     it('should throw error if opts.countResolverName are empty', () => {
       expect(() => {
-        const wrongArgs: any = [userTypeComposer, {}];
+        const wrongArgs: any = [userTC, {}];
         prepareConnectionResolver(...wrongArgs);
       }).toThrowError('should have option `opts.countResolverName`');
     });
 
     it('should throw error if resolver opts.countResolverName does not exists', () => {
       expect(() =>
-        prepareConnectionResolver(userTypeComposer, {
+        prepareConnectionResolver(userTC, {
           countResolverName: 'countDoesNotExists',
           findResolverName: 'findMany',
           sort: sortOptions,
@@ -45,7 +45,7 @@ describe('connectionResolver', () => {
 
     it('should throw error if opts.findResolverName are empty', () => {
       expect(() => {
-        const wrongArgs: any = [userTypeComposer, { countResolverName: 'count' }];
+        const wrongArgs: any = [userTC, { countResolverName: 'count' }];
         prepareConnectionResolver(...wrongArgs);
       }).toThrowError('should have option `opts.findResolverName`');
     });
@@ -53,7 +53,7 @@ describe('connectionResolver', () => {
     it('should throw error if resolver opts.countResolverName does not exists', () => {
       expect(() => {
         const wrongArgs: any = [
-          userTypeComposer,
+          userTC,
           {
             countResolverName: 'count',
             findResolverName: 'findManyDoesNotExists',
@@ -110,23 +110,19 @@ describe('connectionResolver', () => {
     beforeEach(() => {
       findManyResolverCalled = false;
       countResolverCalled = false;
-      const mockedFindMany = userTypeComposer
-        .getResolver('findMany')
-        .wrapResolve(next => resolveParams => {
-          findManyResolverCalled = true;
-          spyResolveParams = resolveParams;
-          return next(resolveParams);
-        });
-      const mockedCount = userTypeComposer
-        .getResolver('findMany')
-        .wrapResolve(next => resolveParams => {
-          countResolverCalled = true;
-          spyResolveParams = resolveParams;
-          return next(resolveParams);
-        });
-      userTypeComposer.setResolver('mockedFindMany', mockedFindMany);
-      userTypeComposer.setResolver('mockedCount', mockedCount);
-      mockedConnectionResolver = prepareConnectionResolver(userTypeComposer, {
+      const mockedFindMany = userTC.getResolver('findMany').wrapResolve(next => resolveParams => {
+        findManyResolverCalled = true;
+        spyResolveParams = resolveParams;
+        return next(resolveParams);
+      });
+      const mockedCount = userTC.getResolver('findMany').wrapResolve(next => resolveParams => {
+        countResolverCalled = true;
+        spyResolveParams = resolveParams;
+        return next(resolveParams);
+      });
+      userTC.setResolver('mockedFindMany', mockedFindMany);
+      userTC.setResolver('mockedCount', mockedCount);
+      mockedConnectionResolver = prepareConnectionResolver(userTC, {
         countResolverName: 'mockedCount',
         findResolverName: 'mockedFindMany',
         sort: sortOptions,
@@ -811,7 +807,7 @@ describe('connectionResolver', () => {
   });
 
   describe('default `first` argument if first/last are empty', () => {
-    const defaultResolver = prepareConnectionResolver(userTypeComposer, {
+    const defaultResolver = prepareConnectionResolver(userTC, {
       countResolverName: 'count',
       findResolverName: 'findMany',
       sort: sortOptions,

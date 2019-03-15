@@ -1,40 +1,40 @@
 /* @flow */
 /* eslint-disable no-param-reassign */
 
-import { TypeComposer } from 'graphql-compose';
+import { schemaComposer, ObjectTypeComposer } from 'graphql-compose';
 import { GraphQLSchema, GraphQLList, GraphQLNonNull, graphql } from 'graphql-compose/lib/graphql';
 import { composeWithConnection } from '../composeWithConnection';
-import { userTypeComposer, sortOptions } from '../__mocks__/userTypeComposer';
-import { rootQueryTypeComposer as rootQueryTC } from '../__mocks__/rootQueryTypeComposer';
+import { userTC, sortOptions } from '../__mocks__/userTC';
+import { rootQueryTC } from '../__mocks__/rootQueryTC';
 
 describe('composeWithRelay', () => {
-  const userComposer = composeWithConnection(userTypeComposer, {
+  const userComposer = composeWithConnection(userTC, {
     countResolverName: 'count',
     findResolverName: 'findMany',
     sort: sortOptions,
   });
 
   describe('basic checks', () => {
-    it('should return TypeComposer', () => {
-      expect(userComposer).toBeInstanceOf(TypeComposer);
+    it('should return ObjectTypeComposer', () => {
+      expect(userComposer).toBeInstanceOf(ObjectTypeComposer);
     });
 
-    it('should throw error if first arg is not TypeComposer', () => {
+    it('should throw error if first arg is not ObjectTypeComposer', () => {
       expect(() => {
         const wrongArgs: any = [123];
         composeWithConnection(...wrongArgs);
-      }).toThrowError('should provide TypeComposer instance');
+      }).toThrowError('should provide ObjectTypeComposer instance');
     });
 
     it('should throw error if options are empty', () => {
       expect(() => {
-        const wrongArgs: any = [userTypeComposer];
+        const wrongArgs: any = [userTC];
         composeWithConnection(...wrongArgs);
       }).toThrowError('should provide non-empty options');
     });
 
     it('should not change `connection` resolver if exists', () => {
-      let myTC = TypeComposer.create('type Complex { a: String, b: Int }');
+      let myTC = schemaComposer.createObjectTC('type Complex { a: String, b: Int }');
       myTC.addResolver({
         name: 'connection',
         resolve: () => 'mockData',
@@ -48,11 +48,11 @@ describe('composeWithRelay', () => {
       });
 
       expect(myTC.getResolver('connection')).toBeTruthy();
-      expect(myTC.getResolver('connection').resolve()).toBe('mockData');
+      expect(myTC.getResolver('connection').resolve({})).toBe('mockData');
     });
 
     it('should add resolver with user-specified name', () => {
-      let myTC = TypeComposer.create('type CustomComplex { a: String, b: Int }');
+      let myTC = schemaComposer.createObjectTC('type CustomComplex { a: String, b: Int }');
       myTC.addResolver({
         name: 'count',
         resolve: () => 1,
@@ -73,7 +73,7 @@ describe('composeWithRelay', () => {
     });
 
     it('should add two connection resolvers', () => {
-      let myTC = TypeComposer.create('type CustomComplex { a: String, b: Int }');
+      let myTC = schemaComposer.createObjectTC('type CustomComplex { a: String, b: Int }');
       myTC.addResolver({
         name: 'count',
         resolve: () => 1,
@@ -102,7 +102,7 @@ describe('composeWithRelay', () => {
   describe('check `connection` resolver props', () => {
     const rsv = userComposer.getResolver('connection');
     const type: any = rsv.getType();
-    const tc = new TypeComposer(type);
+    const tc = schemaComposer.createObjectTC(type);
 
     it('should exists', () => {
       expect(rsv).toBeTruthy();
@@ -118,7 +118,7 @@ describe('composeWithRelay', () => {
   });
 
   it('should apply first sort ID_ASC by default', async () => {
-    rootQueryTC.setField('userConnection', userTypeComposer.getResolver('connection'));
+    rootQueryTC.setField('userConnection', userTC.getResolver('connection'));
     const schema = new GraphQLSchema({
       query: rootQueryTC.getType(),
     });
@@ -168,7 +168,7 @@ describe('composeWithRelay', () => {
   });
 
   it('should able to change `sort` on AGE_ID_DESC', async () => {
-    rootQueryTC.setField('userConnection', userTypeComposer.getResolver('connection'));
+    rootQueryTC.setField('userConnection', userTC.getResolver('connection'));
     const schema = new GraphQLSchema({
       query: rootQueryTC.getType(),
     });
@@ -220,7 +220,7 @@ describe('composeWithRelay', () => {
 
   describe('fragments fields projection of graphql-compose', () => {
     it('should return object', async () => {
-      rootQueryTC.setField('userConnection', userTypeComposer.getResolver('connection'));
+      rootQueryTC.setField('userConnection', userTC.getResolver('connection'));
       const schema = new GraphQLSchema({
         query: rootQueryTC.getType(),
       });
@@ -285,7 +285,7 @@ describe('composeWithRelay', () => {
 
     rootQueryTC.setField(
       'userConnection',
-      userTypeComposer.getResolver('connection').wrapResolve(next => rp => {
+      userTC.getResolver('connection').wrapResolve(next => rp => {
         const result = next(rp);
         topResolveParams = rp;
         return result;
@@ -315,7 +315,7 @@ describe('composeWithRelay', () => {
 
     rootQueryTC.setField(
       'userConnection',
-      userTypeComposer.getResolver('connection').wrapResolve(next => rp => {
+      userTC.getResolver('connection').wrapResolve(next => rp => {
         const result = next(rp);
         topResolveParams = rp;
         return result;

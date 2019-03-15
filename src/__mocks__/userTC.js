@@ -1,7 +1,7 @@
 /* @flow */
 /* eslint-disable no-param-reassign */
 
-import { TypeComposer, Resolver } from 'graphql-compose';
+import { schemaComposer } from 'graphql-compose';
 import {
   GraphQLString,
   GraphQLObjectType,
@@ -29,7 +29,7 @@ export const UserType = new GraphQLObjectType({
   },
 });
 
-export const userTypeComposer = new TypeComposer(UserType);
+export const userTC = schemaComposer.createObjectTC(UserType);
 
 export const userList = [
   { id: 1, name: 'user01', age: 11, gender: 'm' },
@@ -119,7 +119,7 @@ function prepareFilterFromArgs(resolveParams = {}) {
   return filter;
 }
 
-export const findManyResolver = new Resolver({
+export const findManyResolver = schemaComposer.createResolver({
   name: 'findMany',
   kind: 'query',
   type: UserType,
@@ -156,9 +156,9 @@ export const findManyResolver = new Resolver({
     return Promise.resolve(list);
   },
 });
-userTypeComposer.setResolver('findMany', findManyResolver);
+userTC.setResolver('findMany', findManyResolver);
 
-export const countResolver = new Resolver({
+export const countResolver = schemaComposer.createResolver({
   name: 'count',
   kind: 'query',
   type: GraphQLInt,
@@ -169,7 +169,7 @@ export const countResolver = new Resolver({
     return Promise.resolve(filteredUserList(userList, prepareFilterFromArgs(resolveParams)).length);
   },
 });
-userTypeComposer.setResolver('count', countResolver);
+userTC.setResolver('count', countResolver);
 
 export const sortOptions: ConnectionSortMapOpts = {
   ID_ASC: {

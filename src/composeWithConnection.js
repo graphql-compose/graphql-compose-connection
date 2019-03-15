@@ -1,16 +1,16 @@
 /* @flow */
 
-import { TypeComposer } from 'graphql-compose';
+import { ObjectTypeComposer } from 'graphql-compose';
 import { prepareConnectionResolver } from './connectionResolver';
 import type { ComposeWithConnectionOpts } from './connectionResolver';
 import { resolverName } from './utils/name';
 
-export function composeWithConnection(
-  typeComposer: TypeComposer,
+export function composeWithConnection<TSource, TContext>(
+  typeComposer: ObjectTypeComposer<TSource, TContext>,
   opts: ComposeWithConnectionOpts
-): TypeComposer {
-  if (!typeComposer || typeComposer.constructor.name !== 'TypeComposer') {
-    throw new Error('You should provide TypeComposer instance to composeWithRelay method');
+): ObjectTypeComposer<TSource, TContext> {
+  if (!typeComposer || typeComposer.constructor.name !== 'ObjectTypeComposer') {
+    throw new Error('You should provide ObjectTypeComposer instance to composeWithRelay method');
   }
 
   if (!opts) {

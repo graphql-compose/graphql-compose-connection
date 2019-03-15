@@ -2,6 +2,7 @@
   "name": "graphql-compose-connection",
   "version": "0.0.0-semantically-released",
   "description": "Plugin for `graphql-compose` which provide a connection resolver for types.",
+  "license": "MIT",
   "files": [
     "lib",
     "mjs",
@@ -19,7 +20,6 @@
     "graphql-compose",
     "relay"
   ],
-  "license": "MIT",
   "bugs": {
     "url": "https://github.com/graphql-compose/graphql-compose-connection/issues"
   },

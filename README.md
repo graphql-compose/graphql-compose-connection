@@ -8,7 +8,7 @@
 [![Commitizen friendly](https://img.shields.io/badge/commitizen-friendly-brightgreen.svg)](http://commitizen.github.io/cz-cli/)
 [![Greenkeeper badge](https://badges.greenkeeper.io/graphql-compose/graphql-compose-connection.svg)](https://greenkeeper.io/)
 
-This is a plugin for [graphql-compose](https://github.com/graphql-compose/graphql-compose) family, which adds to the TypeComposer `connection` resolver.
+This is a plugin for [graphql-compose](https://github.com/graphql-compose/graphql-compose) family, which adds to the ObjectTypeComposer `connection` resolver.
 
 Live demo: [https://graphql-compose.herokuapp.com/](https://graphql-compose.herokuapp.com/)
 
@@ -33,9 +33,9 @@ Example
 =======
 ```js
 import composeWithConnection from 'graphql-compose-connection';
-import userTypeComposer from './user.js';
+import userTC from './user.js';
 
-composeWithConnection(userTypeComposer, {
+composeWithConnection(userTC, {
   connectionResolverName: 'connection', // Default
   findResolverName: 'findMany',
   countResolverName: 'count',

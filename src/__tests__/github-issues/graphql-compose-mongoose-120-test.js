@@ -1,11 +1,11 @@
 /* @flow */
 /* eslint-disable no-param-reassign */
 
-import { userTypeComposer, sortOptions } from '../../__mocks__/userTypeComposer';
+import { userTC, sortOptions } from '../../__mocks__/userTC';
 import { prepareConnectionResolver } from '../../connectionResolver';
 
 describe('check last/before args', () => {
-  const defaultResolver = prepareConnectionResolver(userTypeComposer, {
+  const defaultResolver = prepareConnectionResolver(userTC, {
     countResolverName: 'count',
     findResolverName: 'findMany',
     sort: sortOptions,

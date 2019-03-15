@@ -8,7 +8,7 @@ import {
   GraphQLNonNull,
   GraphQLList,
 } from 'graphql-compose/lib/graphql';
-import type { TypeComposer } from 'graphql-compose';
+import type { ObjectTypeComposer } from 'graphql-compose';
 
 import PageInfoType from './pageInfoType';
 import { typeName } from '../utils/name';
@@ -16,7 +16,7 @@ import { typeName } from '../utils/name';
 const cachedConnectionTypes = new WeakMap();
 const cachedEdgeTypes = new WeakMap();
 
-export function prepareEdgeType(typeComposer: TypeComposer): GraphQLObjectType {
+export function prepareEdgeType(typeComposer: ObjectTypeComposer<any, any>): GraphQLObjectType {
   const name = `${typeComposer.getTypeName()}Edge`;
   const type = typeComposer.getType();
 
@@ -49,7 +49,7 @@ export function prepareEdgeType(typeComposer: TypeComposer): GraphQLObjectType {
 }
 
 export function prepareConnectionType(
-  typeComposer: TypeComposer,
+  typeComposer: ObjectTypeComposer<any, any>,
   resolverName: ?string
 ): GraphQLObjectType {
   const name = `${typeComposer.getTypeName()}${typeName(resolverName)}`;

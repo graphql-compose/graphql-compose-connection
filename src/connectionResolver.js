@@ -128,7 +128,7 @@ export function prepareConnectionResolver<TSource, TContext>(
 
   const sortEnumType = prepareSortType(tc, opts);
 
-  return tc.sc.createResolver({
+  return tc.schemaComposer.createResolver({
     type: prepareConnectionType(tc, opts.connectionResolverName),
     name: resolverName(opts.connectionResolverName),
     kind: 'query',

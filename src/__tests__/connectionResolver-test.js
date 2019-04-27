@@ -75,7 +75,7 @@ describe('connectionResolver', () => {
     });
 
     it('should have type to be ConnectionType', () => {
-      expect((connectionResolver.type: any).name).toBe('UserConnection');
+      expect(connectionResolver.type.getTypeName()).toBe('UserConnection');
     });
   });
 

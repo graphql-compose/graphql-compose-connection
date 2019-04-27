@@ -1,7 +1,5 @@
 /* @flow */
 
-import { schemaComposer } from 'graphql-compose';
-import { GraphQLEnumType } from 'graphql-compose/lib/graphql';
 import { userTC } from '../../__mocks__/userTC';
 import { prepareSortType } from '../sortInputType';
 
@@ -119,48 +117,48 @@ describe('types/sortInputType.js', () => {
     });
   });
 
-  describe('returned SortType', () => {
-    const sortType = prepareSortType(userTC, {
-      sort: {
-        _ID_ASC: {
-          value: { id: 1 },
-          cursorFields: ['id'],
-          beforeCursorQuery: () => {},
-          afterCursorQuery: () => {},
-        },
-      },
-      findResolverName: 'finMany',
-      countResolverName: 'count',
-    });
+  // describe('returned SortType', () => {
+  //   const sortType = prepareSortType(userTC, {
+  //     sort: {
+  //       _ID_ASC: {
+  //         value: { id: 1 },
+  //         cursorFields: ['id'],
+  //         beforeCursorQuery: () => {},
+  //         afterCursorQuery: () => {},
+  //       },
+  //     },
+  //     findResolverName: 'finMany',
+  //     countResolverName: 'count',
+  //   });
 
-    it('should be GraphQLEnumType', () => {
-      expect(sortType).toBeInstanceOf(GraphQLEnumType);
-    });
+  //   it('should be GraphQLEnumType', () => {
+  //     expect(sortType).toBeInstanceOf(GraphQLEnumType);
+  //   });
 
-    it('should have name `SortConnection[typeName]Enum`', () => {
-      expect(sortType.name).toBe('SortConnectionUserEnum');
-    });
+  //   it('should have name `SortConnection[typeName]Enum`', () => {
+  //     expect(sortType.name).toBe('SortConnectionUserEnum');
+  //   });
 
-    it('should have name `Sort[resolverName][typeName]Enum`', () => {
-      const otherSortType = prepareSortType(userTC, {
-        sort: {
-          _ID_ASC: {
-            value: { id: 1 },
-            cursorFields: ['id'],
-            beforeCursorQuery: () => {},
-            afterCursorQuery: () => {},
-          },
-        },
-        findResolverName: 'finMany',
-        countResolverName: 'count',
-        connectionResolverName: 'otherConnection',
-      });
-      expect(otherSortType.name).toBe('SortOtherConnectionUserEnum');
-    });
+  //   it('should have name `Sort[resolverName][typeName]Enum`', () => {
+  //     const otherSortType = prepareSortType(userTC, {
+  //       sort: {
+  //         _ID_ASC: {
+  //           value: { id: 1 },
+  //           cursorFields: ['id'],
+  //           beforeCursorQuery: () => {},
+  //           afterCursorQuery: () => {},
+  //         },
+  //       },
+  //       findResolverName: 'finMany',
+  //       countResolverName: 'count',
+  //       connectionResolverName: 'otherConnection',
+  //     });
+  //     expect(otherSortType.name).toBe('SortOtherConnectionUserEnum');
+  //   });
 
-    it('should have enum values', () => {
-      const etc = schemaComposer.createEnumTC(sortType);
-      expect(etc.hasField('_ID_ASC')).toBeTruthy();
-    });
-  });
+  //   it('should have enum values', () => {
+  //     const etc = schemaComposer.createEnumTC(sortType);
+  //     expect(etc.hasField('_ID_ASC')).toBeTruthy();
+  //   });
+  // });
 });

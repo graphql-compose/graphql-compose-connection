@@ -1,22 +1,19 @@
 /* @flow */
 /* eslint-disable no-use-before-define, no-param-reassign */
 
-import { ObjectTypeComposer } from 'graphql-compose';
-import { GraphQLEnumType } from 'graphql-compose/lib/graphql';
-import { isFunction } from '../utils/is';
-import { typeName as uppercaseTypeName } from '../utils/name';
+import { ObjectTypeComposer, upperFirst, isFunction, type EnumTypeComposer } from 'graphql-compose';
 import type { ConnectionSortOpts, ComposeWithConnectionOpts } from '../connectionResolver';
 
-export function prepareSortType(
-  typeComposer: ObjectTypeComposer<any, any>,
+export function prepareSortType<TContext>(
+  typeComposer: ObjectTypeComposer<any, TContext>,
   opts: ComposeWithConnectionOpts
-): GraphQLEnumType {
+): EnumTypeComposer<TContext> {
   if (!opts || !opts.sort) {
     throw new Error('Option `sort` should not be empty in composeWithConnection');
   }
 
-  const typeName = `Sort${uppercaseTypeName(
-    opts.connectionResolverName
+  const typeName = `Sort${upperFirst(
+    opts.connectionResolverName || 'connection'
   )}${typeComposer.getTypeName()}Enum`;
 
   const sortKeys = Object.keys(opts.sort);
@@ -37,7 +34,7 @@ export function prepareSortType(
     };
   });
 
-  const sortType = new GraphQLEnumType({
+  const sortType = typeComposer.schemaComposer.createEnumTC({
     name: typeName,
     values: sortEnumValues,
   });

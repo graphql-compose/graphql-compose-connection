@@ -1,9 +1,8 @@
 /* @flow */
 
-import { schemaComposer } from 'graphql-compose';
+import { schemaComposer, ObjectTypeComposer } from 'graphql-compose';
 import {
   GraphQLNonNull,
-  GraphQLObjectType,
   getNamedType,
   GraphQLInt,
   GraphQLString,
@@ -11,16 +10,15 @@ import {
 } from 'graphql-compose/lib/graphql';
 import { userTC } from '../../__mocks__/userTC';
 import { prepareEdgeType, prepareConnectionType } from '../connectionType';
-import PageInfoType from '../pageInfoType';
 
 describe('types/connectionType.js', () => {
   describe('prepareEdgeType()', () => {
-    it('should return GraphQLObjectType', () => {
-      expect(prepareEdgeType(userTC)).toBeInstanceOf(GraphQLObjectType);
+    it('should return ComposeObjectType', () => {
+      expect(prepareEdgeType(userTC)).toBeInstanceOf(ObjectTypeComposer);
     });
 
     it('should have name ending with `Edge`', () => {
-      expect(prepareEdgeType(userTC).name).toBe('UserEdge');
+      expect(prepareEdgeType(userTC).getTypeName()).toBe('UserEdge');
     });
 
     it('should have field `node` with provided Type', () => {
@@ -38,11 +36,6 @@ describe('types/connectionType.js', () => {
       expect(cursor).toBe(GraphQLString);
     });
 
-    it('should have `ofType` property (like GraphQLList, GraphQLNonNull)', () => {
-      const edgeType: any = prepareEdgeType(userTC);
-      expect(edgeType.ofType).toEqual(userTC.getType());
-    });
-
     it('should return same type for same Type in ObjectTypeComposer', () => {
       const t1 = prepareEdgeType(userTC);
       const t2 = prepareEdgeType(userTC);
@@ -51,31 +44,33 @@ describe('types/connectionType.js', () => {
   });
 
   describe('prepareConnectionType()', () => {
-    it('should return GraphQLObjectType', () => {
-      expect(prepareConnectionType(userTC)).toBeInstanceOf(GraphQLObjectType);
+    it('should return ComposeObjectType', () => {
+      expect(prepareConnectionType(userTC)).toBeInstanceOf(ObjectTypeComposer);
     });
 
-    it('should return the same GraphQLObjectType object when called again', () => {
+    it('should return the same ComposeObjectType object when called again', () => {
       const firstConnectionType = prepareConnectionType(userTC);
       const secondConnectionType = prepareConnectionType(userTC);
-      expect(firstConnectionType).toBeInstanceOf(GraphQLObjectType);
+      expect(firstConnectionType).toBeInstanceOf(ObjectTypeComposer);
       expect(firstConnectionType).toBe(secondConnectionType);
     });
 
-    it('should return a separate GraphQLObjectType with a different name', () => {
+    it('should return a separate ComposeObjectType with a different name', () => {
       const connectionType = prepareConnectionType(userTC);
       const otherConnectionType = prepareConnectionType(userTC, 'otherConnection');
-      expect(connectionType).toBeInstanceOf(GraphQLObjectType);
-      expect(otherConnectionType).toBeInstanceOf(GraphQLObjectType);
+      expect(connectionType).toBeInstanceOf(ObjectTypeComposer);
+      expect(otherConnectionType).toBeInstanceOf(ObjectTypeComposer);
       expect(connectionType).not.toBe(otherConnectionType);
     });
 
     it('should have name ending with `Connection`', () => {
-      expect(prepareConnectionType(userTC).name).toBe('UserConnection');
+      expect(prepareConnectionType(userTC).getTypeName()).toBe('UserConnection');
     });
 
     it('should have name ending with `OtherConnection` when passed lowercase otherConnection', () => {
-      expect(prepareConnectionType(userTC, 'otherConnection').name).toBe('UserOtherConnection');
+      expect(prepareConnectionType(userTC, 'otherConnection').getTypeName()).toBe(
+        'UserOtherConnection'
+      );
     });
 
     it('should have field `count` with provided Type', () => {
@@ -88,9 +83,7 @@ describe('types/connectionType.js', () => {
     it('should have field `pageInfo` with GraphQLNonNull(PageInfoType)', () => {
       const tc = schemaComposer.createObjectTC(prepareConnectionType(userTC));
       expect(tc.getFieldType('pageInfo')).toBeInstanceOf(GraphQLNonNull);
-
-      const pageInfo = getNamedType(tc.getFieldType('pageInfo'));
-      expect(pageInfo).toBe(PageInfoType);
+      expect(tc.getField('pageInfo').type.getTypeName()).toBe('PageInfo!');
     });
 
     it('should have field `edges` with GraphQLList(EdgeType)', () => {
@@ -101,13 +94,6 @@ describe('types/connectionType.js', () => {
 
       const edges: any = getNamedType(tc.getFieldType('edges'));
       expect(edges.name).toEqual('UserEdge');
-    });
-
-    it('should have `ofType` property (like GraphQLList, GraphQLNonNull)', () => {
-      // this behavior needed for `graphql-compose` module in `projection` helper
-      // otherwise it incorrectly construct projectionMapper for tricky fields
-      const connectionType: any = prepareConnectionType(userTC);
-      expect(connectionType.ofType).toEqual(userTC.getType());
     });
 
     it('should return same type for same Type in ObjectTypeComposer', () => {

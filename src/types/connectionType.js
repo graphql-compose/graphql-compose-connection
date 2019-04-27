@@ -2,93 +2,96 @@
 /* eslint-disable arrow-body-style */
 
 import {
-  GraphQLInt,
-  GraphQLString,
-  GraphQLObjectType,
-  GraphQLNonNull,
-  GraphQLList,
-} from 'graphql-compose/lib/graphql';
-import type { ObjectTypeComposer } from 'graphql-compose';
+  ListComposer,
+  NonNullComposer,
+  upperFirst,
+  type SchemaComposer,
+  type ObjectTypeComposer,
+} from 'graphql-compose';
 
-import PageInfoType from './pageInfoType';
-import { typeName } from '../utils/name';
-
-const cachedConnectionTypes = new WeakMap();
-const cachedEdgeTypes = new WeakMap();
-
-export function prepareEdgeType(typeComposer: ObjectTypeComposer<any, any>): GraphQLObjectType {
-  const name = `${typeComposer.getTypeName()}Edge`;
-  const type = typeComposer.getType();
-
-  if (cachedEdgeTypes.has(type)) {
-    return (cachedEdgeTypes.get(type): any);
+export function preparePageInfoType(
+  schemaComposer: SchemaComposer<any>,
+  name: string = 'PageInfo'
+): ObjectTypeComposer<any, any> {
+  if (schemaComposer.has(name)) {
+    return schemaComposer.getOTC(name);
   }
 
-  const edgeType = new GraphQLObjectType({
+  return schemaComposer.createObjectTC(`
+    """Information about pagination in a connection."""
+    type ${name} {
+      """When paginating forwards, are there more items?"""
+      hasNextPage: Boolean!
+      
+      """When paginating backwards, are there more items?"""
+      hasPreviousPage: Boolean!
+
+      """When paginating backwards, the cursor to continue."""
+      startCursor: String
+
+      """When paginating forwards, the cursor to continue."""
+      endCursor: String
+    }
+  `);
+}
+
+export function prepareEdgeType<TContext>(
+  typeComposer: ObjectTypeComposer<any, TContext>
+): ObjectTypeComposer<any, TContext> {
+  const name = `${typeComposer.getTypeName()}Edge`;
+
+  if (typeComposer.schemaComposer.has(name)) {
+    return typeComposer.schemaComposer.getOTC(name);
+  }
+
+  const edgeType = typeComposer.schemaComposer.createObjectTC({
     name,
     description: 'An edge in a connection.',
-    fields: () => ({
+    fields: {
       node: {
-        type: new GraphQLNonNull(typeComposer.getType()),
+        type: new NonNullComposer(typeComposer),
         description: 'The item at the end of the edge',
       },
       cursor: {
-        type: new GraphQLNonNull(GraphQLString),
+        type: 'String!',
         description: 'A cursor for use in pagination',
       },
-    }),
+    },
   });
 
-  // This is small HACK for providing to graphql-compose/src/projection.js
-  // information about required fields in projection and relations
-  // $FlowFixMe
-  edgeType.ofType = type;
-
-  cachedEdgeTypes.set(type, edgeType);
   return edgeType;
 }
 
-export function prepareConnectionType(
-  typeComposer: ObjectTypeComposer<any, any>,
+export function prepareConnectionType<TContext>(
+  typeComposer: ObjectTypeComposer<any, TContext>,
   resolverName: ?string
-): GraphQLObjectType {
-  const name = `${typeComposer.getTypeName()}${typeName(resolverName)}`;
-  const type = typeComposer.getType();
+): ObjectTypeComposer<any, TContext> {
+  const name = `${typeComposer.getTypeName()}${upperFirst(resolverName || 'connection')}`;
 
-  if (cachedConnectionTypes.has(type) && (cachedConnectionTypes.get(type): any).has(name)) {
-    return ((cachedConnectionTypes.get(type): any).get(name): any);
+  if (typeComposer.schemaComposer.has(name)) {
+    return typeComposer.schemaComposer.getOTC(name);
   }
 
-  const connectionType = new GraphQLObjectType({
+  const connectionType = typeComposer.schemaComposer.createObjectTC({
     name,
     description: 'A connection to a list of items.',
-    fields: () => ({
+    fields: {
       count: {
-        type: new GraphQLNonNull(GraphQLInt),
+        type: 'Int!',
         description: 'Total object count.',
       },
       pageInfo: {
-        type: new GraphQLNonNull(PageInfoType),
+        type: new NonNullComposer(preparePageInfoType(typeComposer.schemaComposer)),
         description: 'Information to aid in pagination.',
       },
       edges: {
-        type: new GraphQLNonNull(
-          new GraphQLList(new GraphQLNonNull(prepareEdgeType(typeComposer)))
+        type: new NonNullComposer(
+          new ListComposer(new NonNullComposer(prepareEdgeType(typeComposer)))
         ),
         description: 'Information to aid in pagination.',
       },
-    }),
+    },
   });
 
-  // This is small HACK for providing to graphql-compose/src/projection.js
-  // information about required fields in projection and relations
-  // $FlowFixMe
-  connectionType.ofType = type;
-
-  if (!cachedConnectionTypes.has(type)) {
-    cachedConnectionTypes.set(type, new Map());
-    // Can't use WeakMap because keys must be strings
-  }
-  (cachedConnectionTypes.get(type): any).set(name, connectionType);
   return connectionType;
 }

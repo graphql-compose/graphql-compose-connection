@@ -1,18 +1,18 @@
 /* @flow */
 /* eslint-disable no-param-reassign, no-use-before-define */
 
-import type {
-  Resolver,
+import {
   ObjectTypeComposer,
-  ResolveParams, // eslint-disable-line
-  ProjectionType,
-  ComposeFieldConfigArgumentMap,
+  inspect,
+  type Resolver,
+  type ResolverResolveParams,
+  type ProjectionType,
+  type ObjectTypeComposerArgumentConfigMap,
 } from 'graphql-compose';
 import type { GraphQLResolveInfo } from 'graphql-compose/lib/graphql';
 import { prepareConnectionType } from './types/connectionType';
 import { prepareSortType } from './types/sortInputType';
 import { cursorToData, dataToCursor, type CursorDataType } from './cursor';
-import { resolverName } from './utils/name';
 
 export type ComposeWithConnectionOpts = {
   connectionResolverName?: string,
@@ -80,9 +80,11 @@ export function prepareConnectionResolver<TSource, TContext>(
   tc: ObjectTypeComposer<TSource, TContext>,
   opts: ComposeWithConnectionOpts
 ): Resolver<TSource, TContext> {
-  if (!tc || tc.constructor.name !== 'ObjectTypeComposer') {
+  if (!(tc instanceof ObjectTypeComposer)) {
     throw new Error(
-      'First arg for prepareConnectionResolver() should be instance of ObjectTypeComposer'
+      `First arg for prepareConnectionResolver() should be instance of ObjectTypeComposer but recieved: ${inspect(
+        tc
+      )}`
     );
   }
 
@@ -118,7 +120,7 @@ export function prepareConnectionResolver<TSource, TContext>(
   }
   const findManyResolve = findManyResolver.getResolve();
 
-  const additionalArgs: ComposeFieldConfigArgumentMap<> = {};
+  const additionalArgs: ObjectTypeComposerArgumentConfigMap<> = {};
   if (findManyResolver.hasArg('filter')) {
     const filter: any = findManyResolver.getArg('filter');
     if (filter) {
@@ -127,10 +129,12 @@ export function prepareConnectionResolver<TSource, TContext>(
   }
 
   const sortEnumType = prepareSortType(tc, opts);
+  const firstField = sortEnumType.getFieldNames()[0];
+  const defaultValue = firstField && sortEnumType.getField(firstField).value;
 
   return tc.schemaComposer.createResolver({
     type: prepareConnectionType(tc, opts.connectionResolverName),
-    name: resolverName(opts.connectionResolverName),
+    name: opts.connectionResolverName || 'connection',
     kind: 'query',
     args: {
       first: {
@@ -152,7 +156,7 @@ export function prepareConnectionResolver<TSource, TContext>(
       ...additionalArgs,
       sort: {
         type: sortEnumType,
-        defaultValue: sortEnumType.getValues()[0].value,
+        defaultValue,
         description: 'Sort argument for data ordering',
       },
     },
@@ -160,7 +164,7 @@ export function prepareConnectionResolver<TSource, TContext>(
       let countPromise;
       let findManyPromise;
       const { projection = {}, args, rawQuery } = resolveParams;
-      const findManyParams /* :  $Shape<ResolveParams<any, TContext>> */ = {
+      const findManyParams: $Shape<ResolverResolveParams<any, TContext>> = {
         ...resolveParams,
       };
 
@@ -173,7 +177,7 @@ export function prepareConnectionResolver<TSource, TContext>(
         throw new Error('Argument `last` should be non-negative number.');
       }
 
-      const countParams /* : $Shape<ResolveParams<any, TContext, any>> */ = {
+      const countParams: $Shape<ResolverResolveParams<any, TContext, any>> = {
         ...resolveParams,
         rawQuery,
         args: {
@@ -206,7 +210,7 @@ export function prepareConnectionResolver<TSource, TContext>(
 
       if (!first && last) {
         // Get the number of edges targeted by the findMany resolver (not the whole count)
-        const filteredCountParams /* : $Shape<ResolveParams<any, TContext>> */ = {
+        const filteredCountParams: $Shape<ResolverResolveParams<any, TContext>> = {
           ...resolveParams,
           args: {
             filter: { ...resolveParams.args.filter },

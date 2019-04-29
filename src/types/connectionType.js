@@ -41,7 +41,9 @@ export function preparePageInfoType(
   if (schemaComposer.has(name)) {
     return schemaComposer.getOTC(name);
   }
-  return createGlobalPageInfoType(name);
+  const tc = createGlobalPageInfoType(name);
+  schemaComposer.set(name, tc);
+  return tc;
 }
 
 export function prepareEdgeType<TContext>(

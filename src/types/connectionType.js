@@ -3,11 +3,36 @@
 
 import {
   ListComposer,
+  ObjectTypeComposer,
   NonNullComposer,
   upperFirst,
   type SchemaComposer,
-  type ObjectTypeComposer,
 } from 'graphql-compose';
+
+// This is required due compatibility with old client code bases
+const globalPageInfoTypes = {};
+
+function createGlobalPageInfoType(name: string) {
+  if (!globalPageInfoTypes[name]) {
+    globalPageInfoTypes[name] = ObjectTypeComposer.createTemp(`
+      """Information about pagination in a connection."""
+      type ${name} {
+        """When paginating forwards, are there more items?"""
+        hasNextPage: Boolean!
+        
+        """When paginating backwards, are there more items?"""
+        hasPreviousPage: Boolean!
+
+        """When paginating backwards, the cursor to continue."""
+        startCursor: String
+
+        """When paginating forwards, the cursor to continue."""
+        endCursor: String
+      }
+    `);
+  }
+  return globalPageInfoTypes[name];
+}
 
 export function preparePageInfoType(
   schemaComposer: SchemaComposer<any>,
@@ -16,23 +41,7 @@ export function preparePageInfoType(
   if (schemaComposer.has(name)) {
     return schemaComposer.getOTC(name);
   }
-
-  return schemaComposer.createObjectTC(`
-    """Information about pagination in a connection."""
-    type ${name} {
-      """When paginating forwards, are there more items?"""
-      hasNextPage: Boolean!
-      
-      """When paginating backwards, are there more items?"""
-      hasPreviousPage: Boolean!
-
-      """When paginating backwards, the cursor to continue."""
-      startCursor: String
-
-      """When paginating forwards, the cursor to continue."""
-      endCursor: String
-    }
-  `);
+  return createGlobalPageInfoType(name);
 }
 
 export function prepareEdgeType<TContext>(

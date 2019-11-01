@@ -110,7 +110,7 @@ function sortUserList(list, sortValue = {}) {
 
 function prepareFilterFromArgs(resolveParams = {}) {
   const args = resolveParams.args || {};
-  const filter = Object.assign({}, args.filter);
+  const filter = { ...args.filter };
   if (resolveParams.rawQuery) {
     Object.keys(resolveParams.rawQuery).forEach(k => {
       filter[k] = resolveParams.rawQuery[k];

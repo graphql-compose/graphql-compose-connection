@@ -153,7 +153,7 @@ export function prepareConnectionResolver<TSource, TContext>(
         type: 'String',
         description: 'Backward pagination argument for returning at most last edges',
       },
-      ...additionalArgs,
+      ...(additionalArgs: any),
       sort: {
         type: sortEnumType,
         defaultValue,

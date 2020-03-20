@@ -7,6 +7,7 @@ import {
   NonNullComposer,
   upperFirst,
   type SchemaComposer,
+  type ObjectTypeComposerFieldConfigMap,
 } from 'graphql-compose';
 
 // This is required due compatibility with old client code bases
@@ -47,20 +48,22 @@ export function preparePageInfoType(
 }
 
 export function prepareEdgeType<TContext>(
-  typeComposer: ObjectTypeComposer<any, TContext>
+  nodeTypeComposer: ObjectTypeComposer<any, TContext>,
+  edgeFields?: ObjectTypeComposerFieldConfigMap<any, TContext>
 ): ObjectTypeComposer<any, TContext> {
-  const name = `${typeComposer.getTypeName()}Edge`;
+  const name = `${nodeTypeComposer.getTypeName()}Edge`;
 
-  if (typeComposer.schemaComposer.has(name)) {
-    return typeComposer.schemaComposer.getOTC(name);
+  if (nodeTypeComposer.schemaComposer.has(name)) {
+    return nodeTypeComposer.schemaComposer.getOTC(name);
   }
 
-  const edgeType = typeComposer.schemaComposer.createObjectTC({
+  const edgeType = nodeTypeComposer.schemaComposer.createObjectTC({
     name,
     description: 'An edge in a connection.',
     fields: {
+      ...edgeFields,
       node: {
-        type: new NonNullComposer(typeComposer),
+        type: new NonNullComposer(nodeTypeComposer),
         description: 'The item at the end of the edge',
       },
       cursor: {
@@ -75,7 +78,8 @@ export function prepareEdgeType<TContext>(
 
 export function prepareConnectionType<TContext>(
   typeComposer: ObjectTypeComposer<any, TContext>,
-  resolverName: ?string
+  resolverName: ?string,
+  edgeFields?: ObjectTypeComposerFieldConfigMap<any, TContext>
 ): ObjectTypeComposer<any, TContext> {
   const name = `${typeComposer.getTypeName()}${upperFirst(resolverName || 'connection')}`;
 
@@ -97,7 +101,7 @@ export function prepareConnectionType<TContext>(
       },
       edges: {
         type: new NonNullComposer(
-          new ListComposer(new NonNullComposer(prepareEdgeType(typeComposer)))
+          new ListComposer(new NonNullComposer(prepareEdgeType(typeComposer, edgeFields)))
         ),
         description: 'Information to aid in pagination.',
       },

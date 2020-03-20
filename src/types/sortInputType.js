@@ -6,7 +6,7 @@ import type { ConnectionSortOpts, ComposeWithConnectionOpts } from '../connectio
 
 export function prepareSortType<TContext>(
   typeComposer: ObjectTypeComposer<any, TContext>,
-  opts: ComposeWithConnectionOpts
+  opts: ComposeWithConnectionOpts<TContext>
 ): EnumTypeComposer<TContext> {
   if (!opts || !opts.sort) {
     throw new Error('Option `sort` should not be empty in composeWithConnection');

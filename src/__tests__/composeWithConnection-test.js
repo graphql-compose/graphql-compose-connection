@@ -285,7 +285,7 @@ describe('composeWithRelay', () => {
 
     rootQueryTC.setField(
       'userConnection',
-      userTC.getResolver('connection').wrapResolve(next => rp => {
+      userTC.getResolver('connection').wrapResolve((next) => (rp) => {
         const result = next(rp);
         topResolveParams = rp;
         return result;
@@ -315,7 +315,7 @@ describe('composeWithRelay', () => {
 
     rootQueryTC.setField(
       'userConnection',
-      userTC.getResolver('connection').wrapResolve(next => rp => {
+      userTC.getResolver('connection').wrapResolve((next) => (rp) => {
         const result = next(rp);
         topResolveParams = rp;
         return result;

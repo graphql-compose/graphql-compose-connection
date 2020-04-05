@@ -67,23 +67,23 @@ const filterArgConfig = {
 function filteredUserList(list, filter = {}) {
   let result = list.slice();
   if (filter.gender) {
-    result = result.filter(o => o.gender === filter.gender);
+    result = result.filter((o) => o.gender === filter.gender);
   }
 
   if (filter.id) {
     if (filter.id.$lt) {
-      result = result.filter(o => o.id < filter.id.$lt);
+      result = result.filter((o) => o.id < filter.id.$lt);
     }
     if (filter.id.$gt) {
-      result = result.filter(o => o.id > filter.id.$gt);
+      result = result.filter((o) => o.id > filter.id.$gt);
     }
   }
   if (filter.age) {
     if (filter.age.$lt) {
-      result = result.filter(o => o.age < filter.age.$lt);
+      result = result.filter((o) => o.age < filter.age.$lt);
     }
     if (filter.age.$gt) {
-      result = result.filter(o => o.age > filter.age.$gt);
+      result = result.filter((o) => o.age > filter.age.$gt);
     }
   }
 
@@ -94,7 +94,7 @@ function sortUserList(list, sortValue = {}) {
   const fields = Object.keys(sortValue);
   list.sort((a, b) => {
     let result = 0;
-    fields.forEach(field => {
+    fields.forEach((field) => {
       if (result === 0) {
         if (a[field] < b[field]) {
           result = sortValue[field] * -1;
@@ -112,7 +112,7 @@ function prepareFilterFromArgs(resolveParams = {}) {
   const args = resolveParams.args || {};
   const filter = { ...args.filter };
   if (resolveParams.rawQuery) {
-    Object.keys(resolveParams.rawQuery).forEach(k => {
+    Object.keys(resolveParams.rawQuery).forEach((k) => {
       filter[k] = resolveParams.rawQuery[k];
     });
   }
@@ -137,7 +137,7 @@ export const findManyResolver = schemaComposer.createResolver({
     limit: GraphQLInt,
     skip: GraphQLInt,
   },
-  resolve: resolveParams => {
+  resolve: (resolveParams) => {
     const args = resolveParams.args || {};
     const { sort, limit, skip } = args;
 
@@ -165,7 +165,7 @@ export const countResolver = schemaComposer.createResolver({
   args: {
     filter: filterArgConfig,
   },
-  resolve: resolveParams => {
+  resolve: (resolveParams) => {
     return Promise.resolve(filteredUserList(userList, prepareFilterFromArgs(resolveParams)).length);
   },
 });

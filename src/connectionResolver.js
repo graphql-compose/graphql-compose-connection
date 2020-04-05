@@ -227,13 +227,13 @@ export function prepareConnectionResolver<TSource, TContext>(
       let prepareCursorData;
       if (sortConfig) {
         findManyParams.rawQuery = resolveParams.rawQuery;
-        sortConfig.cursorFields.forEach(fieldName => {
+        sortConfig.cursorFields.forEach((fieldName) => {
           findManyParams.projection[fieldName] = true;
         });
 
-        prepareCursorData = record => {
+        prepareCursorData = (record) => {
           const result = {};
-          sortConfig.cursorFields.forEach(fieldName => {
+          sortConfig.cursorFields.forEach((fieldName) => {
             result[fieldName] = record[fieldName];
           });
           return result;
@@ -270,7 +270,7 @@ export function prepareConnectionResolver<TSource, TContext>(
         .then(([recordList, count]) => {
           const edges = [];
           // transform record to object { cursor, node }
-          recordList.forEach(record => {
+          recordList.forEach((record) => {
             edges.push({
               cursor: dataToCursor(prepareCursorData(record)),
               node: record,

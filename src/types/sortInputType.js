@@ -25,7 +25,7 @@ export function prepareSortType<TContext>(
   }
 
   const sortEnumValues = {};
-  sortKeys.forEach(sortKey => {
+  sortKeys.forEach((sortKey) => {
     checkSortOpts(sortKey, opts.sort[sortKey]);
 
     sortEnumValues[sortKey] = {

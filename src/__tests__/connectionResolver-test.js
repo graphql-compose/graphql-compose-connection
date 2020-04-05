@@ -110,12 +110,14 @@ describe('connectionResolver', () => {
     beforeEach(() => {
       findManyResolverCalled = false;
       countResolverCalled = false;
-      const mockedFindMany = userTC.getResolver('findMany').wrapResolve(next => resolveParams => {
-        findManyResolverCalled = true;
-        spyResolveParams = resolveParams;
-        return next(resolveParams);
-      });
-      const mockedCount = userTC.getResolver('findMany').wrapResolve(next => resolveParams => {
+      const mockedFindMany = userTC
+        .getResolver('findMany')
+        .wrapResolve((next) => (resolveParams) => {
+          findManyResolverCalled = true;
+          spyResolveParams = resolveParams;
+          return next(resolveParams);
+        });
+      const mockedCount = userTC.getResolver('findMany').wrapResolve((next) => (resolveParams) => {
         countResolverCalled = true;
         spyResolveParams = resolveParams;
         return next(resolveParams);

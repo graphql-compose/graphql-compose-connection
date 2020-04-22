@@ -3,7 +3,7 @@
 
 import { Resolver } from 'graphql-compose';
 import { GraphQLInt, GraphQLString } from 'graphql-compose/lib/graphql';
-import { userTC, userList, sortOptions } from '../__mocks__/userTC';
+import { userTC, userLinkTC, userList, sortOptions } from '../__mocks__/userTC';
 import { dataToCursor } from '../cursor';
 import { prepareConnectionResolver, prepareRawQuery, preparePageInfo } from '../connectionResolver';
 
@@ -827,6 +827,32 @@ describe('connectionResolver', () => {
       expect(data.edges.length).toBe(5);
       expect(data.pageInfo.hasNextPage).toBe(true);
       expect(data.pageInfo.hasPreviousPage).toBe(true);
+    });
+  });
+
+  describe('edges with data', () => {
+    const edgeDataResolver = prepareConnectionResolver(userTC, {
+      countResolverName: 'countThroughLink',
+      findResolverName: 'findManyThroughLink',
+      sort: sortOptions,
+      defaultLimit: 5,
+      edgeFields: userLinkTC.getFields(),
+    });
+    it('correctly resolves with edges', async () => {
+      const data = await edgeDataResolver.resolve({
+        args: {},
+        projection: { count: true, edges: true },
+      });
+      expect(data.edges.length).toBe(2);
+      expect(data).toMatchSnapshot();
+    });
+    it('correctly handles filtering', async () => {
+      const data = await edgeDataResolver.resolve({
+        args: { filter: { edge: { type: 'likes' } } },
+        projection: { count: true, edges: true },
+      });
+      expect(data.edges.length).toBe(1);
+      expect(data).toMatchSnapshot();
     });
   });
 });

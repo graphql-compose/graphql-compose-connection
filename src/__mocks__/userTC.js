@@ -29,7 +29,26 @@ export const UserType = new GraphQLObjectType({
   },
 });
 
+export const UserLinkType = new GraphQLObjectType({
+  name: 'UserLink',
+  fields: {
+    id: {
+      type: GraphQLInt,
+    },
+    type: {
+      type: GraphQLString,
+    },
+    userId: {
+      type: GraphQLInt,
+    },
+    otherUserId: {
+      type: GraphQLInt,
+    },
+  },
+});
+
 export const userTC = schemaComposer.createObjectTC(UserType);
+export const userLinkTC = schemaComposer.createObjectTC(UserLinkType);
 
 export const userList = [
   { id: 1, name: 'user01', age: 11, gender: 'm' },
@@ -49,6 +68,11 @@ export const userList = [
   { id: 13, name: 'user13', age: 45, gender: 'f' },
 ];
 
+export const userLinkList = [
+  { id: 1, type: 'likes', userId: 1, otherUserId: 2 },
+  { id: 2, type: 'dislikes', userId: 2, otherUserId: 1 },
+];
+
 const filterArgConfig = {
   name: 'filter',
   type: new GraphQLInputObjectType({
@@ -64,30 +88,71 @@ const filterArgConfig = {
   }),
 };
 
-function filteredUserList(list, filter = {}) {
-  let result = list.slice();
+const filterEdgeArgConfig = {
+  name: 'filter',
+  type: new GraphQLInputObjectType({
+    name: 'FilterNodeEdgeUserInput',
+    fields: {
+      edge: {
+        type: new GraphQLInputObjectType({
+          name: 'FilterNodeEdgeEdgeUserInput',
+          fields: {
+            type: {
+              type: GraphQLString,
+            },
+          },
+        }),
+      },
+      node: {
+        type: new GraphQLInputObjectType({
+          name: 'FilterNodeNodeEdgeUserInput',
+          fields: {
+            gender: {
+              type: GraphQLString,
+            },
+            age: {
+              type: GraphQLInt,
+            },
+          },
+        }),
+      },
+    },
+  }),
+};
+
+function filterUserLink(link, filter = {}) {
+  let pred = true;
+  if (filter.type) {
+    pred = pred && link.type === filter.type;
+  }
+  return pred;
+}
+function filterUser(user, filter = {}) {
+  let pred = true;
   if (filter.gender) {
-    result = result.filter((o) => o.gender === filter.gender);
+    pred = pred && user.gender === filter.gender;
   }
 
   if (filter.id) {
     if (filter.id.$lt) {
-      result = result.filter((o) => o.id < filter.id.$lt);
+      pred = pred && user.id < filter.id.$lt;
     }
     if (filter.id.$gt) {
-      result = result.filter((o) => o.id > filter.id.$gt);
+      pred = pred && user.id > filter.id.$gt;
     }
   }
   if (filter.age) {
     if (filter.age.$lt) {
-      result = result.filter((o) => o.age < filter.age.$lt);
+      pred = pred && user.age < filter.age.$lt;
     }
     if (filter.age.$gt) {
-      result = result.filter((o) => o.age > filter.age.$gt);
+      pred = pred && user.age > filter.age.$gt;
     }
   }
-
-  return result;
+  return pred;
+}
+function filteredUserList(list, filter = {}) {
+  return list.slice().filter((o) => filterUser(o, filter));
 }
 
 function sortUserList(list, sortValue = {}) {
@@ -170,6 +235,56 @@ export const countResolver = schemaComposer.createResolver({
   },
 });
 userTC.setResolver('count', countResolver);
+
+function getThroughLinkResolver(list, filter) {
+  const nodeFilter = filter ? filter.node : {};
+  const edgeFilter = filter ? filter.edge : {};
+  return list
+    .map((link) => ({
+      ...link,
+      node: userList.find((u) => u.id === link.otherUserId && filterUser(u, nodeFilter)),
+    }))
+    .filter((l) => !!l.node && filterUserLink(l, edgeFilter));
+}
+export const findManyThroughLinkResolver = schemaComposer.createResolver({
+  name: 'findManyThroughLink',
+  kind: 'query',
+  type: UserType,
+  args: {
+    filter: filterEdgeArgConfig,
+    limit: GraphQLInt,
+    skip: GraphQLInt,
+  },
+  resolve: async (resolveParams) => {
+    const args = resolveParams.args || {};
+    const { limit, skip } = args;
+
+    let list = userLinkList.slice();
+
+    if (skip) {
+      list = list.slice(skip);
+    }
+
+    if (limit) {
+      list = list.slice(0, limit);
+    }
+    return getThroughLinkResolver(list, args.filter);
+  },
+});
+userTC.setResolver('findManyThroughLink', findManyThroughLinkResolver);
+export const countThroughLinkResolver = schemaComposer.createResolver({
+  name: 'count',
+  kind: 'query',
+  type: GraphQLInt,
+  args: {
+    filter: filterEdgeArgConfig,
+  },
+  resolve: async (resolveParams) => {
+    const args = resolveParams.args || {};
+    return getThroughLinkResolver(userLinkList.slice(), args.filter).length;
+  },
+});
+userTC.setResolver('countThroughLink', countThroughLinkResolver);
 
 export const sortOptions: ConnectionSortMapOpts = {
   ID_ASC: {

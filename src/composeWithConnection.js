@@ -6,7 +6,7 @@ import type { ComposeWithConnectionOpts } from './connectionResolver';
 
 export function composeWithConnection<TSource, TContext>(
   typeComposer: ObjectTypeComposer<TSource, TContext>,
-  opts: ComposeWithConnectionOpts
+  opts: ComposeWithConnectionOpts<TContext>
 ): ObjectTypeComposer<TSource, TContext> {
   if (!(typeComposer instanceof ObjectTypeComposer)) {
     throw new Error('You should provide ObjectTypeComposer instance to composeWithRelay method');

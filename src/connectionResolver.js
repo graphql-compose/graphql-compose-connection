@@ -8,18 +8,20 @@ import {
   type ResolverResolveParams,
   type ProjectionType,
   type ObjectTypeComposerArgumentConfigMap,
+  type ObjectTypeComposerFieldConfigMap,
 } from 'graphql-compose';
 import type { GraphQLResolveInfo } from 'graphql-compose/lib/graphql';
 import { prepareConnectionType } from './types/connectionType';
 import { prepareSortType } from './types/sortInputType';
 import { cursorToData, dataToCursor, type CursorDataType } from './cursor';
 
-export type ComposeWithConnectionOpts = {
+export type ComposeWithConnectionOpts<TContext> = {
   connectionResolverName?: string,
   findResolverName: string,
   countResolverName: string,
   sort: ConnectionSortMapOpts,
   defaultLimit?: ?number,
+  edgeFields?: ObjectTypeComposerFieldConfigMap<any, TContext>,
 };
 
 export type ConnectionSortOpts = {
@@ -78,7 +80,7 @@ export type PageInfoType = {
 
 export function prepareConnectionResolver<TSource, TContext>(
   tc: ObjectTypeComposer<TSource, TContext>,
-  opts: ComposeWithConnectionOpts
+  opts: ComposeWithConnectionOpts<TContext>
 ): Resolver<TSource, TContext> {
   if (!(tc instanceof ObjectTypeComposer)) {
     throw new Error(
@@ -133,7 +135,7 @@ export function prepareConnectionResolver<TSource, TContext>(
   const defaultValue = firstField && sortEnumType.getField(firstField).value;
 
   return tc.schemaComposer.createResolver({
-    type: prepareConnectionType(tc, opts.connectionResolverName),
+    type: prepareConnectionType(tc, opts.connectionResolverName, opts.edgeFields),
     name: opts.connectionResolverName || 'connection',
     kind: 'query',
     args: {
@@ -197,19 +199,22 @@ export function prepareConnectionResolver<TSource, TContext>(
         // combine top level projection
         // (maybe somebody add additional fields via resolveParams.projection)
         // and edges.node (record needed fields)
-        findManyParams.projection = { ...projection, ...projection.edges.node };
+        const extraProjection = opts.edgeFields ? projection.edges : projection.edges.node;
+        findManyParams.projection = { ...projection, ...extraProjection };
       } else {
         findManyParams.projection = { ...projection };
       }
 
-      // Apply the rawQuery to the count to get accurate results with last and before
+      // Apply the rawQuery to the count to get accurate results with last and
+      // before
       const sortConfig: ?ConnectionSortOpts = findSortConfig(opts.sort, args.sort);
       if (sortConfig) {
         prepareRawQuery(resolveParams, sortConfig);
       }
 
       if (!first && last) {
-        // Get the number of edges targeted by the findMany resolver (not the whole count)
+        // Get the number of edges targeted by the findMany resolver (not the
+        // whole count)
         const filteredCountParams: $Shape<ResolverResolveParams<any, TContext>> = {
           ...resolveParams,
           args: {
@@ -243,7 +248,7 @@ export function prepareConnectionResolver<TSource, TContext>(
 
         let skipIdx = -1;
         // eslint-disable-next-line
-        prepareCursorData = _ => {
+        prepareCursorData = (_) => {
           skipIdx += 1;
           return skip + skipIdx;
         };
@@ -268,13 +273,19 @@ export function prepareConnectionResolver<TSource, TContext>(
 
       return Promise.all([findManyPromise, countPromise])
         .then(([recordList, count]) => {
-          const edges = [];
-          // transform record to object { cursor, node }
-          recordList.forEach((record) => {
-            edges.push({
+          // transform record to object { cursor, node, ...edge}
+          const edges = recordList.map((record) => {
+            const edge = {
               cursor: dataToCursor(prepareCursorData(record)),
-              node: record,
-            });
+              node: opts.edgeFields ? record.node : record,
+            };
+            if (opts.edgeFields) {
+              // Sometimes the value from `findMany` can't be spread
+              Object.keys(opts.edgeFields).forEach((field) => {
+                edge[field] = record[field];
+              });
+            }
+            return edge;
           });
           return [edges, count];
         })
@@ -419,7 +430,8 @@ export function emptyConnection(): ConnectionType {
 }
 
 export function findSortConfig(configs: ConnectionSortMapOpts, val: mixed): ?ConnectionSortOpts {
-  // Object.keys(configs).forEach(k => {  // return does not works in forEach as I want
+  // Object.keys(configs).forEach(k => {  // return does not works in forEach as
+  // I want
   for (const k in configs) {
     if (configs[k].value === val) {
       return configs[k];

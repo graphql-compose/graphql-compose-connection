@@ -21,6 +21,7 @@ export type ComposeWithConnectionOpts<TContext> = {
   countResolverName: string,
   sort: ConnectionSortMapOpts,
   defaultLimit?: ?number,
+  edgeTypeName?: string,
   edgeFields?: ObjectTypeComposerFieldConfigMap<any, TContext>,
 };
 
@@ -135,7 +136,12 @@ export function prepareConnectionResolver<TSource, TContext>(
   const defaultValue = firstField && sortEnumType.getField(firstField).value;
 
   return tc.schemaComposer.createResolver({
-    type: prepareConnectionType(tc, opts.connectionResolverName, opts.edgeFields),
+    type: prepareConnectionType(
+      tc,
+      opts.connectionResolverName,
+      opts.edgeTypeName,
+      opts.edgeFields
+    ),
     name: opts.connectionResolverName || 'connection',
     kind: 'query',
     args: {

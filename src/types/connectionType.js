@@ -49,9 +49,10 @@ export function preparePageInfoType(
 
 export function prepareEdgeType<TContext>(
   nodeTypeComposer: ObjectTypeComposer<any, TContext>,
+  edgeTypeName?: string,
   edgeFields?: ObjectTypeComposerFieldConfigMap<any, TContext>
 ): ObjectTypeComposer<any, TContext> {
-  const name = `${nodeTypeComposer.getTypeName()}Edge`;
+  const name = edgeTypeName || `${nodeTypeComposer.getTypeName()}Edge`;
 
   if (nodeTypeComposer.schemaComposer.has(name)) {
     return nodeTypeComposer.schemaComposer.getOTC(name);
@@ -78,7 +79,8 @@ export function prepareEdgeType<TContext>(
 
 export function prepareConnectionType<TContext>(
   typeComposer: ObjectTypeComposer<any, TContext>,
-  resolverName: ?string,
+  resolverName?: string,
+  edgeTypeName?: string,
   edgeFields?: ObjectTypeComposerFieldConfigMap<any, TContext>
 ): ObjectTypeComposer<any, TContext> {
   const name = `${typeComposer.getTypeName()}${upperFirst(resolverName || 'connection')}`;
@@ -101,7 +103,9 @@ export function prepareConnectionType<TContext>(
       },
       edges: {
         type: new NonNullComposer(
-          new ListComposer(new NonNullComposer(prepareEdgeType(typeComposer, edgeFields)))
+          new ListComposer(
+            new NonNullComposer(prepareEdgeType(typeComposer, edgeTypeName, edgeFields))
+          )
         ),
         description: 'Information to aid in pagination.',
       },

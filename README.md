@@ -4,9 +4,7 @@
 [![codecov coverage](https://img.shields.io/codecov/c/github/graphql-compose/graphql-compose-connection.svg)](https://codecov.io/github/graphql-compose/graphql-compose-connection)
 [![](https://img.shields.io/npm/v/graphql-compose-connection.svg)](https://www.npmjs.com/package/graphql-compose-connection)
 [![npm](https://img.shields.io/npm/dt/graphql-compose-connection.svg)](http://www.npmtrends.com/graphql-compose-connection)
-[![Join the chat at https://gitter.im/graphql-compose/Lobby](https://badges.gitter.im/graphql-compose/graphql-compose.svg)](https://gitter.im/graphql-compose/Lobby)
 [![Commitizen friendly](https://img.shields.io/badge/commitizen-friendly-brightgreen.svg)](http://commitizen.github.io/cz-cli/)
-[![Greenkeeper badge](https://badges.greenkeeper.io/graphql-compose/graphql-compose-connection.svg)](https://greenkeeper.io/)
 
 This is a plugin for [graphql-compose](https://github.com/graphql-compose/graphql-compose) family, which adds to the ObjectTypeComposer `connection` resolver.
 

@@ -41,6 +41,12 @@ describe('types/connectionType.js', () => {
       const t2 = prepareEdgeType(userTC);
       expect(t1).toEqual(t2);
     });
+
+    it('should return different type for same Type in ObjectTypeComposer if passed with different edgeType param', () => {
+      const t1 = prepareEdgeType(userTC);
+      const t2 = prepareEdgeType(userTC, 'UserEdge2');
+      expect(t1).not.toEqual(t2);
+    });
   });
 
   describe('prepareConnectionType()', () => {

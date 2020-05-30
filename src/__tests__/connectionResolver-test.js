@@ -347,25 +347,49 @@ describe('connectionResolver', () => {
 
     describe('"Relay Cursor Connections Specification (PageInfo)":', () => {
       describe('HasPreviousPage', () => {
-        it('If last was not set (but first is present), return false.', () => {
-          expect(preparePageInfo(fiveEdges, { first: 2 }, 5, 2).hasPreviousPage).toBe(false);
+        it('If first is set (and after is empty), return false.', () => {
+          expect(preparePageInfo(fiveEdges, { first: 4 }, 4, 0).hasPreviousPage).toBe(false);
         });
-        it('If last was not set (and first is empty), return true.', () => {
-          expect(preparePageInfo(fiveEdges, {}, 5, 2).hasPreviousPage).toBe(true);
+        it('If first is set (and after is present), return true.', () => {
+          expect(preparePageInfo(fiveEdges, { first: 4, after: 'abc' }, 4, 0).hasPreviousPage).toBe(
+            true
+          );
         });
-        it('If last was not set (but after is present), return true.', () => {
-          expect(preparePageInfo(fiveEdges, { after: 'abc' }, 5, 0).hasPreviousPage).toBe(true);
+        it('If last is set (and before is empty), and edges contains more than last elements, return true.', () => {
+          // if `first` is empty and `last` is set, `first` will be assigned according to count of edges targeted
+          expect(preparePageInfo(fiveEdges, { first: 10, last: 5 }, 5, 5).hasPreviousPage).toBe(
+            true
+          );
         });
-        it('If edges contains more than last elements, return true.', () => {
-          expect(preparePageInfo(fiveEdges, { last: 3 }, 3, 2).hasPreviousPage).toBe(true);
+        it('If last is set (and before is empty), and edges contains no more than last elements, return false.', () => {
+          expect(preparePageInfo(fiveEdges, { first: 5, last: 5 }, 5, 0).hasPreviousPage).toBe(
+            false
+          );
         });
-        it('Return false', () => {
-          expect(preparePageInfo(fiveEdges, { last: 5 }, 5, 0).hasPreviousPage).toBe(false);
+        it('If last is set (and before is present), and edges contains more than last elements, return true.', () => {
+          expect(
+            preparePageInfo(fiveEdges, { first: 10, last: 4, before: 'abc' }, 4, 6).hasPreviousPage
+          ).toBe(true);
+        });
+        it('If last is set (and before is present), and edges contains no more than last elements, return false.', () => {
+          expect(
+            preparePageInfo(fiveEdges, { first: 4, last: 4, before: 'abc' }, 4, 0).hasPreviousPage
+          ).toBe(false);
+        });
+        it('If both first and last are set, and edges contains more than last elements, return true.', () => {
+          expect(preparePageInfo(fiveEdges, { first: 10, last: 4 }, 4, 6).hasPreviousPage).toBe(
+            true
+          );
+        });
+        it('If both first and last are set, and edges contains no more than last elements, return true.', () => {
+          expect(preparePageInfo(fiveEdges, { first: 4, last: 4 }, 4, 0).hasPreviousPage).toBe(
+            false
+          );
         });
       });
 
       describe('HasNextPage', () => {
-        it('If first was not set (and last is empty), return true.', () => {
+        it('If first was not set (and last is empty), and there is more edges, return true.', () => {
           // By current Relay Cursor Connections Specification
           //   if `first` and `last` are empty `hasNextPage` should be false.
           // This rule is deviation from specification for better dev experience:
@@ -373,14 +397,36 @@ describe('connectionResolver', () => {
           //   we should check if exist more edges and provide correct `hasNextPage` value.
           expect(preparePageInfo(fiveEdges, {}, 4, 0).hasNextPage).toBe(true);
         });
-        it('If first was not set (but last is present), return false.', () => {
-          expect(preparePageInfo(fiveEdges, { last: 200 }, 4, 0).hasNextPage).toBe(false);
+        it('If last is set (and before is empty), return false.', () => {
+          // if `first` is empty and `last` is set, `first` will be assigned according to count of edges targeted
+          expect(preparePageInfo(fiveEdges, { first: 10, last: 5 }, 5, 5).hasNextPage).toBe(false);
         });
-        it('If edges contains more than first elements, return true.', () => {
+        it('If last is set (and before is present), return true.', () => {
+          expect(
+            preparePageInfo(fiveEdges, { first: 10, last: 4, before: 'abc' }, 4, 6).hasNextPage
+          ).toBe(true);
+        });
+        it('If first is set (and after is empty), and edges contains more than first elements, return true.', () => {
           expect(preparePageInfo(fiveEdges, { first: 4 }, 4, 0).hasNextPage).toBe(true);
         });
-        it('Return false', () => {
+        it('If first is set (and after is empty), and edges contains no more than first elements, return false.', () => {
           expect(preparePageInfo(fiveEdges, { first: 5 }, 5, 0).hasNextPage).toBe(false);
+        });
+        it('If first is set (and after is present), and edges contains more than first elements, return true.', () => {
+          expect(preparePageInfo(fiveEdges, { first: 4, after: 'abc' }, 4, 0).hasNextPage).toBe(
+            true
+          );
+        });
+        it('If first is set (and after is present), and edges contains no more than first elements, return false.', () => {
+          expect(preparePageInfo(fiveEdges, { first: 5, after: 'abc' }, 5, 0).hasNextPage).toBe(
+            false
+          );
+        });
+        it('If both first and last are set, and edges contains more than first elements, return true.', () => {
+          expect(preparePageInfo(fiveEdges, { first: 10, last: 4 }, 4, 6).hasNextPage).toBe(true);
+        });
+        it('If both first and last are set, and edges contains no more than first elements, return false.', () => {
+          expect(preparePageInfo(fiveEdges, { first: 10, last: 6 }, 6, 4).hasNextPage).toBe(false);
         });
       });
 

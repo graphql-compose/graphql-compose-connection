@@ -1,5 +1,3 @@
-/* @flow */
-
 import { ObjectTypeComposer } from 'graphql-compose';
 import { prepareConnectionResolver } from './connectionResolver';
 import type { ComposeWithConnectionOpts } from './connectionResolver';

@@ -1,7 +1,4 @@
-/* @flow */
-/* eslint-disable no-param-reassign */
-
-import { schemaComposer } from 'graphql-compose';
+import { schemaComposer, ResolverResolveParams } from 'graphql-compose';
 import {
   GraphQLString,
   GraphQLObjectType,
@@ -120,14 +117,18 @@ const filterEdgeArgConfig = {
   }),
 };
 
-function filterUserLink(link, filter = {}) {
+function filterUserLink(
+  link: typeof userLinkList[0],
+  filter = {} as Partial<typeof userLinkList[0]>
+) {
   let pred = true;
   if (filter.type) {
     pred = pred && link.type === filter.type;
   }
   return pred;
 }
-function filterUser(user, filter = {}) {
+
+function filterUser(user: typeof userList[0], filter = {} as any) {
   let pred = true;
   if (filter.gender) {
     pred = pred && user.gender === filter.gender;
@@ -151,12 +152,16 @@ function filterUser(user, filter = {}) {
   }
   return pred;
 }
-function filteredUserList(list, filter = {}) {
+
+function filteredUserList(list: typeof userList, filter = {}) {
   return list.slice().filter((o) => filterUser(o, filter));
 }
 
-function sortUserList(list, sortValue = {}) {
-  const fields = Object.keys(sortValue);
+function sortUserList(
+  list: typeof userList,
+  sortValue = {} as Record<keyof typeof userList[0], number>
+) {
+  const fields = Object.keys(sortValue) as Array<keyof typeof userList[0]>;
   list.sort((a, b) => {
     let result = 0;
     fields.forEach((field) => {
@@ -173,7 +178,7 @@ function sortUserList(list, sortValue = {}) {
   return list;
 }
 
-function prepareFilterFromArgs(resolveParams = {}) {
+function prepareFilterFromArgs(resolveParams = {} as ResolverResolveParams<any, any>) {
   const args = resolveParams.args || {};
   const filter = { ...args.filter };
   if (resolveParams.rawQuery) {
@@ -207,15 +212,15 @@ export const findManyResolver = schemaComposer.createResolver({
     const { sort, limit, skip } = args;
 
     let list = userList.slice();
-    list = sortUserList(list, sort);
+    list = sortUserList(list, sort as any);
     list = filteredUserList(list, prepareFilterFromArgs(resolveParams));
 
     if (skip) {
-      list = list.slice(skip);
+      list = list.slice(skip as any);
     }
 
     if (limit) {
-      list = list.slice(0, limit);
+      list = list.slice(0, limit as any);
     }
 
     return Promise.resolve(list);
@@ -236,7 +241,7 @@ export const countResolver = schemaComposer.createResolver({
 });
 userTC.setResolver('count', countResolver);
 
-function getThroughLinkResolver(list, filter) {
+function getThroughLinkResolver(list: typeof userLinkList, filter: any) {
   const nodeFilter = filter ? filter.node : {};
   const edgeFilter = filter ? filter.edge : {};
   return list
@@ -246,6 +251,7 @@ function getThroughLinkResolver(list, filter) {
     }))
     .filter((l) => !!l.node && filterUserLink(l, edgeFilter));
 }
+
 export const findManyThroughLinkResolver = schemaComposer.createResolver({
   name: 'findManyThroughLink',
   kind: 'query',
@@ -262,16 +268,17 @@ export const findManyThroughLinkResolver = schemaComposer.createResolver({
     let list = userLinkList.slice();
 
     if (skip) {
-      list = list.slice(skip);
+      list = list.slice(skip as any);
     }
 
     if (limit) {
-      list = list.slice(0, limit);
+      list = list.slice(0, limit as any);
     }
     return getThroughLinkResolver(list, args.filter);
   },
 });
 userTC.setResolver('findManyThroughLink', findManyThroughLinkResolver);
+
 export const countThroughLinkResolver = schemaComposer.createResolver({
   name: 'count',
   kind: 'query',

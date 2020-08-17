@@ -1,5 +1,3 @@
-/* @flow */
-
 import { schemaComposer, ObjectTypeComposer } from 'graphql-compose';
 import {
   GraphQLNonNull,

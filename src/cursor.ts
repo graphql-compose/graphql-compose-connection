@@ -1,8 +1,6 @@
-/* @flow */
-
 export type CursorDataType =
   | {
-      [fieldName: string]: any,
+      [fieldName: string]: any;
     }
   | any;
 
@@ -14,7 +12,7 @@ export function unbase64(i: string): string {
   return Buffer.from(i, 'base64').toString('ascii');
 }
 
-export function cursorToData(cursor?: string | mixed): CursorDataType | number | null {
+export function cursorToData(cursor?: string | any): CursorDataType | number | null {
   if (typeof cursor === 'string') {
     try {
       return JSON.parse(unbase64(cursor)) || null;

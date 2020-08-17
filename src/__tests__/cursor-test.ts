@@ -1,5 +1,3 @@
-/* @flow */
-
 import { cursorToData, dataToCursor } from '../cursor';
 
 describe('cursor behavior', () => {

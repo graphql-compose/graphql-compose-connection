@@ -1,7 +1,4 @@
-/* @flow */
-/* eslint-disable no-use-before-define, no-param-reassign */
-
-import { ObjectTypeComposer, upperFirst, isFunction, type EnumTypeComposer } from 'graphql-compose';
+import { ObjectTypeComposer, upperFirst, isFunction, EnumTypeComposer } from 'graphql-compose';
 import type { ConnectionSortOpts, ComposeWithConnectionOpts } from '../connectionResolver';
 
 export function prepareSortType<TContext>(
@@ -24,7 +21,7 @@ export function prepareSortType<TContext>(
     );
   }
 
-  const sortEnumValues = {};
+  const sortEnumValues = {} as Record<string, any>;
   sortKeys.forEach((sortKey) => {
     checkSortOpts(sortKey, opts.sort[sortKey]);
 

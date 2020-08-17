@@ -8,7 +8,6 @@
     "README.md"
   ],
   "main": "lib/index.js",
-  "module": "mjs/index.mjs",
   "repository": {
     "type": "git",
     "url": "https://github.com/graphql-compose/graphql-compose-connection.git"

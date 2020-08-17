@@ -1,82 +1,79 @@
-/* @flow */
-/* eslint-disable no-param-reassign, no-use-before-define */
-
 import {
   ObjectTypeComposer,
   inspect,
-  type Resolver,
-  type ResolverResolveParams,
-  type ProjectionType,
-  type ObjectTypeComposerArgumentConfigMap,
-  type ObjectTypeComposerFieldConfigMap,
+  Resolver,
+  ResolverResolveParams,
+  ProjectionType,
+  ObjectTypeComposerArgumentConfigMap,
+  ObjectTypeComposerFieldConfigMap,
 } from 'graphql-compose';
 import type { GraphQLResolveInfo } from 'graphql-compose/lib/graphql';
 import { prepareConnectionType } from './types/connectionType';
 import { prepareSortType } from './types/sortInputType';
-import { cursorToData, dataToCursor, type CursorDataType } from './cursor';
+import { cursorToData, dataToCursor, CursorDataType } from './cursor';
 
 export type ComposeWithConnectionOpts<TContext> = {
-  connectionResolverName?: string,
-  findResolverName: string,
-  countResolverName: string,
-  sort: ConnectionSortMapOpts,
-  defaultLimit?: ?number,
-  edgeTypeName?: string,
-  edgeFields?: ObjectTypeComposerFieldConfigMap<any, TContext>,
+  connectionResolverName?: string;
+  findResolverName: string;
+  countResolverName: string;
+  sort: ConnectionSortMapOpts;
+  defaultLimit?: number | undefined;
+  edgeTypeName?: string;
+  edgeFields?: ObjectTypeComposerFieldConfigMap<any, TContext>;
 };
 
 export type ConnectionSortOpts = {
-  value: any,
-  cursorFields: string[],
+  value: any;
+  cursorFields: string[];
   beforeCursorQuery: (
     rawQuery: any,
     cursorData: CursorDataType,
-    resolveParams: ConnectionResolveParams<any>
-  ) => any,
+    resolveParams: Partial<ConnectionResolveParams<any>>
+  ) => any;
   afterCursorQuery: (
     rawQuery: any,
     cursorData: CursorDataType,
-    resolveParams: ConnectionResolveParams<any>
-  ) => any,
+    resolveParams: Partial<ConnectionResolveParams<any>>
+  ) => any;
 };
 
 export type ConnectionSortMapOpts = {
-  [sortName: string]: ConnectionSortOpts,
+  [sortName: string]: ConnectionSortOpts;
 };
 
-export type ConnectionResolveParams<TContext> = {
-  source: any,
+export type ConnectionResolveParams<TContext = any> = {
+  source: any;
   args: {
-    first?: ?number,
-    after?: string,
-    last?: ?number,
-    before?: string,
-    sort?: ConnectionSortOpts,
-    filter?: { [fieldName: string]: any },
-    [argName: string]: any,
-  },
-  context: TContext,
-  info: GraphQLResolveInfo,
-  projection: $Shape<ProjectionType>,
-  [opt: string]: any,
+    first?: number | null;
+    after?: string;
+    last?: number | null;
+    before?: string;
+    sort?: ConnectionSortOpts;
+    filter?: { [fieldName: string]: any };
+    [argName: string]: any;
+  };
+  context: TContext;
+  info: GraphQLResolveInfo;
+  projection: Partial<ProjectionType>;
+  [opt: string]: any;
 };
 
 export type ConnectionType = {
-  count: number,
-  edges: ConnectionEdgeType[],
-  pageInfo: PageInfoType,
+  count: number;
+  edges: ConnectionEdgeType[];
+  pageInfo: PageInfoType;
 };
 
 export type ConnectionEdgeType = {
-  cursor: string,
-  node: mixed,
+  cursor: string;
+  node: any;
 };
 
 export type PageInfoType = {
-  startCursor: string,
-  endCursor: string,
-  hasPreviousPage: boolean,
-  hasNextPage: boolean,
+  startCursor: string;
+  endCursor: string;
+  hasPreviousPage: boolean;
+  hasNextPage: boolean;
 };
 
 export function prepareConnectionResolver<TSource, TContext>(
@@ -123,7 +120,7 @@ export function prepareConnectionResolver<TSource, TContext>(
   }
   const findManyResolve = findManyResolver.getResolve();
 
-  const additionalArgs: ObjectTypeComposerArgumentConfigMap<> = {};
+  const additionalArgs: ObjectTypeComposerArgumentConfigMap = {};
   if (findManyResolver.hasArg('filter')) {
     const filter: any = findManyResolver.getArg('filter');
     if (filter) {
@@ -161,31 +158,31 @@ export function prepareConnectionResolver<TSource, TContext>(
         type: 'String',
         description: 'Backward pagination argument for returning at most last edges',
       },
-      ...(additionalArgs: any),
+      ...(additionalArgs as any),
       sort: {
         type: sortEnumType,
         defaultValue,
         description: 'Sort argument for data ordering',
       },
-    },
-    async resolve(resolveParams: $Shape<ConnectionResolveParams<TContext>>) {
+    } as any,
+    async resolve(resolveParams: ConnectionResolveParams<TContext>) {
       let countPromise;
       let findManyPromise;
       const { projection = {}, args, rawQuery } = resolveParams;
-      const findManyParams: $Shape<ResolverResolveParams<any, TContext>> = {
+      const findManyParams = {
         ...resolveParams,
-      };
+      } as ResolverResolveParams<any, TContext>;
 
-      let first = parseInt(args.first, 10) || 0;
+      let first = parseInt(args.first as any, 10) || 0;
       if (first < 0) {
         throw new Error('Argument `first` should be non-negative number.');
       }
-      const last = parseInt(args.last, 10) || 0;
+      const last = parseInt(args.last as any, 10) || 0;
       if (last < 0) {
         throw new Error('Argument `last` should be non-negative number.');
       }
 
-      const countParams: $Shape<ResolverResolveParams<any, TContext, any>> = {
+      const countParams: ResolverResolveParams<any, TContext, any> = {
         ...resolveParams,
         rawQuery,
         args: {
@@ -213,7 +210,7 @@ export function prepareConnectionResolver<TSource, TContext>(
 
       // Apply the rawQuery to the count to get accurate results with last and
       // before
-      const sortConfig: ?ConnectionSortOpts = findSortConfig(opts.sort, args.sort);
+      const sortConfig = findSortConfig(opts.sort, args.sort);
       if (sortConfig) {
         prepareRawQuery(resolveParams, sortConfig);
       }
@@ -221,7 +218,7 @@ export function prepareConnectionResolver<TSource, TContext>(
       if (!first && last) {
         // Get the number of edges targeted by the findMany resolver (not the
         // whole count)
-        const filteredCountParams: $Shape<ResolverResolveParams<any, TContext>> = {
+        const filteredCountParams: ResolverResolveParams<any, TContext> = {
           ...resolveParams,
           args: {
             filter: { ...resolveParams.args.filter },
@@ -229,13 +226,13 @@ export function prepareConnectionResolver<TSource, TContext>(
         };
 
         first = await countResolve(filteredCountParams);
-        first = parseInt(first, 10) || 0;
+        first = parseInt(first as any, 10) || 0;
       }
 
       let limit = last || first || opts.defaultLimit || 20;
       let skip = last > 0 ? first - last : 0;
 
-      let prepareCursorData;
+      let prepareCursorData: (record: any) => Record<string, any> | number;
       if (sortConfig) {
         findManyParams.rawQuery = resolveParams.rawQuery;
         sortConfig.cursorFields.forEach((fieldName) => {
@@ -243,7 +240,7 @@ export function prepareConnectionResolver<TSource, TContext>(
         });
 
         prepareCursorData = (record) => {
-          const result = {};
+          const result = {} as Record<string, any>;
           sortConfig.cursorFields.forEach((fieldName) => {
             result[fieldName] = record[fieldName];
           });
@@ -253,7 +250,6 @@ export function prepareConnectionResolver<TSource, TContext>(
         [limit, skip] = prepareLimitSkipFallback(resolveParams, limit, skip);
 
         let skipIdx = -1;
-        // eslint-disable-next-line
         prepareCursorData = (_) => {
           skipIdx += 1;
           return skip + skipIdx;
@@ -280,11 +276,11 @@ export function prepareConnectionResolver<TSource, TContext>(
       return Promise.all([findManyPromise, countPromise])
         .then(([recordList, count]) => {
           // transform record to object { cursor, node, ...edge}
-          const edges = recordList.map((record) => {
+          const edges = recordList.map((record: any) => {
             const edge = {
               cursor: dataToCursor(prepareCursorData(record)),
               node: opts.edgeFields ? record.node : record,
-            };
+            } as Record<string, any>;
             if (opts.edgeFields) {
               // Sometimes the value from `findMany` can't be spread
               Object.keys(opts.edgeFields).forEach((field) => {
@@ -309,16 +305,16 @@ export function prepareConnectionResolver<TSource, TContext>(
 }
 
 export function preparePageInfo(
-  edges: Object[],
+  edges: { cursor: string; [key: string]: any }[],
   args: {
-    last?: ?number,
-    first?: ?number,
-    after?: string,
-    before?: string,
+    last?: number | null;
+    first?: number | null;
+    after?: string;
+    before?: string;
   },
   limit: number,
   skip: number
-) {
+): PageInfoType {
   const pageInfo = {
     startCursor: '',
     endCursor: '',
@@ -344,14 +340,14 @@ export function preparePageInfo(
 }
 
 export function prepareRawQuery(
-  rp: $Shape<ConnectionResolveParams<any>>,
+  rp: Partial<ConnectionResolveParams<any>>,
   sortConfig: ConnectionSortOpts
 ) {
   if (!rp.rawQuery) {
     rp.rawQuery = {};
   }
 
-  const beginCursorData = cursorToData(rp.args.after);
+  const beginCursorData = cursorToData(rp?.args?.after);
   if (beginCursorData) {
     const r = sortConfig.afterCursorQuery(rp.rawQuery, beginCursorData, rp);
     if (r !== undefined) {
@@ -359,7 +355,7 @@ export function prepareRawQuery(
     }
   }
 
-  const endCursorData = cursorToData(rp.args.before);
+  const endCursorData = cursorToData(rp?.args?.before);
   if (endCursorData) {
     const r = sortConfig.beforeCursorQuery(rp.rawQuery, endCursorData, rp);
     if (r !== undefined) {
@@ -369,7 +365,7 @@ export function prepareRawQuery(
 }
 
 export function prepareLimitSkipFallback(
-  rp: $Shape<ConnectionResolveParams<any>>,
+  rp: ConnectionResolveParams<any>,
   limit: number,
   skip: number
 ): [number, number] {
@@ -379,13 +375,13 @@ export function prepareLimitSkipFallback(
   let beforeSkip: number = 0;
   let afterSkip: number = 0;
 
-  if (rp.args.before) {
+  if (rp?.args?.before) {
     const tmp = cursorToData(rp.args.before);
     if (Number.isInteger(tmp)) {
       beforeSkip = parseInt(tmp, 10);
     }
   }
-  if (rp.args.after) {
+  if (rp?.args?.after) {
     const tmp = cursorToData(rp.args.after);
     if (Number.isInteger(tmp)) {
       afterSkip = parseInt(tmp, 10) + 1;
@@ -436,7 +432,10 @@ export function emptyConnection(): ConnectionType {
   };
 }
 
-export function findSortConfig(configs: ConnectionSortMapOpts, val: mixed): ?ConnectionSortOpts {
+export function findSortConfig(
+  configs: ConnectionSortMapOpts,
+  val: any
+): ConnectionSortOpts | undefined {
   // Object.keys(configs).forEach(k => {  // return does not works in forEach as
   // I want
   for (const k in configs) {
@@ -445,10 +444,10 @@ export function findSortConfig(configs: ConnectionSortMapOpts, val: mixed): ?Con
     }
   }
 
-  // Yep, I know that it's now good comparision, but fast solution for now
+  // Yep, I know that it's now good comparison, but fast solution for now
   // Sorry but complex sort value should has same key ordering
   //   cause {a: 1, b: 2} != {b: 2, a: 1}
-  // BTW this code will be called only if arg.sort setuped by hands
+  // BTW this code will be called only if arg.sort setted up by hands
   //   if graphql provides arg.sort, then first for-loop (above) done all work
   const valStringified = JSON.stringify(val);
   for (const k in configs) {

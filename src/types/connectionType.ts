@@ -1,17 +1,14 @@
-/* @flow */
-/* eslint-disable arrow-body-style */
-
 import {
   ListComposer,
   ObjectTypeComposer,
   NonNullComposer,
   upperFirst,
-  type SchemaComposer,
-  type ObjectTypeComposerFieldConfigMap,
+  SchemaComposer,
+  ObjectTypeComposerFieldConfigMap,
 } from 'graphql-compose';
 
 // This is required due compatibility with old client code bases
-const globalPageInfoTypes = {};
+const globalPageInfoTypes = {} as Record<string, ObjectTypeComposer>;
 
 function createGlobalPageInfoType(name: string) {
   if (!globalPageInfoTypes[name]) {

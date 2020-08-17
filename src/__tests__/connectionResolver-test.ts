@@ -1,11 +1,14 @@
-/* @flow */
-/* eslint-disable no-param-reassign */
-
-import { Resolver } from 'graphql-compose';
+import { Resolver, ResolverResolveParams } from 'graphql-compose';
 import { GraphQLInt, GraphQLString } from 'graphql-compose/lib/graphql';
 import { userTC, userLinkTC, userList, sortOptions } from '../__mocks__/userTC';
 import { dataToCursor } from '../cursor';
-import { prepareConnectionResolver, prepareRawQuery, preparePageInfo } from '../connectionResolver';
+import {
+  prepareConnectionResolver,
+  prepareRawQuery,
+  preparePageInfo,
+  ConnectionResolveParams,
+  ConnectionSortOpts,
+} from '../connectionResolver';
 
 describe('connectionResolver', () => {
   const connectionResolver = prepareConnectionResolver(userTC, {
@@ -22,6 +25,7 @@ describe('connectionResolver', () => {
     it('should throw error if first arg is not ObjectTypeComposer', () => {
       expect(() => {
         const wrongArgs: any = [123];
+        // @ts-expect-error
         prepareConnectionResolver(...wrongArgs);
       }).toThrowError('should be instance of ObjectTypeComposer');
     });
@@ -29,6 +33,7 @@ describe('connectionResolver', () => {
     it('should throw error if opts.countResolverName are empty', () => {
       expect(() => {
         const wrongArgs: any = [userTC, {}];
+        // @ts-expect-error
         prepareConnectionResolver(...wrongArgs);
       }).toThrowError('should have option `opts.countResolverName`');
     });
@@ -46,6 +51,7 @@ describe('connectionResolver', () => {
     it('should throw error if opts.findResolverName are empty', () => {
       expect(() => {
         const wrongArgs: any = [userTC, { countResolverName: 'count' }];
+        // @ts-expect-error
         prepareConnectionResolver(...wrongArgs);
       }).toThrowError('should have option `opts.findResolverName`');
     });
@@ -60,6 +66,7 @@ describe('connectionResolver', () => {
             sort: sortOptions,
           },
         ];
+        // @ts-expect-error
         prepareConnectionResolver(...wrongArgs);
       }).toThrowError("does not have resolver with name 'findManyDoesNotExists'");
     });
@@ -97,15 +104,15 @@ describe('connectionResolver', () => {
     });
 
     it('should have `sort` arg', () => {
-      expect((connectionResolver.getArgType('sort'): any).name).toBe('SortConnectionUserEnum');
+      expect(connectionResolver.getArgTypeName('sort')).toBe('SortConnectionUserEnum');
     });
   });
 
   describe('call of resolvers', () => {
-    let spyResolveParams;
-    let mockedConnectionResolver;
-    let findManyResolverCalled;
-    let countResolverCalled;
+    let spyResolveParams: ResolverResolveParams<any, any>;
+    let mockedConnectionResolver: Resolver;
+    let findManyResolverCalled: boolean;
+    let countResolverCalled: boolean;
 
     beforeEach(() => {
       findManyResolverCalled = false;
@@ -267,7 +274,7 @@ describe('connectionResolver', () => {
         rawQuery.after = cursorData;
         return rawQuery;
       },
-    };
+    } as ConnectionSortOpts;
 
     it('should setup in resolveParams.rawQuery', () => {
       const rp: any = {
@@ -285,7 +292,7 @@ describe('connectionResolver', () => {
           after: dataToCursor({ id2: 2 }),
         },
         rawQuery,
-      };
+      } as Partial<ConnectionResolveParams>;
       const dumbSortConfig = {
         value: { id: 1 },
         cursorFields: ['id'],
@@ -338,11 +345,11 @@ describe('connectionResolver', () => {
 
   describe('preparePageInfo()', () => {
     const fiveEdges = [
-      { cursor: 1, node: 1 },
-      { cursor: 2, node: 2 },
-      { cursor: 3, node: 3 },
-      { cursor: 4, node: 4 },
-      { cursor: 5, node: 5 },
+      { cursor: '1', node: 1 },
+      { cursor: '2', node: 2 },
+      { cursor: '3', node: 3 },
+      { cursor: '4', node: 4 },
+      { cursor: '5', node: 5 },
     ];
 
     describe('"Relay Cursor Connections Specification (PageInfo)":', () => {
@@ -431,13 +438,13 @@ describe('connectionResolver', () => {
       });
 
       it('should return startCursor', () => {
-        expect(preparePageInfo(fiveEdges, {}, 4, 0).startCursor).toBe(1);
-        expect(preparePageInfo(fiveEdges, {}, 4, 2).startCursor).toBe(1);
+        expect(preparePageInfo(fiveEdges, {}, 4, 0).startCursor).toBe('1');
+        expect(preparePageInfo(fiveEdges, {}, 4, 2).startCursor).toBe('1');
       });
 
       it('should return endCursor', () => {
-        expect(preparePageInfo(fiveEdges, {}, 4, 0).endCursor).toBe(4);
-        expect(preparePageInfo(fiveEdges, {}, 20, 0).endCursor).toBe(5);
+        expect(preparePageInfo(fiveEdges, {}, 4, 0).endCursor).toBe('4');
+        expect(preparePageInfo(fiveEdges, {}, 20, 0).endCursor).toBe('5');
       });
 
       it('should return correct values for pageInfo if last is less first', async () => {

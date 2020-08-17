@@ -1,5 +1,3 @@
-/* @flow */
-
 import { userTC } from '../../__mocks__/userTC';
 import { prepareSortType } from '../sortInputType';
 
@@ -8,6 +6,7 @@ describe('types/sortInputType.js', () => {
     it('should throw error if opts.sort are empty', () => {
       expect(() => {
         const wrongArgs: any = [userTC, {}];
+        // @ts-expect-error
         prepareSortType(...wrongArgs);
       }).toThrowError('Option `sort` should not be empty');
     });
@@ -15,6 +14,7 @@ describe('types/sortInputType.js', () => {
     it('should throw error if opts.sort are empty object', () => {
       expect(() => {
         const wrongArgs: any = [userTC, { sort: {} }];
+        // @ts-expect-error
         prepareSortType(...wrongArgs);
       }).toThrowError('should provide at least one `sort` option');
     });
@@ -22,6 +22,7 @@ describe('types/sortInputType.js', () => {
     it('should throw error if opts.sort.[KEY].value are empty object', () => {
       expect(() => {
         const wrongArgs: any = [userTC, { sort: { _ID_ASC: {} } }];
+        // @ts-expect-error
         prepareSortType(...wrongArgs);
       }).toThrowError('should provide `value`');
     });
@@ -29,6 +30,7 @@ describe('types/sortInputType.js', () => {
     it('should throw error if opts.sort.[KEY].cursorFields are empty object', () => {
       expect(() => {
         const wrongArgs: any = [userTC, { sort: { _ID_ASC: { value: { id: 1 } } } }];
+        // @ts-expect-error
         prepareSortType(...wrongArgs);
       }).toThrowError('should provide array of field(s) in `cursorFields`');
 
@@ -44,6 +46,7 @@ describe('types/sortInputType.js', () => {
             },
           },
         ];
+        // @ts-expect-error
         prepareSortType(...wrongArgs);
       }).toThrowError('should provide array of field(s) in `cursorFields`');
     });
@@ -61,6 +64,7 @@ describe('types/sortInputType.js', () => {
             },
           },
         ];
+        // @ts-expect-error
         prepareSortType(...wrongArgs);
       }).toThrowError('should provide `beforeCursorQuery`');
 
@@ -77,6 +81,7 @@ describe('types/sortInputType.js', () => {
             },
           },
         ];
+        // @ts-expect-error
         prepareSortType(...wrongArgs);
       }).toThrowError('should provide `beforeCursorQuery`');
     });
@@ -95,6 +100,7 @@ describe('types/sortInputType.js', () => {
             },
           },
         ];
+        // @ts-expect-error
         prepareSortType(...wrongArgs);
       }).toThrowError('should provide `afterCursorQuery`');
 
@@ -112,6 +118,7 @@ describe('types/sortInputType.js', () => {
             },
           },
         ];
+        // @ts-expect-error
         prepareSortType(...wrongArgs);
       }).toThrowError('should provide `afterCursorQuery`');
     });

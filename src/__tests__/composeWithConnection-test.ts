@@ -1,6 +1,3 @@
-/* @flow */
-/* eslint-disable no-param-reassign */
-
 import { schemaComposer, ObjectTypeComposer } from 'graphql-compose';
 import { GraphQLSchema, GraphQLList, GraphQLNonNull, graphql } from 'graphql-compose/lib/graphql';
 import { composeWithConnection } from '../composeWithConnection';
@@ -22,6 +19,7 @@ describe('composeWithRelay', () => {
     it('should throw error if first arg is not ObjectTypeComposer', () => {
       expect(() => {
         const wrongArgs: any = [123];
+        // @ts-expect-error
         composeWithConnection(...wrongArgs);
       }).toThrowError('should provide ObjectTypeComposer instance');
     });
@@ -29,6 +27,7 @@ describe('composeWithRelay', () => {
     it('should throw error if options are empty', () => {
       expect(() => {
         const wrongArgs: any = [userTC];
+        // @ts-expect-error
         composeWithConnection(...wrongArgs);
       }).toThrowError('should provide non-empty options');
     });

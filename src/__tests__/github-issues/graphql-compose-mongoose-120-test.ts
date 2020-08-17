@@ -1,6 +1,3 @@
-/* @flow */
-/* eslint-disable no-param-reassign */
-
 import { userTC, sortOptions } from '../../__mocks__/userTC';
 import { prepareConnectionResolver } from '../../connectionResolver';
 

@@ -1,5 +1,3 @@
-/* @flow */
-
 import { composeWithConnection } from './composeWithConnection';
 import { cursorToData, dataToCursor } from './cursor';
 import { prepareConnectionResolver } from './connectionResolver';
@@ -12,4 +10,7 @@ export type {
   ComposeWithConnectionOpts,
   ConnectionSortOpts,
   ConnectionSortMapOpts,
+  ConnectionResolveParams,
 } from './connectionResolver';
+
+export type { CursorDataType } from './cursor';

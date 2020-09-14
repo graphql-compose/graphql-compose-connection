@@ -7,7 +7,7 @@ export default composeWithConnection;
 export { composeWithConnection, prepareConnectionResolver, cursorToData, dataToCursor };
 
 export type {
-  ComposeWithConnectionOpts,
+  ConnectionResolverOpts,
   ConnectionSortOpts,
   ConnectionSortMapOpts,
   ConnectionTArgs,

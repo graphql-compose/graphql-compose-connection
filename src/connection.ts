@@ -10,7 +10,7 @@ import { prepareConnectionType, PageInfoType, ConnectionType } from './types/con
 import { prepareSortType } from './types/sortInputType';
 import { cursorToData, dataToCursor, CursorDataType } from './cursor';
 
-export type ComposeWithConnectionOpts<TContext> = {
+export type ConnectionResolverOpts<TContext> = {
   findManyResolver: Resolver;
   countResolver: Resolver;
   sort: ConnectionSortMapOpts;
@@ -44,14 +44,14 @@ export interface ConnectionTArgs {
   after?: string;
   last?: number | null;
   before?: string;
-  sort?: ConnectionSortOpts;
-  filter?: { [fieldName: string]: any };
+  sort?: Record<string, any>;
+  filter?: Record<string, any>;
   [argName: string]: any;
 }
 
 export function prepareConnectionResolver<TSource, TContext>(
   tc: ObjectTypeComposer<TSource, TContext>,
-  opts: ComposeWithConnectionOpts<TContext>
+  opts: ConnectionResolverOpts<TContext>
 ): Resolver<TSource, TContext> {
   if (!(tc instanceof ObjectTypeComposer)) {
     throw new Error(

@@ -1,9 +1,9 @@
 import { ObjectTypeComposer, upperFirst, isFunction, EnumTypeComposer } from 'graphql-compose';
-import type { ConnectionSortOpts, ComposeWithConnectionOpts } from '../connection';
+import type { ConnectionSortOpts, ConnectionResolverOpts } from '../connection';
 
 export function prepareSortType<TContext>(
   typeComposer: ObjectTypeComposer<any, TContext>,
-  opts: ComposeWithConnectionOpts<TContext>
+  opts: ConnectionResolverOpts<TContext>
 ): EnumTypeComposer<TContext> {
   if (!opts || !opts.sort) {
     throw new Error('Option `sort` should not be empty in composeWithConnection');

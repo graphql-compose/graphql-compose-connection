@@ -10,6 +10,24 @@ import {
 // This is required due compatibility with old client code bases
 const globalPageInfoTypes = {} as Record<string, ObjectTypeComposer>;
 
+export type ConnectionType = {
+  count: number;
+  edges: ConnectionEdgeType[];
+  pageInfo: PageInfoType;
+};
+
+export type ConnectionEdgeType = {
+  cursor: string;
+  node: any;
+};
+
+export type PageInfoType = {
+  startCursor: string;
+  endCursor: string;
+  hasPreviousPage: boolean;
+  hasNextPage: boolean;
+};
+
 function createGlobalPageInfoType(name: string) {
   if (!globalPageInfoTypes[name]) {
     globalPageInfoTypes[name] = ObjectTypeComposer.createTemp(`

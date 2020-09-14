@@ -29,14 +29,15 @@ Modules `graphql` and `graphql-compose` are in `peerDependencies`, so should be 
 
 ## Example
 
-```js
-import composeWithConnection from 'graphql-compose-connection';
-import userTC from './user.js';
+Implementation details of `findManyResolver` and `countResolver` can be found in [this file](./src/__mocks__/User.ts).
 
-composeWithConnection(userTC, {
-  connectionResolverName: 'connection', // Default
-  findResolverName: 'findMany',
-  countResolverName: 'count',
+```js
+import { prepareConnectionResolver } from 'graphql-compose-connection';
+import { UserTC, findManyResolver, countResolver } from './user';
+
+prepareConnectionResolver(userTC, {
+  findManyResolver,
+  countResolver,
   sort: {
     // Sorting key, visible for users in GraphQL Schema
     _ID_ASC: {
@@ -107,13 +108,6 @@ composeWithConnection(userTC, {
 ```
 
 <img width="1249" alt="screen shot 2016-07-20 at 12 20 08" src="https://cloud.githubusercontent.com/assets/1946920/16976899/67a5e0f8-4e74-11e6-87e5-fc4574deaaab.png">
-
-## Requirements
-
-Types should have following resolvers:
-
-- `count` - for counting records
-- `findMany` - for filtering records. Also required that this resolver supports search with operators (lt, gt), which used in `directionFilter` option. Resolver `findMany` should have `filter` argument, which will be copied to connection. Also should have `limit` and `skip` args.
 
 ## Used in plugins
 

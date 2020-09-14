@@ -1,5 +1,5 @@
 import { ObjectTypeComposer, upperFirst, isFunction, EnumTypeComposer } from 'graphql-compose';
-import type { ConnectionSortOpts, ComposeWithConnectionOpts } from '../connectionResolver';
+import type { ConnectionSortOpts, ComposeWithConnectionOpts } from '../connection';
 
 export function prepareSortType<TContext>(
   typeComposer: ObjectTypeComposer<any, TContext>,
@@ -9,9 +9,7 @@ export function prepareSortType<TContext>(
     throw new Error('Option `sort` should not be empty in composeWithConnection');
   }
 
-  const typeName = `Sort${upperFirst(
-    opts.connectionResolverName || 'connection'
-  )}${typeComposer.getTypeName()}Enum`;
+  const typeName = `Sort${upperFirst(opts.name || 'connection')}${typeComposer.getTypeName()}Enum`;
 
   const sortKeys = Object.keys(opts.sort);
   if (sortKeys.length === 0) {
@@ -39,7 +37,7 @@ export function prepareSortType<TContext>(
   return sortType;
 }
 
-export function checkSortOpts(key: string, opts: ConnectionSortOpts) {
+export function checkSortOpts(key: string, opts: ConnectionSortOpts): void {
   if (!opts.value) {
     throw new Error(
       'You should provide `value` ' +

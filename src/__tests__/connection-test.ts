@@ -1,19 +1,27 @@
 import { Resolver, ResolverResolveParams } from 'graphql-compose';
-import { GraphQLInt, GraphQLString } from 'graphql-compose/lib/graphql';
-import { userTC, userLinkTC, userList, sortOptions } from '../__mocks__/userTC';
+import {
+  UserTC,
+  UserLinkTC,
+  countResolver,
+  findManyResolver,
+  userList,
+  sortOptions,
+  countThroughLinkResolver,
+  findManyThroughLinkResolver,
+} from '../__mocks__/User';
 import { dataToCursor } from '../cursor';
 import {
   prepareConnectionResolver,
   prepareRawQuery,
   preparePageInfo,
-  ConnectionResolveParams,
   ConnectionSortOpts,
-} from '../connectionResolver';
+  ConnectionTArgs,
+} from '../connection';
 
-describe('connectionResolver', () => {
-  const connectionResolver = prepareConnectionResolver(userTC, {
-    countResolverName: 'count',
-    findResolverName: 'findMany',
+describe('prepareConnectionResolver()', () => {
+  const connectionResolver = prepareConnectionResolver(UserTC, {
+    countResolver,
+    findManyResolver,
     sort: sortOptions,
   });
 
@@ -24,51 +32,26 @@ describe('connectionResolver', () => {
 
     it('should throw error if first arg is not ObjectTypeComposer', () => {
       expect(() => {
-        const wrongArgs: any = [123];
+        const wrongArgs = [123];
         // @ts-expect-error
         prepareConnectionResolver(...wrongArgs);
       }).toThrowError('should be instance of ObjectTypeComposer');
     });
 
-    it('should throw error if opts.countResolverName are empty', () => {
+    it('should throw error if opts.countResolver is incorrect', () => {
       expect(() => {
-        const wrongArgs: any = [userTC, {}];
+        const wrongArgs = [UserTC, {}];
         // @ts-expect-error
         prepareConnectionResolver(...wrongArgs);
-      }).toThrowError('should have option `opts.countResolverName`');
+      }).toThrowError("'opts.countResolver' must be a Resolver instance");
     });
 
-    it('should throw error if resolver opts.countResolverName does not exists', () => {
-      expect(() =>
-        prepareConnectionResolver(userTC, {
-          countResolverName: 'countDoesNotExists',
-          findResolverName: 'findMany',
-          sort: sortOptions,
-        })
-      ).toThrowError("does not have resolver with name 'countDoesNotExists'");
-    });
-
-    it('should throw error if opts.findResolverName are empty', () => {
+    it('should throw error if opts.findManyResolver is incorrect', () => {
       expect(() => {
-        const wrongArgs: any = [userTC, { countResolverName: 'count' }];
+        const wrongArgs = [UserTC, { countResolver }];
         // @ts-expect-error
         prepareConnectionResolver(...wrongArgs);
-      }).toThrowError('should have option `opts.findResolverName`');
-    });
-
-    it('should throw error if resolver opts.countResolverName does not exists', () => {
-      expect(() => {
-        const wrongArgs: any = [
-          userTC,
-          {
-            countResolverName: 'count',
-            findResolverName: 'findManyDoesNotExists',
-            sort: sortOptions,
-          },
-        ];
-        // @ts-expect-error
-        prepareConnectionResolver(...wrongArgs);
-      }).toThrowError("does not have resolver with name 'findManyDoesNotExists'");
+      }).toThrowError("'opts.findManyResolver' must be a Resolver instance");
     });
   });
 
@@ -88,19 +71,19 @@ describe('connectionResolver', () => {
 
   describe('resolver args', () => {
     it('should have `first` arg', () => {
-      expect(connectionResolver.getArgType('first')).toBe(GraphQLInt);
+      expect(connectionResolver.getArgTypeName('first')).toBe('Int');
     });
 
     it('should have `last` arg', () => {
-      expect(connectionResolver.getArgType('last')).toBe(GraphQLInt);
+      expect(connectionResolver.getArgTypeName('last')).toBe('Int');
     });
 
     it('should have `after` arg', () => {
-      expect(connectionResolver.getArgType('after')).toBe(GraphQLString);
+      expect(connectionResolver.getArgTypeName('after')).toBe('String');
     });
 
     it('should have `before` arg', () => {
-      expect(connectionResolver.getArgType('before')).toBe(GraphQLString);
+      expect(connectionResolver.getArgTypeName('before')).toBe('String');
     });
 
     it('should have `sort` arg', () => {
@@ -117,23 +100,19 @@ describe('connectionResolver', () => {
     beforeEach(() => {
       findManyResolverCalled = false;
       countResolverCalled = false;
-      const mockedFindMany = userTC
-        .getResolver('findMany')
-        .wrapResolve((next) => (resolveParams) => {
-          findManyResolverCalled = true;
-          spyResolveParams = resolveParams;
-          return next(resolveParams);
-        });
-      const mockedCount = userTC.getResolver('findMany').wrapResolve((next) => (resolveParams) => {
+      const mockedFindMany = findManyResolver.wrapResolve((next) => (resolveParams) => {
+        findManyResolverCalled = true;
+        spyResolveParams = resolveParams;
+        return next(resolveParams);
+      });
+      const mockedCount = findManyResolver.wrapResolve((next) => (resolveParams) => {
         countResolverCalled = true;
         spyResolveParams = resolveParams;
         return next(resolveParams);
       });
-      userTC.setResolver('mockedFindMany', mockedFindMany);
-      userTC.setResolver('mockedCount', mockedCount);
-      mockedConnectionResolver = prepareConnectionResolver(userTC, {
-        countResolverName: 'mockedCount',
-        findResolverName: 'mockedFindMany',
+      mockedConnectionResolver = prepareConnectionResolver(UserTC, {
+        countResolver: mockedCount,
+        findManyResolver: mockedFindMany,
         sort: sortOptions,
       });
     });
@@ -292,7 +271,7 @@ describe('connectionResolver', () => {
           after: dataToCursor({ id2: 2 }),
         },
         rawQuery,
-      } as Partial<ConnectionResolveParams>;
+      } as Partial<ResolverResolveParams<any, any, ConnectionTArgs>>;
       const dumbSortConfig = {
         value: { id: 1 },
         cursorFields: ['id'],
@@ -559,7 +538,7 @@ describe('connectionResolver', () => {
             sort: sortOptions.ID_ASC.value,
           },
         });
-        await expect(promise).rejects.toMatchSnapshot();
+        await expect(promise).rejects.toThrow('Argument `first` should be non-negative number');
       });
 
       it('should slice edges to be length of `first`, if length is greater', async () => {
@@ -579,7 +558,7 @@ describe('connectionResolver', () => {
             sort: sortOptions.ID_ASC.value,
           },
         });
-        await expect(promise).rejects.toMatchSnapshot();
+        await expect(promise).rejects.toThrow('Argument `last` should be non-negative number');
       });
 
       it('should slice edges to be length of `last`', async () => {
@@ -751,7 +730,7 @@ describe('connectionResolver', () => {
           sort: { name: 1 },
         },
       });
-      await expect(promise).rejects.toMatchSnapshot();
+      await expect(promise).rejects.toThrow('Argument `first` should be non-negative number');
     });
 
     it('should slice edges to be length of `first`, if length is greater', async () => {
@@ -771,7 +750,7 @@ describe('connectionResolver', () => {
           sort: { name: 1 },
         },
       });
-      await expect(promise).rejects.toMatchSnapshot();
+      await expect(promise).rejects.toThrow('Argument `last` should be non-negative number');
     });
 
     it('should slice edges to be length of `last`', async () => {
@@ -862,9 +841,9 @@ describe('connectionResolver', () => {
   });
 
   describe('default `first` argument if first/last are empty', () => {
-    const defaultResolver = prepareConnectionResolver(userTC, {
-      countResolverName: 'count',
-      findResolverName: 'findMany',
+    const defaultResolver = prepareConnectionResolver(UserTC, {
+      countResolver,
+      findManyResolver,
       sort: sortOptions,
       defaultLimit: 5,
     });
@@ -884,20 +863,45 @@ describe('connectionResolver', () => {
   });
 
   describe('edges with data', () => {
-    const edgeDataResolver = prepareConnectionResolver(userTC, {
-      countResolverName: 'countThroughLink',
-      findResolverName: 'findManyThroughLink',
+    const edgeDataResolver = prepareConnectionResolver(UserTC, {
+      countResolver: countThroughLinkResolver,
+      findManyResolver: findManyThroughLinkResolver,
       sort: sortOptions,
       defaultLimit: 5,
-      edgeFields: userLinkTC.getFields(),
+      edgeFields: UserLinkTC.getFields(),
     });
     it('correctly resolves with edges', async () => {
       const data = await edgeDataResolver.resolve({
         args: {},
         projection: { count: true, edges: true },
       });
-      expect(data.edges.length).toBe(2);
-      expect(data).toMatchSnapshot();
+      expect(data).toEqual({
+        count: 2,
+        edges: [
+          {
+            cursor: 'MA==',
+            id: 1,
+            node: { age: 12, gender: 'm', id: 2, name: 'user02' },
+            otherUserId: 2,
+            type: 'likes',
+            userId: 1,
+          },
+          {
+            cursor: 'MQ==',
+            id: 2,
+            node: { age: 11, gender: 'm', id: 1, name: 'user01' },
+            otherUserId: 1,
+            type: 'dislikes',
+            userId: 2,
+          },
+        ],
+        pageInfo: {
+          endCursor: 'MQ==',
+          hasNextPage: false,
+          hasPreviousPage: false,
+          startCursor: 'MA==',
+        },
+      });
     });
     it('correctly handles filtering', async () => {
       const data = await edgeDataResolver.resolve({
@@ -905,7 +909,25 @@ describe('connectionResolver', () => {
         projection: { count: true, edges: true },
       });
       expect(data.edges.length).toBe(1);
-      expect(data).toMatchSnapshot();
+      expect(data).toEqual({
+        count: 1,
+        edges: [
+          {
+            cursor: 'MA==',
+            id: 1,
+            node: { age: 12, gender: 'm', id: 2, name: 'user02' },
+            otherUserId: 2,
+            type: 'likes',
+            userId: 1,
+          },
+        ],
+        pageInfo: {
+          endCursor: 'MA==',
+          hasNextPage: false,
+          hasPreviousPage: false,
+          startCursor: 'MA==',
+        },
+      });
     });
   });
 });

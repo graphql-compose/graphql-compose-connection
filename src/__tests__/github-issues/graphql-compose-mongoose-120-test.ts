@@ -1,10 +1,10 @@
-import { userTC, sortOptions } from '../../__mocks__/userTC';
-import { prepareConnectionResolver } from '../../connectionResolver';
+import { UserTC, findManyResolver, countResolver, sortOptions } from '../../__mocks__/User';
+import { prepareConnectionResolver } from '../../connection';
 
 describe('check last/before args', () => {
-  const defaultResolver = prepareConnectionResolver(userTC, {
-    countResolverName: 'count',
-    findResolverName: 'findMany',
+  const defaultResolver = prepareConnectionResolver(UserTC, {
+    countResolver: countResolver,
+    findManyResolver: findManyResolver,
     sort: sortOptions,
   });
 

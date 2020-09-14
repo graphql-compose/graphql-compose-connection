@@ -1,51 +1,24 @@
+/* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 import { schemaComposer, ResolverResolveParams } from 'graphql-compose';
-import {
-  GraphQLString,
-  GraphQLObjectType,
-  GraphQLInputObjectType,
-  GraphQLEnumType,
-  GraphQLInt,
-} from 'graphql-compose/lib/graphql';
-import type { ConnectionSortMapOpts } from '../connectionResolver';
+import type { ConnectionSortMapOpts } from '../connection';
 
-export const UserType = new GraphQLObjectType({
-  name: 'User',
-  fields: {
-    id: {
-      type: GraphQLInt,
-    },
-    name: {
-      type: GraphQLString,
-    },
-    age: {
-      type: GraphQLInt,
-    },
-    gender: {
-      type: GraphQLString,
-    },
-  },
-});
+export const UserTC = schemaComposer.createObjectTC(`
+  type User {
+    id: Int
+    name: String
+    age: Int
+    gender: String
+  }
+`);
 
-export const UserLinkType = new GraphQLObjectType({
-  name: 'UserLink',
-  fields: {
-    id: {
-      type: GraphQLInt,
-    },
-    type: {
-      type: GraphQLString,
-    },
-    userId: {
-      type: GraphQLInt,
-    },
-    otherUserId: {
-      type: GraphQLInt,
-    },
-  },
-});
-
-export const userTC = schemaComposer.createObjectTC(UserType);
-export const userLinkTC = schemaComposer.createObjectTC(UserLinkType);
+export const UserLinkTC = schemaComposer.createObjectTC(`
+  type UserLink {
+    id: Int
+    type: String
+    userId: Int
+    otherUserId: Int
+  }
+`);
 
 export const userList = [
   { id: 1, name: 'user01', age: 11, gender: 'm' },
@@ -70,52 +43,29 @@ export const userLinkList = [
   { id: 2, type: 'dislikes', userId: 2, otherUserId: 1 },
 ];
 
-const filterArgConfig = {
-  name: 'filter',
-  type: new GraphQLInputObjectType({
-    name: 'FilterUserInput',
-    fields: {
-      gender: {
-        type: GraphQLString,
-      },
-      age: {
-        type: GraphQLInt,
-      },
-    },
-  }),
-};
+const filterArgConfig = schemaComposer.createInputTC(`
+  input FilterUserInput {
+    gender: String
+    age: Int
+  }
+`);
 
-const filterEdgeArgConfig = {
-  name: 'filter',
-  type: new GraphQLInputObjectType({
-    name: 'FilterNodeEdgeUserInput',
-    fields: {
-      edge: {
-        type: new GraphQLInputObjectType({
-          name: 'FilterNodeEdgeEdgeUserInput',
-          fields: {
-            type: {
-              type: GraphQLString,
-            },
-          },
-        }),
-      },
-      node: {
-        type: new GraphQLInputObjectType({
-          name: 'FilterNodeNodeEdgeUserInput',
-          fields: {
-            gender: {
-              type: GraphQLString,
-            },
-            age: {
-              type: GraphQLInt,
-            },
-          },
-        }),
-      },
-    },
-  }),
-};
+const filterEdgeArgConfig = schemaComposer.createInputTC({
+  name: 'FilterNodeEdgeUserInput',
+  fields: {
+    edge: `
+      input FilterNodeEdgeEdgeUserInput {
+        type: String
+      }
+    `,
+    node: `
+      input FilterNodeNodeEdgeUserInput {
+        gender: String
+        age: Int
+      }
+    `,
+  },
+});
 
 function filterUserLink(
   link: typeof userLinkList[0],
@@ -189,13 +139,13 @@ function prepareFilterFromArgs(resolveParams = {} as ResolverResolveParams<any, 
   return filter;
 }
 
-export const findManyResolver = schemaComposer.createResolver({
+export const findManyResolver = schemaComposer.createResolver<any, any>({
   name: 'findMany',
   kind: 'query',
-  type: UserType,
+  type: UserTC,
   args: {
     filter: filterArgConfig,
-    sort: new GraphQLEnumType({
+    sort: UserTC.schemaComposer.createEnumTC({
       name: 'SortUserInput',
       values: {
         ID_ASC: { value: { id: 1 } },
@@ -204,8 +154,8 @@ export const findManyResolver = schemaComposer.createResolver({
         AGE_DESC: { value: { age: -1 } },
       },
     }),
-    limit: GraphQLInt,
-    skip: GraphQLInt,
+    limit: 'Int',
+    skip: 'Int',
   },
   resolve: (resolveParams) => {
     const args = resolveParams.args || {};
@@ -226,12 +176,11 @@ export const findManyResolver = schemaComposer.createResolver({
     return Promise.resolve(list);
   },
 });
-userTC.setResolver('findMany', findManyResolver);
 
 export const countResolver = schemaComposer.createResolver({
   name: 'count',
   kind: 'query',
-  type: GraphQLInt,
+  type: 'Int',
   args: {
     filter: filterArgConfig,
   },
@@ -239,7 +188,6 @@ export const countResolver = schemaComposer.createResolver({
     return Promise.resolve(filteredUserList(userList, prepareFilterFromArgs(resolveParams)).length);
   },
 });
-userTC.setResolver('count', countResolver);
 
 function getThroughLinkResolver(list: typeof userLinkList, filter: any) {
   const nodeFilter = filter ? filter.node : {};
@@ -255,11 +203,11 @@ function getThroughLinkResolver(list: typeof userLinkList, filter: any) {
 export const findManyThroughLinkResolver = schemaComposer.createResolver({
   name: 'findManyThroughLink',
   kind: 'query',
-  type: UserType,
+  type: UserTC,
   args: {
     filter: filterEdgeArgConfig,
-    limit: GraphQLInt,
-    skip: GraphQLInt,
+    limit: 'Int',
+    skip: 'Int',
   },
   resolve: async (resolveParams) => {
     const args = resolveParams.args || {};
@@ -277,12 +225,11 @@ export const findManyThroughLinkResolver = schemaComposer.createResolver({
     return getThroughLinkResolver(list, args.filter);
   },
 });
-userTC.setResolver('findManyThroughLink', findManyThroughLinkResolver);
 
 export const countThroughLinkResolver = schemaComposer.createResolver({
   name: 'count',
   kind: 'query',
-  type: GraphQLInt,
+  type: 'Int',
   args: {
     filter: filterEdgeArgConfig,
   },
@@ -291,7 +238,6 @@ export const countThroughLinkResolver = schemaComposer.createResolver({
     return getThroughLinkResolver(userLinkList.slice(), args.filter).length;
   },
 });
-userTC.setResolver('countThroughLink', countThroughLinkResolver);
 
 export const sortOptions: ConnectionSortMapOpts = {
   ID_ASC: {

@@ -1,13 +1,12 @@
 import { schemaComposer, ObjectTypeComposer } from 'graphql-compose';
-import { GraphQLSchema, GraphQLList, GraphQLNonNull, graphql } from 'graphql-compose/lib/graphql';
+import { graphql } from 'graphql-compose/lib/graphql';
 import { composeWithConnection } from '../composeWithConnection';
-import { userTC, sortOptions } from '../__mocks__/userTC';
-import { rootQueryTC } from '../__mocks__/rootQueryTC';
+import { UserTC, sortOptions, countResolver, findManyResolver } from '../__mocks__/User';
 
-describe('composeWithRelay', () => {
-  const userComposer = composeWithConnection(userTC, {
-    countResolverName: 'count',
-    findResolverName: 'findMany',
+describe('composeWithConnection()', () => {
+  const userComposer = composeWithConnection(UserTC, {
+    countResolver,
+    findManyResolver,
     sort: sortOptions,
   });
 
@@ -18,7 +17,7 @@ describe('composeWithRelay', () => {
 
     it('should throw error if first arg is not ObjectTypeComposer', () => {
       expect(() => {
-        const wrongArgs: any = [123];
+        const wrongArgs = [123];
         // @ts-expect-error
         composeWithConnection(...wrongArgs);
       }).toThrowError('should provide ObjectTypeComposer instance');
@@ -26,7 +25,7 @@ describe('composeWithRelay', () => {
 
     it('should throw error if options are empty', () => {
       expect(() => {
-        const wrongArgs: any = [userTC];
+        const wrongArgs = [UserTC];
         // @ts-expect-error
         composeWithConnection(...wrongArgs);
       }).toThrowError('should provide non-empty options');
@@ -39,10 +38,10 @@ describe('composeWithRelay', () => {
         resolve: () => 'mockData',
       });
 
-      // try ovewrite `connection` resolver
+      // try overwrite `connection` resolver
       myTC = composeWithConnection(myTC, {
-        countResolverName: 'count',
-        findResolverName: 'findMany',
+        countResolver,
+        findManyResolver,
         sort: sortOptions,
       });
 
@@ -61,9 +60,9 @@ describe('composeWithRelay', () => {
         resolve: () => ['mockData'],
       });
       myTC = composeWithConnection(myTC, {
-        connectionResolverName: 'customConnection',
-        countResolverName: 'count',
-        findResolverName: 'findMany',
+        name: 'customConnection',
+        countResolver,
+        findManyResolver,
         sort: sortOptions,
       });
 
@@ -82,66 +81,64 @@ describe('composeWithRelay', () => {
         resolve: () => ['mockData'],
       });
       myTC = composeWithConnection(myTC, {
-        countResolverName: 'count',
-        findResolverName: 'findMany',
+        countResolver,
+        findManyResolver,
         sort: sortOptions,
       });
       myTC = composeWithConnection(myTC, {
-        connectionResolverName: 'customConnection',
-        countResolverName: 'count',
-        findResolverName: 'findMany',
+        name: 'customConnection',
+        countResolver,
+        findManyResolver,
         sort: sortOptions,
       });
 
       expect(myTC.hasResolver('connection')).toBeTruthy();
-      expect(myTC.getResolver('customConnection')).toBeTruthy();
+      expect(myTC.hasResolver('customConnection')).toBeTruthy();
     });
   });
 
   describe('check `connection` resolver props', () => {
     const rsv = userComposer.getResolver('connection');
-    const type: any = rsv.getType();
-    const tc = schemaComposer.createObjectTC(type);
+    const tc = rsv.getOTC();
 
     it('should exists', () => {
       expect(rsv).toBeTruthy();
     });
 
     it('should has ConnectionType as type', () => {
-      expect(type).toBeTruthy();
       expect(tc.getFieldNames()).toEqual(expect.arrayContaining(['count', 'pageInfo', 'edges']));
-      const edgesType: any = tc.getFieldType('edges');
-      expect(edgesType).toBeInstanceOf(GraphQLNonNull);
-      expect(edgesType.ofType).toBeInstanceOf(GraphQLList);
+      expect(tc.getFieldTypeName('edges')).toBe('[UserEdge!]!');
     });
   });
 
   it('should apply first sort ID_ASC by default', async () => {
-    rootQueryTC.setField('userConnection', userTC.getResolver('connection'));
-    const schema = new GraphQLSchema({
-      query: rootQueryTC.getType(),
+    schemaComposer.Query.addFields({
+      userConnection: UserTC.getResolver('connection'),
     });
-    const query = `{
-      userConnection(last: 3) {
-        count,
-        pageInfo {
-          startCursor
-          endCursor
-          hasPreviousPage
-          hasNextPage
-        }
-        edges {
-          cursor
-          node {
-            id
-            name
+
+    const result = await graphql({
+      schema: schemaComposer.buildSchema(),
+      source: `{
+        userConnection(last: 3) {
+          count,
+          pageInfo {
+            startCursor
+            endCursor
+            hasPreviousPage
+            hasNextPage
+          }
+          edges {
+            cursor
+            node {
+              id
+              name
+            }
           }
         }
-      }
-    }`;
-    const result: any = await graphql(schema, query);
+      }`,
+    });
 
-    expect(result.data.userConnection).toEqual({
+    expect(result?.data?.userConnection).toEqual({
       count: 15,
       pageInfo: {
         startCursor: 'eyJpZCI6MTN9',
@@ -167,32 +164,34 @@ describe('composeWithRelay', () => {
   });
 
   it('should able to change `sort` on AGE_ID_DESC', async () => {
-    rootQueryTC.setField('userConnection', userTC.getResolver('connection'));
-    const schema = new GraphQLSchema({
-      query: rootQueryTC.getType(),
+    schemaComposer.Query.addFields({
+      userConnection: UserTC.getResolver('connection'),
     });
-    const query = `{
-      userConnection(first: 3, sort: AGE_ID_DESC) {
-        count,
-        pageInfo {
-          startCursor
-          endCursor
-          hasPreviousPage
-          hasNextPage
-        }
-        edges {
-          cursor
-          node {
-            id
-            name
-            age
+
+    const result = await graphql({
+      schema: schemaComposer.buildSchema(),
+      source: `{
+        userConnection(first: 3, sort: AGE_ID_DESC) {
+          count,
+          pageInfo {
+            startCursor
+            endCursor
+            hasPreviousPage
+            hasNextPage
+          }
+          edges {
+            cursor
+            node {
+              id
+              name
+              age
+            }
           }
         }
-      }
-    }`;
-    const result: any = await graphql(schema, query);
+      }`,
+    });
 
-    expect(result.data.userConnection).toEqual({
+    expect(result?.data?.userConnection).toEqual({
       count: 15,
       pageInfo: {
         startCursor: 'eyJhZ2UiOjQ5LCJpZCI6MTF9',
@@ -219,39 +218,40 @@ describe('composeWithRelay', () => {
 
   describe('fragments fields projection of graphql-compose', () => {
     it('should return object', async () => {
-      rootQueryTC.setField('userConnection', userTC.getResolver('connection'));
-      const schema = new GraphQLSchema({
-        query: rootQueryTC.getType(),
+      schemaComposer.Query.addFields({
+        userConnection: UserTC.getResolver('connection'),
       });
-      const query = `{
-        userConnection(first: 1) {
-          count,
-          pageInfo {
-            startCursor
-            endCursor
-            ...on PageInfo {
-              hasPreviousPage
-              hasNextPage
+
+      const result = await graphql({
+        schema: schemaComposer.buildSchema(),
+        source: `{
+          userConnection(first: 1) {
+            count,
+            pageInfo {
+              startCursor
+              endCursor
+              ...on PageInfo {
+                hasPreviousPage
+                hasNextPage
+              }
             }
-          }
-          edges {
-            cursor
-            node {
-              id
-              name
-              ...idNameAge
-              ...on User {
-                age
+            edges {
+              cursor
+              node {
+                id
+                name
+                ...idNameAge
+                ...on User {
+                  age
+                }
               }
             }
           }
         }
-      }
-      fragment idNameAge on User {
-        gender
-      }
-      `;
-      const result = await graphql(schema, query);
+        fragment idNameAge on User {
+          gender
+        }`,
+      });
       expect(result).toEqual({
         data: {
           userConnection: {
@@ -282,23 +282,24 @@ describe('composeWithRelay', () => {
   it('should pass `countResolveParams` to top resolverParams', async () => {
     let topResolveParams: any = {};
 
-    rootQueryTC.setField(
-      'userConnection',
-      userTC.getResolver('connection').wrapResolve((next) => (rp) => {
+    schemaComposer.Query.addFields({
+      userConnection: UserTC.getResolver('connection').wrapResolve((next) => (rp) => {
         const result = next(rp);
         topResolveParams = rp;
         return result;
-      })
-    );
-    const schema = new GraphQLSchema({
-      query: rootQueryTC.getType(),
+      }),
     });
-    const query = `{
-      userConnection(first: 1, filter: { age: 45 }) {
-        count
-      }
-    }`;
-    await graphql(schema, query);
+
+    const res = await graphql({
+      schema: schemaComposer.buildSchema(),
+      source: `{
+        userConnection(first: 1, filter: { age: 45 }) {
+          count
+        }
+      }`,
+    });
+
+    expect(res.errors).toBeUndefined();
 
     expect(Object.keys(topResolveParams.countResolveParams)).toEqual(
       expect.arrayContaining(['source', 'args', 'context', 'info', 'projection'])
@@ -312,23 +313,24 @@ describe('composeWithRelay', () => {
   it('should pass `findManyResolveParams` to top resolverParams', async () => {
     let topResolveParams: any = {};
 
-    rootQueryTC.setField(
-      'userConnection',
-      userTC.getResolver('connection').wrapResolve((next) => (rp) => {
+    schemaComposer.Query.addFields({
+      userConnection: UserTC.getResolver('connection').wrapResolve((next) => (rp) => {
         const result = next(rp);
         topResolveParams = rp;
         return result;
-      })
-    );
-    const schema = new GraphQLSchema({
-      query: rootQueryTC.getType(),
+      }),
     });
-    const query = `{
-      userConnection(first: 1, filter: { age: 45 }) {
-        count
-      }
-    }`;
-    await graphql(schema, query);
+
+    const res = await graphql({
+      schema: schemaComposer.buildSchema(),
+      source: `{
+        userConnection(first: 1, filter: { age: 45 }) {
+          count
+        }
+      }`,
+    });
+
+    expect(res.errors).toBeUndefined();
 
     expect(Object.keys(topResolveParams.findManyResolveParams)).toEqual(
       expect.arrayContaining(['source', 'args', 'context', 'info', 'projection'])

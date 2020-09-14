@@ -1,6 +1,6 @@
 import { ObjectTypeComposer } from 'graphql-compose';
-import { prepareConnectionResolver } from './connectionResolver';
-import type { ComposeWithConnectionOpts } from './connectionResolver';
+import { prepareConnectionResolver } from './connection';
+import type { ComposeWithConnectionOpts } from './connection';
 
 export function composeWithConnection<TSource, TContext>(
   typeComposer: ObjectTypeComposer<TSource, TContext>,
@@ -14,7 +14,7 @@ export function composeWithConnection<TSource, TContext>(
     throw new Error('You should provide non-empty options to composeWithConnection');
   }
 
-  const resolverName = opts.connectionResolverName || 'connection';
+  const resolverName = opts.name || 'connection';
   if (typeComposer.hasResolver(resolverName)) {
     return typeComposer;
   }

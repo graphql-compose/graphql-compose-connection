@@ -1,18 +1,18 @@
-import { userTC } from '../__mocks__/userTC';
+import { countResolver, findManyResolver } from '../__mocks__/User';
 
 describe('mocks/userTC', () => {
   it('userTC should have `count` resolver', async () => {
-    const cnt = await userTC.getResolver('count').resolve({});
+    const cnt = await countResolver.resolve({});
     expect(cnt).toBe(15);
   });
 
   it('userTC should have `findMany` resolver', async () => {
-    const res = await userTC.getResolver('findMany').resolve({});
+    const res = await findManyResolver.resolve({});
     expect(res).toHaveLength(15);
   });
 
   it('userTC should have `findMany` resolver with working `filter` arg', async () => {
-    const res = await userTC.getResolver('findMany').resolve({
+    const res = await findManyResolver.resolve({
       args: {
         filter: {
           gender: 'm',
@@ -33,7 +33,7 @@ describe('mocks/userTC', () => {
   });
 
   it('userTC should have `findMany` resolver with working `sort` arg', async () => {
-    const res = await userTC.getResolver('findMany').resolve({
+    const res = await findManyResolver.resolve({
       args: {
         sort: {
           age: -1,

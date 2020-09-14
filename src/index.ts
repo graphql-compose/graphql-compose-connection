@@ -1,6 +1,6 @@
 import { composeWithConnection } from './composeWithConnection';
 import { cursorToData, dataToCursor } from './cursor';
-import { prepareConnectionResolver } from './connectionResolver';
+import { prepareConnectionResolver } from './connection';
 
 export default composeWithConnection;
 
@@ -10,7 +10,7 @@ export type {
   ComposeWithConnectionOpts,
   ConnectionSortOpts,
   ConnectionSortMapOpts,
-  ConnectionResolveParams,
-} from './connectionResolver';
+  ConnectionTArgs,
+} from './connection';
 
 export type { CursorDataType } from './cursor';

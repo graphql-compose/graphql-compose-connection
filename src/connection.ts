@@ -3,37 +3,35 @@ import {
   inspect,
   Resolver,
   ResolverResolveParams,
-  ProjectionType,
   ObjectTypeComposerArgumentConfigMap,
   ObjectTypeComposerFieldConfigMap,
 } from 'graphql-compose';
-import type { GraphQLResolveInfo } from 'graphql-compose/lib/graphql';
-import { prepareConnectionType } from './types/connectionType';
+import { prepareConnectionType, PageInfoType, ConnectionType } from './types/connectionType';
 import { prepareSortType } from './types/sortInputType';
 import { cursorToData, dataToCursor, CursorDataType } from './cursor';
 
 export type ComposeWithConnectionOpts<TContext> = {
-  connectionResolverName?: string;
-  findResolverName: string;
-  countResolverName: string;
+  findManyResolver: Resolver;
+  countResolver: Resolver;
   sort: ConnectionSortMapOpts;
+  name?: string;
   defaultLimit?: number | undefined;
   edgeTypeName?: string;
   edgeFields?: ObjectTypeComposerFieldConfigMap<any, TContext>;
 };
 
-export type ConnectionSortOpts = {
+export type ConnectionSortOpts<TSource = any, TContext = any> = {
   value: any;
   cursorFields: string[];
   beforeCursorQuery: (
     rawQuery: any,
     cursorData: CursorDataType,
-    resolveParams: Partial<ConnectionResolveParams<any>>
+    resolveParams: Partial<ResolverResolveParams<TSource, TContext, ConnectionTArgs>>
   ) => any;
   afterCursorQuery: (
     rawQuery: any,
     cursorData: CursorDataType,
-    resolveParams: Partial<ConnectionResolveParams<any>>
+    resolveParams: Partial<ResolverResolveParams<TSource, TContext, ConnectionTArgs>>
   ) => any;
 };
 
@@ -41,40 +39,15 @@ export type ConnectionSortMapOpts = {
   [sortName: string]: ConnectionSortOpts;
 };
 
-export type ConnectionResolveParams<TContext = any> = {
-  source: any;
-  args: {
-    first?: number | null;
-    after?: string;
-    last?: number | null;
-    before?: string;
-    sort?: ConnectionSortOpts;
-    filter?: { [fieldName: string]: any };
-    [argName: string]: any;
-  };
-  context: TContext;
-  info: GraphQLResolveInfo;
-  projection: Partial<ProjectionType>;
-  [opt: string]: any;
-};
-
-export type ConnectionType = {
-  count: number;
-  edges: ConnectionEdgeType[];
-  pageInfo: PageInfoType;
-};
-
-export type ConnectionEdgeType = {
-  cursor: string;
-  node: any;
-};
-
-export type PageInfoType = {
-  startCursor: string;
-  endCursor: string;
-  hasPreviousPage: boolean;
-  hasNextPage: boolean;
-};
+export interface ConnectionTArgs {
+  first?: number | null;
+  after?: string;
+  last?: number | null;
+  before?: string;
+  sort?: ConnectionSortOpts;
+  filter?: { [fieldName: string]: any };
+  [argName: string]: any;
+}
 
 export function prepareConnectionResolver<TSource, TContext>(
   tc: ObjectTypeComposer<TSource, TContext>,
@@ -82,42 +55,30 @@ export function prepareConnectionResolver<TSource, TContext>(
 ): Resolver<TSource, TContext> {
   if (!(tc instanceof ObjectTypeComposer)) {
     throw new Error(
-      `First arg for prepareConnectionResolver() should be instance of ObjectTypeComposer but recieved: ${inspect(
+      `First arg for prepareConnectionResolver() should be instance of ObjectTypeComposer but received: ${inspect(
         tc
       )}`
     );
   }
 
-  if (!opts.countResolverName) {
+  if (!opts.countResolver || !(opts.countResolver instanceof Resolver)) {
     throw new Error(
-      `ObjectTypeComposer(${tc.getTypeName()}) provided to composeWithConnection ` +
-        'should have option `opts.countResolverName`.'
+      `Option 'opts.countResolver' must be a Resolver instance. Received ${inspect(
+        opts.countResolver
+      )}`
     );
   }
-  const countResolver = tc.getResolver(opts.countResolverName);
-  if (!countResolver) {
-    throw new Error(
-      `ObjectTypeComposer(${tc.getTypeName()}) provided to composeWithConnection ` +
-        `should have resolver with name '${opts.countResolverName}' ` +
-        'due opts.countResolverName.'
-    );
-  }
+  const countResolver = opts.countResolver;
   const countResolve = countResolver.getResolve();
 
-  if (!opts.findResolverName) {
+  if (!opts.findManyResolver || !(opts.findManyResolver instanceof Resolver)) {
     throw new Error(
-      `ObjectTypeComposer(${tc.getTypeName()}) provided to composeWithConnection ` +
-        'should have option `opts.findResolverName`.'
+      `Option 'opts.findManyResolver' must be a Resolver instance. Received ${inspect(
+        opts.findManyResolver
+      )}`
     );
   }
-  const findManyResolver = tc.getResolver(opts.findResolverName);
-  if (!findManyResolver) {
-    throw new Error(
-      `ObjectTypeComposer(${tc.getTypeName()}) provided to composeWithConnection ` +
-        `should have resolver with name '${opts.findResolverName}' ` +
-        'due opts.countResolverName.'
-    );
-  }
+  const findManyResolver = opts.findManyResolver;
   const findManyResolve = findManyResolver.getResolve();
 
   const additionalArgs: ObjectTypeComposerArgumentConfigMap = {};
@@ -132,14 +93,11 @@ export function prepareConnectionResolver<TSource, TContext>(
   const firstField = sortEnumType.getFieldNames()[0];
   const defaultValue = firstField && sortEnumType.getField(firstField).value;
 
+  const resolverName = opts.name || 'connection';
+
   return tc.schemaComposer.createResolver({
-    type: prepareConnectionType(
-      tc,
-      opts.connectionResolverName,
-      opts.edgeTypeName,
-      opts.edgeFields
-    ),
-    name: opts.connectionResolverName || 'connection',
+    type: prepareConnectionType(tc, resolverName, opts.edgeTypeName, opts.edgeFields),
+    name: resolverName,
     kind: 'query',
     args: {
       first: {
@@ -165,7 +123,7 @@ export function prepareConnectionResolver<TSource, TContext>(
         description: 'Sort argument for data ordering',
       },
     } as any,
-    async resolve(resolveParams: ConnectionResolveParams<TContext>) {
+    async resolve(resolveParams: ResolverResolveParams<TSource, TContext, ConnectionTArgs>) {
       let countPromise;
       let findManyPromise;
       const { projection = {}, args, rawQuery } = resolveParams;
@@ -250,7 +208,7 @@ export function prepareConnectionResolver<TSource, TContext>(
         [limit, skip] = prepareLimitSkipFallback(resolveParams, limit, skip);
 
         let skipIdx = -1;
-        prepareCursorData = (_) => {
+        prepareCursorData = () => {
           skipIdx += 1;
           return skip + skipIdx;
         };
@@ -340,9 +298,9 @@ export function preparePageInfo(
 }
 
 export function prepareRawQuery(
-  rp: Partial<ConnectionResolveParams<any>>,
+  rp: Partial<ResolverResolveParams<any, any, ConnectionTArgs>>,
   sortConfig: ConnectionSortOpts
-) {
+): void {
   if (!rp.rawQuery) {
     rp.rawQuery = {};
   }
@@ -365,7 +323,7 @@ export function prepareRawQuery(
 }
 
 export function prepareLimitSkipFallback(
-  rp: ConnectionResolveParams<any>,
+  rp: ResolverResolveParams<any, any, ConnectionTArgs>,
   limit: number,
   skip: number
 ): [number, number] {
@@ -434,7 +392,7 @@ export function emptyConnection(): ConnectionType {
 
 export function findSortConfig(
   configs: ConnectionSortMapOpts,
-  val: any
+  val: unknown
 ): ConnectionSortOpts | undefined {
   // Object.keys(configs).forEach(k => {  // return does not works in forEach as
   // I want
@@ -447,7 +405,7 @@ export function findSortConfig(
   // Yep, I know that it's now good comparison, but fast solution for now
   // Sorry but complex sort value should has same key ordering
   //   cause {a: 1, b: 2} != {b: 2, a: 1}
-  // BTW this code will be called only if arg.sort setted up by hands
+  // BTW this code will be called only if arg.sort is defined by hands
   //   if graphql provides arg.sort, then first for-loop (above) done all work
   const valStringified = JSON.stringify(val);
   for (const k in configs) {

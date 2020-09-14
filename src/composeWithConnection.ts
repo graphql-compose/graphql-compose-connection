@@ -2,6 +2,9 @@ import { ObjectTypeComposer } from 'graphql-compose';
 import { prepareConnectionResolver } from './connection';
 import type { ConnectionResolverOpts } from './connection';
 
+/**
+ * @deprecated use `prepareConnectionResolver` method instead
+ */
 export function composeWithConnection<TSource, TContext>(
   typeComposer: ObjectTypeComposer<TSource, TContext>,
   opts: ConnectionResolverOpts<TContext>

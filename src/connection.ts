@@ -5,6 +5,7 @@ import {
   ResolverResolveParams,
   ObjectTypeComposerArgumentConfigMap,
   ObjectTypeComposerFieldConfigMap,
+  ProjectionType,
 } from 'graphql-compose';
 import { prepareConnectionType, PageInfoType, ConnectionType } from './types/connectionType';
 import { prepareSortType } from './types/sortInputType';
@@ -156,12 +157,24 @@ export function prepareConnectionResolver<TSource, TContext>(
         countPromise = Promise.resolve(0);
       }
 
-      if (projection && projection.edges) {
+      if (projection?.edges) {
         // combine top level projection
-        // (maybe somebody add additional fields via resolveParams.projection)
+        // (maybe somebody provided additional fields via resolveParams.projection)
         // and edges.node (record needed fields)
-        const extraProjection = opts.edgeFields ? projection.edges : projection.edges.node;
-        findManyParams.projection = { ...projection, ...extraProjection };
+        const { edges, ...projectionWithoutEdges } = projection;
+        const extraProjection = {} as ProjectionType;
+        if (opts.edgeFields) {
+          Object.keys(opts.edgeFields).forEach((extraKey) => {
+            if (projection.edges[extraKey]) {
+              extraProjection[extraKey] = projection.edges[extraKey];
+            }
+          });
+        }
+        findManyParams.projection = {
+          ...projectionWithoutEdges,
+          ...projection?.edges?.node,
+          ...extraProjection,
+        };
       } else {
         findManyParams.projection = { ...projection };
       }

@@ -1,5 +1,6 @@
 import {
   ObjectTypeComposer,
+  InterfaceTypeComposer,
   inspect,
   Resolver,
   ResolverResolveParams,
@@ -51,7 +52,7 @@ export interface ConnectionTArgs {
 }
 
 export function prepareConnectionResolver<TSource, TContext>(
-  tc: ObjectTypeComposer<TSource, TContext>,
+  tc: ObjectTypeComposer<TSource, TContext> | InterfaceTypeComposer<TSource, TContext>,
   opts: ConnectionResolverOpts<TContext>
 ): Resolver<TSource, TContext> {
   if (!(tc instanceof ObjectTypeComposer)) {
